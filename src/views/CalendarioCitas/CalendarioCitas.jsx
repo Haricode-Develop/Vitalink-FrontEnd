@@ -1,0 +1,653 @@
+// AppointmentCalendar.js
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import esLocale from '@fullcalendar/core/locales/es';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { StyledModal } from '../../components/Modal';
+import { Container, CalendarContainer, ScrollablePatientList, Patient, StyledInput, StyledButton, StyledSelect, InputGroup, StyledLabel, ModalContent, FixedSearchContainer, FixedFilterButton, SearchContainer, ModalHeader, SearchButton, CloseButton, ResetButton, PatientList, PatientSearch, FilterGroup, TimeInput } from './CalendarioCitasStyle';
+import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../context/AuthContext";
+import { FaFilter, FaSave, FaSearch, FaTimes, FaUndo } from 'react-icons/fa';
+
+const FILTER_OPTIONS = {
+    ALL: 'all',
+    PAST: 'past',
+    CURRENT: 'current'
+};
+const AppointmentCalendar = () => {
+    const [currentEvents, setCurrentEvents] = useState([]);
+    const { userData } = useContext(AuthContext);
+    const [pacientes, setPacientes] = useState([]);
+    const [filteredPacientes, setFilteredPacientes] = useState([]);
+    const [filterdPacientesCalendario, setFilterdPacientesCalendario] = useState([]);
+    const [pacientesConCitaFilter,setPacientesConCitaFilter] = useState([]);
+    const [pacientesConCitaHistorialFilter, setPacientesConCitaHistorialFilter] = useState([]);
+    const [selectedPatient, setSelectedPatient] = useState(null);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [startTime, setStartTime] = useState({ hour: '10', minute: '00' });
+    const [estados, setEstados] = useState([]);
+    const [selectedEstado, setSelectedEstado] = useState('');
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [colorEvent, setColorEvent] = useState('blue');
+    const [calendarKey, setCalendarKey] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTermCalendar, setSearchTermCalendar] = useState('');
+    const [removingPatients, setRemovingPatients] = useState([]);
+    const [filterModalOpen, setFilterModalOpen] = useState(false);
+    const [filter, setFilter] = useState(FILTER_OPTIONS.ALL);
+    const [shouldFilterEvents, setShouldFilterEvents] = useState(false);
+    const [allEvents, setAllEvents] = useState([]);
+    const calendarRef = useRef(null);
+
+    const handlePatientClick = (patient) => {
+        setSelectedPatient(patient);
+        setModalIsOpen(true);
+    };
+    const findEstadoNameById = (id) => {
+        const estado = estados.find(e => String(e.id) === String(id));
+        return estado ? estado.nombre : 'Estado no encontrado';
+    };
+    const handleSearchSubmit = () => {
+        if (!searchTermCalendar) {
+            return;
+        }
+        const filteredAppointments = allEvents.filter(event =>
+            event.title.toLowerCase().includes(searchTermCalendar.toLowerCase())
+        );
+        if (filteredAppointments.length > 0) {
+            setCurrentEvents(filteredAppointments);
+        } else {
+            toast.error('No se encontraron citas con ese criterio.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
+    const handleResetCalendarView = () => {
+        setCurrentEvents(allEvents);
+        setSearchTermCalendar('');
+    };
+
+
+    const handleEventClick = ({ event }) => {
+        const { extendedProps, start, title, id } = event;
+        if (extendedProps.readOnly) {
+            return;
+        }
+
+        const patientId = extendedProps.idUsuario;
+        const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === patientId);
+        if (patient) {
+            setSelectedPatient(patient);
+        }
+
+        const [hour, minute] = extendedProps.startTime ? extendedProps.startTime.split(':') : ['00', '00'];
+        setSelectedEvent({
+            id: extendedProps.idCita,
+            title,
+            date: start,
+            estado: extendedProps.estado,
+            hour,
+            minute,
+            idEstado: extendedProps.idEstado
+        });
+        setEditModalOpen(true);
+    };
+    const handleSearchChange = (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        setSearchTerm(searchTerm);
+        if (!searchTerm) {
+            setFilteredPacientes(pacientes);
+        } else {
+            setFilteredPacientes(pacientes.filter(patient =>
+                patient.NOMBRE.toLowerCase().includes(searchTerm) ||
+                patient.APELLIDO.toLowerCase().includes(searchTerm) ||
+                patient.EMAIL.toLowerCase().includes(searchTerm)
+            ));
+        }
+    };
+
+
+
+    const handleSearchChangeCalendar = (e) => {
+        const searchTerm = e.target.value;
+        setSearchTermCalendar(searchTerm);
+        const searchTermLower = searchTerm.toLowerCase();
+        if (!searchTermLower) {
+            setFilterdPacientesCalendario(pacientes);
+        } else {
+            setFilterdPacientesCalendario(pacientes.filter(patient =>
+                patient.NOMBRE.toLowerCase().includes(searchTermLower) ||
+                patient.APELLIDO.toLowerCase().includes(searchTermLower) ||
+                patient.EMAIL.toLowerCase().includes(searchTermLower)
+            ));
+        }
+    };
+
+
+    const createEventObject = (selectedPatient, dateWithTime, estadoName, startTime, idUsuario) => {
+        return {
+            id: `event-${idUsuario}-${Date.now()}`,
+            title: `${selectedPatient.NOMBRE} ${selectedPatient.APELLIDO}`,
+            start: dateWithTime,
+            allDay: false,
+            extendedProps: {
+                estado: estadoName,
+                startTime: startTime,
+                idUsuario: idUsuario
+            }
+        };
+    };
+
+    useEffect(() => {
+        if (shouldFilterEvents) {
+            setCurrentEvents(filterEvents(allEvents));
+            setShouldFilterEvents(false);
+        }
+    }, [shouldFilterEvents, allEvents, filter]);
+
+
+    useEffect(() => {
+        setFilteredPacientes(pacientes);
+    }, [pacientes]);
+
+    const handleFilterChange = (newFilter) => {
+
+        setFilter(newFilter);
+        setShouldFilterEvents(true); // Indica que los eventos deben ser filtrados
+    };
+    const filterEvents = (events) => {
+        switch (filter) {
+            case FILTER_OPTIONS.PAST:
+                return allEvents.filter(event => event.color === 'red');
+            case FILTER_OPTIONS.CURRENT:
+                return allEvents.filter(event => event.color === 'blue');
+            case FILTER_OPTIONS.ALL:
+            default:
+                return allEvents;
+        }
+    };
+    const findLastIndex = (array, searchFunction) => {
+        for (let i = array.length - 1; i >= 0; i--) {
+            if (searchFunction(array[i])) {
+                return i;
+            }
+        }
+        return -1;
+    };
+    const handleDateSubmit = async () => {
+        if (selectedPatient && selectedDate) {
+            const dateWithTime = new Date(selectedDate);
+            dateWithTime.setHours(parseInt(startTime.hour, 10), parseInt(startTime.minute, 10));
+            const formattedDate = dateWithTime.toISOString().split('T')[0];
+            const formattedTime = `${startTime.hour.padStart(2, '0')}:${startTime.minute.padStart(2, '0')}:00`;
+
+            const estadoName = findEstadoNameById(selectedEstado);
+
+            const newEvent = createEventObject(selectedPatient, dateWithTime, estadoName, `${startTime.hour}:${startTime.minute}`, selectedPatient.ID_USUARIO);
+
+
+            axios.post(`${API_BASE_URL}/paciente/citas`, {
+                idPaciente: selectedPatient.ID_USUARIO,
+                idUsuarioEdita: userData.id_usuario,
+                fechaCita: formattedDate,
+                horaCita: formattedTime,
+                estado: estadoName,
+                idEstado: selectedEstado
+            })
+                .then(response => {
+                    console.log('Cita creada con éxito', response);
+                })
+                .catch(error => {
+                    console.error('Error al crear la cita', error);
+                });
+
+            setRemovingPatients(oldRemoving => [...oldRemoving, selectedPatient.ID_USUARIO]);
+
+
+            setAllEvents(prevEvents => [...prevEvents, newEvent]);
+            setCurrentEvents(prevEvents => [...prevEvents, newEvent]);
+
+            const newPacientes = pacientes.filter(p => p.ID_USUARIO !== selectedPatient.ID_USUARIO);
+            setPacientes(newPacientes);
+            setFilteredPacientes(newPacientes);
+
+            setSelectedEstado('');
+            setModalIsOpen(false);
+
+            await cargarPacientesConCita();
+            await cargarPacientesConCitaHistorial();
+
+        } else {
+            toast.error('Debe seleccionar un paciente y una fecha.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
+    const handleUpdateCita = () => {
+        console.log(selectedEvent);
+        if (selectedEvent && selectedEvent.id && selectedEvent.date && selectedEvent.hour && selectedEvent.minute) {
+            const dateWithTime = new Date(selectedEvent.date);
+            dateWithTime.setHours(parseInt(selectedEvent.hour, 10), parseInt(selectedEvent.minute, 10));
+            const formattedDate = dateWithTime.toISOString().split('T')[0];
+            const formattedTime = `${selectedEvent.hour.padStart(2, '0')}:${selectedEvent.minute.padStart(2, '0')}`;
+
+            const estadoName = findEstadoNameById(selectedEvent.idEstado);
+
+            let isDateChanged = false;
+            const updatedEvents = currentEvents.map(event => {
+                if (event.id === selectedEvent.id) {
+                    const eventDate = new Date(event.start);
+                    isDateChanged = isDateChanged || eventDate.getTime() !== dateWithTime.getTime();
+                    return {
+                        ...event,
+                        title: `${selectedPatient.NOMBRE} ${selectedPatient.APELLIDO} - ${estadoName}`,
+                        start: dateWithTime,
+                        extendedProps: {
+                            ...event.extendedProps,
+                            estado: estadoName,
+                            startTime: `${selectedEvent.hour}:${selectedEvent.minute}`,
+                            idEstado: selectedEvent.idEstado,
+                        }
+                    };
+                }
+                return event;
+            });
+
+            axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
+                idCita: selectedEvent.id,
+                idPaciente: selectedPatient.ID_USUARIO,
+                idUsuarioEdita: userData.id_usuario,
+                fechaCita: formattedDate,
+                horaCita: formattedTime,
+                idEstado: selectedEvent.idEstado
+            })
+                .then(async response => {
+                    if (isDateChanged) {
+                        setCalendarKey(prevKey => prevKey + 1);
+                    }
+                    setEditModalOpen(false);
+                    setCurrentEvents(updatedEvents);
+                    setAllEvents(updatedEvents);
+
+                    setModalIsOpen(false);
+                    await cargarPacientesConCita();
+                    await cargarPacientesConCitaHistorial();
+
+                })
+                .catch(error => {
+                    console.error('Error al actualizar la cita', error);
+                });
+        } else {
+            toast.error('Debe seleccionar un estado y asegurarse de que la hora y la fecha son correctas.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
+    const cargarEstados = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/paciente/estados`);
+            setEstados(response.data);
+        } catch (error) {
+            console.error('Error cargando los estados:', error);
+            toast.error('Error al cargar los estados.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+    function removeSeconds(timeString) {
+        var timeParts = timeString.split(":");
+
+        var hoursAndMinutes = timeParts.slice(0, 2);
+
+        var newTimeString = hoursAndMinutes.join(":");
+
+        return newTimeString;
+    }
+    const cargarPacientesConCitaHistorial = async () => {
+        try{
+            const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${userData.id_empresa}`);
+            if (response.data && Array.isArray(response.data.historialCitas)) {
+                const eventos = response.data.historialCitas.map(cita => {
+                    const fechaCita = cita.FECHA_CITA.split('T')[0];
+                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
+
+                    return {
+                        id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
+                        title: `${cita.NOMBRE} ${cita.APELLIDO}`,
+                        start: new Date(fechaYHoraCita),
+                        allDay: false,
+                        color: 'red',
+                        extendedProps: {
+                            estado: findEstadoNameById(cita.ID_ESTADO),
+                            startTime: removeSeconds(cita.HORA_CITA),
+                            idCita: cita.ID_CITA,
+                            idUsuario: cita.ID_USUARIO,
+                            readOnly: true,
+                        }
+                    };
+                });
+
+
+                const eventosUnicos = eventos.filter((eventos, index, self) =>
+                    index === findLastIndex(self, (e) => e.extendedProps.idCita === eventos.extendedProps.idCita)
+                );
+                const pacientesConCita = response.data.historialCitas.map((paciente, index) => ({
+                    ...paciente,
+                    ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                }));
+
+                setPacientesConCitaHistorialFilter(pacientesConCita);
+                setCurrentEvents(current => {
+                    const eventosActualesUnicos = current.filter((currentEvent, index, self) =>
+                            index === self.findIndex((e) => (
+                                e.extendedProps.idCita === currentEvent.extendedProps.idCita
+                            ))
+                    );
+
+                    return [...eventosActualesUnicos, ...eventosUnicos];
+                });
+
+                setAllEvents(current => {
+                    const eventosActualesUnicos = current.filter((currentEvent, index, self) =>
+                            index === self.findIndex((e) => (
+                                e.extendedProps.idCita === currentEvent.extendedProps.idCita
+                            ))
+                    );
+
+                    return [...eventosActualesUnicos, ...eventosUnicos];
+                });
+            }
+
+        }catch (error) {
+            console.error('Error al cargar citas historial:', error);
+            toast.error('Error al cargar citas.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    }
+    const cargarPacientesConCita = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${userData.id_empresa}`);
+            if (response.data && Array.isArray(response.data.pacientesConCita)) {
+                const eventos = response.data.pacientesConCita.map(cita => {
+                    const fechaCita = cita.FECHA_CITA.split('T')[0];
+                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
+
+                    return {
+                        id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
+                        title: `${cita.NOMBRE} ${cita.APELLIDO}`,
+                        start: new Date(fechaYHoraCita),
+                        allDay: false,
+                        color: 'blue',
+                        extendedProps: {
+                            estado: findEstadoNameById(cita.ID_ESTADO),
+                            startTime: removeSeconds(cita.HORA_CITA),
+                            idCita: cita.ID_CITA,
+                            idUsuario: cita.ID_USUARIO
+                        }
+                    };
+                });
+                const pacientesConCita = response.data.pacientesConCita.map((paciente, index) => ({
+                    ...paciente,
+                    ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                }));
+
+                setPacientesConCitaFilter(pacientesConCita);
+
+                setCurrentEvents(eventos);
+                setAllEvents(eventos);
+            } else {
+                toast.error('No se recibieron datos de citas.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar citas:', error);
+            toast.error('Error al cargar citas.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
+
+    useEffect(() => {
+        const loadData = async () => {
+            await cargarEstados();
+            await cargarPacientesConCita();
+            await cargarPacientesConCitaHistorial();
+
+        };
+
+
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesSinCita/${userData.id_empresa}`)
+            .then((response) => {
+                if(response.data && Array.isArray(response.data.pacientes)){
+                    const pacientesConIds = response.data.pacientes.map((paciente, index) => ({
+                        ...paciente,
+                        ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                    }));
+                    setPacientes(pacientesConIds);
+                    setFilteredPacientes(pacientesConIds);
+                }else{
+                    toast.error('No se recibieron datos de pacientes.', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Error obteniendo pacientes:', error);
+                toast.error('Error al obtener pacientes.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+            });
+    }, [userData.id_empresa]);
+
+    return (
+        <Container>
+
+
+            <ScrollablePatientList className={"listaDeEspera"}>
+                <FixedSearchContainer>
+                    <StyledInput
+                        type="text"
+                        placeholder="Buscar paciente..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
+
+                </FixedSearchContainer>
+                {filteredPacientes.map((patient) => (
+                    <Patient
+                        key={patient.ID_USUARIO.toString()}
+                        onClick={() => handlePatientClick(patient)}
+                        className={removingPatients.includes(patient.ID_USUARIO) ? 'removing' : ''}
+                    >
+                        <div style={{ fontWeight: 'bold' }}>{patient.NOMBRE} {patient.APELLIDO}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.EMAIL}</div>
+                    </Patient>
+                ))}
+
+            </ScrollablePatientList>
+            <FixedFilterButton onClick={() => setFilterModalOpen(true)}>
+                <FaFilter /> Filtros
+            </FixedFilterButton>
+            <CalendarContainer className={"calendarioDeVisualizacion"}>
+                <FullCalendar
+                    locale={esLocale}
+                    key={calendarKey}
+                    ref={calendarRef}
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                    initialView='dayGridMonth'
+                    events={currentEvents}
+                    eventColor={colorEvent}
+                    eventClick={handleEventClick}
+                />
+
+            </CalendarContainer>
+
+            <StyledModal
+                isOpen={modalIsOpen}
+                onRequestClose={() => setModalIsOpen(false)}
+            >
+                <h2>Seleccione Fecha, Hora y Estado</h2>
+                <InputGroup>
+                    <StyledLabel>Fecha:</StyledLabel>
+                    <DatePicker
+                        selected={selectedDate}
+                        onChange={(date) => setSelectedDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        wrapperClassName="datePicker"
+                    />
+                </InputGroup>
+                <InputGroup>
+                    <StyledLabel>Hora:</StyledLabel>
+                    <StyledInput
+                        type="number"
+                        value={startTime.hour}
+                        onChange={(e) => setStartTime({ ...startTime, hour: e.target.value })}
+                        min="0"
+                        max="23"
+                    />
+                    <StyledLabel>:</StyledLabel>
+                    <StyledInput
+                        type="number"
+                        value={startTime.minute}
+                        onChange={(e) => setStartTime({ ...startTime, minute: e.target.value })}
+                        min="0"
+                        max="59"
+                    />
+                </InputGroup>
+                <InputGroup>
+                    <StyledLabel>Estado:</StyledLabel>
+                    <StyledSelect
+                        value={selectedEstado}
+                        onChange={(e) => setSelectedEstado(e.target.value)}
+                    >
+                        <option value="">Seleccione un estado</option>
+                        {estados.map(estado => (
+                            <option key={estado.id} value={estado.id}>{estado.nombre}</option>
+                        ))}
+                    </StyledSelect>
+                </InputGroup>
+                <StyledButton onClick={handleDateSubmit}>Confirmar</StyledButton>
+            </StyledModal>
+            <StyledModal
+                isOpen={editModalOpen}
+                onRequestClose={() => setEditModalOpen(false)}
+            >
+                <ModalContent>
+                    <h2>Editar Cita</h2>
+                    <InputGroup>
+                        <StyledLabel>Fecha:</StyledLabel>
+                        <DatePicker
+                            selected={selectedEvent ? new Date(selectedEvent.date) : new Date()}
+                            onChange={(date) => setSelectedEvent({ ...selectedEvent, date })}
+                            dateFormat="dd/MM/yyyy"
+                            wrapperClassName="datePicker"
+                        />
+                    </InputGroup>
+                    <InputGroup>
+                        <StyledLabel>Hora:</StyledLabel>
+                        <StyledInput
+                            type="number"
+                            value={selectedEvent ? selectedEvent.hour : '00'}
+                            onChange={(e) => setSelectedEvent({ ...selectedEvent, hour: e.target.value })}
+                            min="0"
+                            max="23"
+                        />
+                        <StyledLabel>:</StyledLabel>
+                        <StyledInput
+                            type="number"
+                            value={selectedEvent ? selectedEvent.minute : '00'}
+                            onChange={(e) => setSelectedEvent({ ...selectedEvent, minute: e.target.value })}
+                            min="0"
+                            max="59"
+                        />
+                    </InputGroup>
+                    <InputGroup>
+                        <StyledLabel>Estado:</StyledLabel>
+                        <StyledSelect
+                            value={selectedEvent ? selectedEvent.idEstado : ''}
+                            onChange={(e) => setSelectedEvent({ ...selectedEvent, idEstado: e.target.value })}
+                        >
+                            <option value="">Seleccione un estado</option>
+                            {estados.map(estado => (
+                                <option key={estado.id} value={estado.id}>{estado.nombre}</option>
+                            ))}
+                        </StyledSelect>
+                    </InputGroup>
+                    <StyledButton onClick={handleUpdateCita}>Actualizar Cita</StyledButton>
+                </ModalContent>
+            </StyledModal>
+            <StyledModal isOpen={filterModalOpen} onRequestClose={() => setFilterModalOpen(false)}>
+                <ModalContent>
+                    <ModalHeader>Filtros del Calendario</ModalHeader>
+                    <InputGroup>
+                        <SearchContainer>
+                            <StyledInput
+                                type="text"
+                                placeholder="Buscar cita por nombre..."
+                                value={searchTermCalendar}
+                                onChange={handleSearchChangeCalendar}
+                            />
+                            <SearchButton onClick={handleSearchSubmit}><FaSearch /> Buscar</SearchButton>
+                            <ResetButton onClick={handleResetCalendarView}><FaUndo /> Restablecer</ResetButton>
+                        </SearchContainer>
+                    </InputGroup>
+
+                    <FilterGroup>
+                        <StyledLabel>Filtrar por:</StyledLabel>
+                        <StyledSelect
+                            value={filter}
+                            onChange={(e) => handleFilterChange(e.target.value)}
+                        >
+                            <option value={FILTER_OPTIONS.ALL}>Todos</option>
+                            <option value={FILTER_OPTIONS.PAST}>Pasadas</option>
+                            <option value={FILTER_OPTIONS.CURRENT}>Actuales</option>
+                        </StyledSelect>
+                    </FilterGroup>
+
+                    <CloseButton onClick={() => setFilterModalOpen(false)}>
+                        <FaTimes /> Cerrar
+                    </CloseButton>
+                </ModalContent>
+            </StyledModal>
+
+        </Container>
+    );
+};
+
+export default AppointmentCalendar;
