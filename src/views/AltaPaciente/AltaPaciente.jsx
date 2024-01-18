@@ -126,11 +126,7 @@ const AltaPaciente = () => {
             })
             .catch((error) => {
                 console.error('Error obteniendo pacientes:', error);
-                toast.error('Error al obtener pacientes.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+
             });
     }, []);
 

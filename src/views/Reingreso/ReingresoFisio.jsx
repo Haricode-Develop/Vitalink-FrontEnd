@@ -67,11 +67,6 @@ import Swal from 'sweetalert2';
             })
             .catch((error) => {
                 console.error('Error obteniendo administradores:', error);
-                toast.error('Error al obtener administradores.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
             });
     }, []);
 
@@ -178,11 +173,7 @@ import Swal from 'sweetalert2';
                 handleModalClose();
             }).catch((error) => {
             console.error('Error actualizando fisioterapeuta:', error);
-            toast.error('Error al actualizar administrador.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
+
         });
     }
 

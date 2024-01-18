@@ -133,7 +133,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                     setFisios(response.data.fisios);
                     setFilteredFisios(response.data.fisios);
                 }else{
-                    toast.error('No se recibieron datos de fisioterapeutas.', {
+                    toast.error('No ha ingresado ningún fisioterapeuta.', {
                         position: toast.POSITION.TOP_RIGHT,
                         autoClose: 5000,
                         hideProgressBar: true,
@@ -143,11 +143,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             })
             .catch((error) => {
                 console.error('Error obteniendo los fisios:', error);
-                toast.error('Error al obtener administradores.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+
             });
 
 

@@ -64,12 +64,7 @@ const ActualizarFisio = () => {
                 }
             })
             .catch((error) => {
-                console.error('Error obteniendo administradores:', error);
-                toast.error('Error al obtener administradores.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+                console.error('Error obteniendo fisioterapeutas:', error);
             });
     }, []);
 

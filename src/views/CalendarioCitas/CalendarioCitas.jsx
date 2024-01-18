@@ -306,11 +306,7 @@ const AppointmentCalendar = () => {
             setEstados(response.data);
         } catch (error) {
             console.error('Error cargando los estados:', error);
-            toast.error('Error al cargar los estados.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
+
         }
     };
     function removeSeconds(timeString) {
@@ -379,11 +375,7 @@ const AppointmentCalendar = () => {
 
         }catch (error) {
             console.error('Error al cargar citas historial:', error);
-            toast.error('Error al cargar citas.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
+
         }
     }
     const cargarPacientesConCita = async () => {
@@ -426,11 +418,7 @@ const AppointmentCalendar = () => {
             }
         } catch (error) {
             console.error('Error al cargar citas:', error);
-            toast.error('Error al cargar citas.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
+
         }
     };
 
@@ -467,11 +455,7 @@ const AppointmentCalendar = () => {
             })
             .catch((error) => {
                 console.error('Error obteniendo pacientes:', error);
-                toast.error('Error al obtener pacientes.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+
             });
     }, [userData.id_empresa]);
 
