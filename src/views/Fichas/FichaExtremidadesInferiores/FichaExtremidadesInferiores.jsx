@@ -143,11 +143,7 @@ const FichaExtremidadesInferiores = () => {
             })
             .catch((error) => {
                 console.error('Error obteniendo los fisios:', error);
-                toast.error('Error al obtener administradores.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+
             });
 
     }, []);
