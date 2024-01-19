@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState  } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './views/Login/LoginPage';
 import Dashboard from './views/Dashboard/Dashboard';
@@ -19,10 +19,30 @@ import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
 import Loader from "./components/Loader/Loader";
 const MainRoutes = () => {
-  const { isAuthenticated } = useContext(AuthContext);
-if(!isAuthenticated){
-    return <Loader/>;
-}
+  const { isAuthenticated, loading, setLoading  } = useContext(AuthContext);
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
+        if (isAuthenticated) {
+            setLoading(true);
+            const timer = setTimeout(() => {
+                setLoading(false);
+                setReady(true);
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isAuthenticated, setLoading]);
+
+    if (loading) {
+        return <Loader />;
+    }
+    if (!isAuthenticated) {
+        return <LoginPage />;
+    }
+    if (!ready) {
+        return null;
+    }
+
   return (
       <Routes>
           <Route path="/" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
