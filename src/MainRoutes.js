@@ -17,10 +17,12 @@ import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
 import AsignarEjercicioPaciente from "./views/AsignarEjercicioPaciente/AsignarEjercicioPaciente";
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
-
+import Loader from "./components/Loader/Loader";
 const MainRoutes = () => {
   const { isAuthenticated } = useContext(AuthContext);
-
+if(!isAuthenticated){
+    return <Loader/>;
+}
   return (
       <Routes>
           <Route path="/" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
