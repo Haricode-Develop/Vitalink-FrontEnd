@@ -2,11 +2,10 @@ import styled from 'styled-components';
 import logo from '../../assets/login/background.png';
 
 export const BackgroundImage = styled.div`
-  background: url(${logo}) no-repeat center center fixed;
+  background: url(${logo}) no-repeat center center;
   background-size: cover;
   width: 100%;
-  height: 100vh;
-  position: absolute;
+  min-height: 100vh;
 `;
 
 export const Overlay = styled.div`
@@ -104,4 +103,16 @@ export const AppName = styled.h1`
   left: 5%;
   transform: translate(-5%, -20%);
   white-space: nowrap;
+`;
+
+export const PlansTextLink = styled.div`
+  color: #1a73e8;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  text-align: center;
+  &:hover {
+    color: #0c66c2;
+  }
 `;

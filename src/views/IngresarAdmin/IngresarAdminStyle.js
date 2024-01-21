@@ -20,6 +20,7 @@ export const Content = styled.div`
     padding: 20px 20px 20px 8px;
 
   }
+
   @media (max-width: ${breakpoints.mobile}){
     padding: 0;
 
@@ -38,6 +39,10 @@ export const Input = styled.input`
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -50,6 +55,10 @@ export const Select = styled.select`
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const PictureColumn = styled.div`
@@ -115,6 +124,10 @@ export const DownloadLink = styled.a`
   &:hover {
     background-color: #0a3960;
   }
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 export const Button = styled.button`
   padding: 10px 20px;
@@ -150,6 +163,13 @@ export const DatePickerWrapper = styled.div`
     padding: 15px;
     border: none;
     background-color: #D9D9D9;
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+
+    input {
+    padding-right: 0px;
+    padding-left: 0px;
+    }
   }
 `;
 export const CustomFileUpload = styled.label`

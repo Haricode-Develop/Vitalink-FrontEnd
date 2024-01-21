@@ -37,6 +37,10 @@ export const Input = styled.input`
   margin-bottom: 20px; 
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -49,6 +53,10 @@ export const Select = styled.select`
   margin-bottom: 20px; 
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const PictureColumn = styled.div`
@@ -64,6 +72,10 @@ export const ProfilePictureContainer = styled.div`
   flex-direction: column;
   align-items: flex-end; 
   margin-bottom: 15px;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const FormColumn = styled.div`
@@ -143,6 +155,10 @@ export const ModalFooter = styled.div`
 export const ModalHeader = styled.div`
   margin-bottom: 15px;
   text-align: center;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 export const TextArea = styled.textarea`
   width: 100%;

@@ -53,6 +53,7 @@ export const ModalBody = styled.div`
 export const ModalHeader = styled.div`
   margin-bottom: 15px;
   text-align: center;
+  
 `;
 export const ModalFooter = styled.div`
   display: flex;
@@ -84,6 +85,10 @@ export const Input = styled.input`
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -96,6 +101,10 @@ export const Select = styled.select`
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
   background-color: #D9D9D9;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const PictureColumn = styled.div`
@@ -111,6 +120,10 @@ export const ProfilePictureContainer = styled.div`
   flex-direction: column; /* Para que el botón esté debajo de la imagen */
   align-items: flex-end; /* Alinear a la derecha pero no en la esquina */
   margin-bottom: 15px;
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 `;
 
 export const FormColumn = styled.div`
@@ -169,6 +182,10 @@ export const DatePickerWrapper = styled.div`
     padding: 15px;
     border: none;
     background-color: #D9D9D9;
+    @media (max-width: ${breakpoints.tablet}) {
+      padding-right: 0px;
+      padding-left: 0px;
+    }
   }
 `;
 

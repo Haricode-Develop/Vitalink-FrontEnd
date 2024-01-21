@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -15,8 +15,10 @@ import {
   Input,
   ForgotPasswordLink,
   Button,
+  PlansTextLink
 } from './LoginStyles';
 import {API_BASE_URL} from "../../utils/config";
+import Footer from "../../components/Footer/Footer";
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -27,13 +29,20 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { setIsAuthenticated, setUserData } = useContext(AuthContext);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [footerHeight, setFooterHeight] = useState(0);
+
+  const footerRef = useRef(null);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       handleSubmit();
     }
   };
-
+  useEffect(() => {
+    if (footerRef.current) {
+      setFooterHeight(footerRef.current.offsetHeight);
+    }
+  }, [footerRef]);
   const handleSubmit = () => {
     let validationErrors = {};
 
@@ -84,6 +93,10 @@ const LoginPage = () => {
           });
     }
   };
+  const navigateToPlans = () => {
+    navigate('/planes');
+  };
+
 
   const handleForgotPasswordClick = () => {
     setShowResetModal(true);
@@ -110,6 +123,7 @@ const LoginPage = () => {
 
 
   return (
+      <>
       <BackgroundImage>
         <Overlay>
           <animated.div style={formAnimation}>
@@ -133,6 +147,9 @@ const LoginPage = () => {
               {errors.password && <div style={{ color: 'red' }}>{errors.password}</div>}
               <Button onClick={handleForgotPasswordClick}>¿Olvidaste tu contraseña?</Button>
               <Button onClick={handleSubmit}>INGRESAR</Button>
+              <PlansTextLink onClick={navigateToPlans}>
+                ¿Primera vez con Vitalink? Conoce nuestros planes
+              </PlansTextLink>
             </LoginForm>
           </animated.div>
           <StyledModal isOpen={showResetModal} onRequestClose={() => setShowResetModal(false)}>
@@ -147,8 +164,10 @@ const LoginPage = () => {
             <Button onClick={() => setShowResetModal(false)}>Cancelar</Button>
           </StyledModal>
         </Overlay>
+
         <ToastContainer />
       </BackgroundImage>
-  );
+</>
+);
 };
 export default LoginPage;

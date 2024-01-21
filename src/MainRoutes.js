@@ -1,11 +1,12 @@
-import React, { useContext, useEffect, useState  } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthContext } from './context/AuthContext';
+import Loader from "./components/Loader/Loader";
 import LoginPage from './views/Login/LoginPage';
 import Dashboard from './views/Dashboard/Dashboard';
 import IngresarFisioterapeuta from './views/IngresarFisio/IngresarFisio';
 import IngresarAdministrador from './views/IngresarAdmin/IngresarAdmin';
 import LayoutSide from './components/LayoutSide';
-import { AuthContext } from './context/AuthContext';
 import IngresarPaciente from './views/IngresarPaciente/IngresarPaciente';
 import EliminarAdministrador from "./views/EliminarAdministrador/EliminarAdministrador";
 import ResetPasswordPage from "./views/ResetPassword/ResetPassword";
@@ -17,55 +18,52 @@ import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
 import AsignarEjercicioPaciente from "./views/AsignarEjercicioPaciente/AsignarEjercicioPaciente";
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
-import Loader from "./components/Loader/Loader";
-const MainRoutes = () => {
-  const { isAuthenticated, loading, setLoading  } = useContext(AuthContext);
-    const [ready, setReady] = useState(false);
-    useEffect(() => {
-        if (isAuthenticated) {
-            setLoading(true);
-            const timer = setTimeout(() => {
-                setLoading(false);
-                setReady(true);
-            }, 2000);
+import PlansPage from "./views/PlansPage/PlansPage";
+import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 
-            return () => clearTimeout(timer);
-        }
-    }, [isAuthenticated, setLoading]);
+const MainRoutes = () => {
+    const { isAuthenticated, loading } = useContext(AuthContext);
+    const location = useLocation(); // Hook para obtener la ubicación actual
 
     if (loading) {
         return <Loader />;
     }
-    if (!isAuthenticated) {
-        return <LoginPage />;
-    }
-    if (!ready) {
-        return null;
+
+    const isDashboardRoute = () => {
+        return location.pathname.startsWith('/dashboard');
     }
 
-  return (
-      <Routes>
-          <Route path="/" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
-          <Route path="/resetPassword" element={<ResetPasswordPage />} />
-          <Route path="/dashboard/*" element={isAuthenticated ? <LayoutSide /> : <Navigate to="/" replace />}>
-              <Route path="" element={<Dashboard />} />
-              <Route path="ingresar-medico" element={<IngresarFisioterapeuta />} />
-              <Route path="agregar-administrador" element={<IngresarAdministrador />} />
-              <Route path="eliminar-administrador" element={<EliminarAdministrador />} />
-              <Route path="actualizar-administrador" element={<ActualizarAdministrador />} />
-              <Route path="ingresar-paciente" element={<IngresarPaciente />} />
-              <Route path="eliminar-medico" element={<EliminarFisio />} />
-              <Route path="actualizar-medico" element={<ActualizarFisio />} />
-              <Route path="reingreso-medico" element={<ReingresoFisio />} />
-              <Route path="alta-paciente" element={<AltaPaciente />} />
-              <Route path="asignar-ejercicio" element={<AsignarEjercicioPaciente />} />
-              <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
-              <Route path="calendario-citas" element={<CalendarioCitas />} />
+    return (
+        <MainContainer>
+            <Content>
+                <Routes>
+                    <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+                    <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
+                    <Route path="/planes" element={<PlansPage />} />
+                    <Route path="/resetPassword" element={<ResetPasswordPage />} />
 
-          </Route>
-      </Routes>
+                    <Route path="/dashboard/*" element={isAuthenticated ? <LayoutSide /> : <Navigate to="/login" replace />}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="ingresar-medico" element={<IngresarFisioterapeuta />} />
+                        <Route path="agregar-administrador" element={<IngresarAdministrador />} />
+                        <Route path="eliminar-administrador" element={<EliminarAdministrador />} />
+                        <Route path="actualizar-administrador" element={<ActualizarAdministrador />} />
+                        <Route path="ingresar-paciente" element={<IngresarPaciente />} />
+                        <Route path="eliminar-medico" element={<EliminarFisio />} />
+                        <Route path="actualizar-medico" element={<ActualizarFisio />} />
+                        <Route path="reingreso-medico" element={<ReingresoFisio />} />
+                        <Route path="alta-paciente" element={<AltaPaciente />} />
+                        <Route path="asignar-ejercicio" element={<AsignarEjercicioPaciente />} />
+                        <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
+                        <Route path="calendario-citas" element={<CalendarioCitas />} />
+                    </Route>
 
-  );
+                    <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+                </Routes>
+            </Content>
+            {!isDashboardRoute() && <StyledFooter />}
+        </MainContainer>
+    );
 };
 
 export default MainRoutes;
