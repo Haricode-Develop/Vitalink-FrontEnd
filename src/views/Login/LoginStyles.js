@@ -12,7 +12,8 @@ export const Overlay = styled.div`
   display: flex; /* Añadido para centrar el formulario */
   align-items: center; /* Alineación vertical */
   justify-content: center; /* Alineación horizontal */
-  background: rgba(31, 136, 162, 0.65);
+  
+  background: var(--verde-oscuro-rgba-65);
   width: 40%;
   height: 100%;
   position: absolute;
@@ -30,10 +31,10 @@ export const LoginForm = styled.div`
   padding: 40px;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex; /* Añadido para centrar el contenido */
-  flex-direction: column; /* Alinear los hijos verticalmente */
-  align-items: center; /* Centrar los hijos horizontalmente */
-  justify-content: center; /* Centrar los hijos verticalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   
 `;
 
@@ -64,7 +65,7 @@ export const ForgotPasswordLink = styled.a`
 
 export const Button = styled.button`
   background: #072B4A;
-  color: white;
+  color: var(--blanco);
   font-weight: bold;
   padding: 10px;
   border: none;
@@ -106,13 +107,13 @@ export const AppName = styled.h1`
 `;
 
 export const PlansTextLink = styled.div`
-  color: #1a73e8;
+  color: var(--azul-oscuro);
   text-decoration: underline;
   cursor: pointer;
   margin-top: 24px;
   font-size: 0.9rem;
   text-align: center;
   &:hover {
-    color: #0c66c2;
+    color: var(--azul-oscuro);
   }
 `;

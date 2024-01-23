@@ -8,6 +8,15 @@
   --verde-oscuro: #1F88A2;
   --azul: #072B4A;
   --rojo: #FF5465;
+  --verde-claro-rgba: rgba(181, 234, 230);
+  --verde-medio-rgba: rgba(98, 200, 202);
+  --verde-oscuro-rgba: rgba(31, 136, 162);
+  --azul-rgba: rgba(7, 43, 74);
+  --rojo-rgba: rgba(255, 84, 101);
+  --blanco: #FFFFFF;
+  --negro: #000000;
+  /*Color RGBA*/
+  --verde-oscuro-rgba-65: rgba(31, 136, 162, 0.65);
 }
 
 body {
