@@ -15,8 +15,13 @@
   --rojo-rgba: rgba(255, 84, 101);
   --blanco: #FFFFFF;
   --negro: #000000;
+  --gris: #ececec;
+  --gris-oscuro: #c0c0c0;
   /*Color RGBA*/
   --verde-oscuro-rgba-65: rgba(31, 136, 162, 0.65);
+  --negro-rgba-03: rgba(0,0,0,0.3);
+  --negro-rgba-01: rgba(0,0,0,0.1);
+  --verde-indicador: rgba(11, 196, 11, 0.7);
 }
 
 body {

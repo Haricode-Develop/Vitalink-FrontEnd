@@ -6,7 +6,7 @@ import {
     Container, Content, Title, Input, ActionButtons, Button,
     FormColumn, AdminList, ListItem, AdminInfo, SelectButton,
     ModalContent, ModalBody, ModalHeader, ModalFooter, ButtonCancel,
-    DateInput, EmailInput, DatePickerWrapper // Asegúrate de importar todos los componentes necesarios
+    DateInput, EmailInput, DatePickerWrapper
 } from './ActualizarAdministradorStyle';
 import { API_BASE_URL } from "../../utils/config";
 import ActivityFeed from "../../components/Feed/FeedActividad";

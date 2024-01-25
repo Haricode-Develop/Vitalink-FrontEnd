@@ -3,7 +3,21 @@ import React, { useState, useContext, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Sidebar, ProfileImage, UserInfo, Menu, MenuItem, SubMenu, SubMenuItem, ChevronIcon, Content, Box, BoxTitle, BoxButton, SidebarButton } from '../views/Dashboard/DashboardStyle';
+import {
+  Sidebar,
+  ProfileImage,
+  UserInfo,
+  Menu,
+  MenuItem,
+  SubMenu,
+  SubMenuItem,
+  ChevronIcon,
+  Content,
+  Box,
+  BoxTitle,
+  BoxButton,
+  SidebarButton
+} from '../views/Dashboard/DashboardStyle';
 import profilePicture from '../assets/login/profile/user.png'; // Importa la imagen
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';

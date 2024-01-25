@@ -28,17 +28,17 @@ export const Content = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #333;
-  font-size: 40px; /* Tamaño de fuente más grande */
-  margin-bottom: 30px; /* Espaciado debajo del título más grande */
+  color: var(--negro);
+  font-size: 40px;
+  margin-bottom: 30px;
 `;
 
 export const Input = styled.input`
   width: 100%;
-  padding: 15px; /* Más padding para una mayor separación */
-  margin-bottom: 20px; /* Separación más grande entre los inputs */
+  padding: 15px;
+  margin-bottom: 20px;
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -51,10 +51,10 @@ export const EmailInput = styled(Input).attrs({ type: 'email' })``;
 
 export const Select = styled.select`
   width: 100%;
-  padding: 15px; /* Más padding para una mayor separación */
-  margin-bottom: 20px; /* Separación más grande entre los inputs */
+  padding: 15px;
+  margin-bottom: 20px;
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -62,17 +62,17 @@ export const Select = styled.select`
 `;
 
 export const PictureColumn = styled.div`
-  width: 50%; /* Toma la mitad del ancho disponible */
+  width: 50%;
   display: flex;
-  flex-direction: column; /* Para que la imagen esté arriba del botón */
-  align-items: center; /* Centrar los elementos */
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 `;
 
 export const ProfilePictureContainer = styled.div`
   display: flex;
-  flex-direction: column; /* Para que el botón esté debajo de la imagen */
-  align-items: flex-end; /* Alinear a la derecha pero no en la esquina */
+  flex-direction: column;
+  align-items: flex-end;
   margin-bottom: 15px;
 `;
 
@@ -90,13 +90,13 @@ export const FormColumn = styled.div`
 export const ProfilePicture = styled.img`
   width: 200px;
   height: 200px;
-  background-color: #D9D9D9;
-  border: 1px solid #ccc;
+  background-color: var(--gris);
+  border: 1px solid var(--gris);
 `;
 
 export const UploadButton = styled.button`
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   padding: 10px;
   border: none;
   cursor: pointer;
@@ -114,15 +114,15 @@ export const ActionButtons = styled.div`
 export const DownloadLink = styled.a`
   text-align: center;
   padding: 10px 15px;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border-radius: 4px;
   text-decoration: none;
   cursor: pointer;
   margin-top: 20px;
 
   &:hover {
-    background-color: #0a3960;
+    background-color: var(--azul);
   }
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
@@ -133,25 +133,25 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
+  background-color: var(--negro);
+  color: var(--blanco);
   border: none;
   &:hover {
-    background-color: #555;
+    background-color: var(--gris-oscuro);
   }
   &:disabled {
-    background-color: #ccc;
+    background-color: var(--gris);
     cursor: not-allowed;
   }
 `;
 export const Label = styled.label`
   font-size: 16px;
-  color: #333;
+  color: var(--gris-oscuro);
   margin-bottom: 5px;
   display: block;
 `;
 export const DatePickerWrapper = styled.div`
-  margin-bottom: 20px; /* Añadir espacio debajo del selector de fecha */
+  margin-bottom: 20px;
   .react-datepicker-wrapper {
     width: 100%;
   }
@@ -162,7 +162,7 @@ export const DatePickerWrapper = styled.div`
     width: 100%;
     padding: 15px;
     border: none;
-    background-color: #D9D9D9;
+    background-color: var(--gris);
   }
   @media (max-width: ${breakpoints.tablet}) {
 
@@ -176,12 +176,12 @@ export const CustomFileUpload = styled.label`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border: none;
   margin-right: 10px;
   &:hover {
-    background-color: #072B4A;
+    background-color: var(--azul);
   }
 `;
 
@@ -194,8 +194,8 @@ export const IndicadorGuardado = styled.div`
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: rgba(0, 128, 0, 0.7);
-  color: white;
+  background-color: var(--verde-indicador);
+  color: var(--blanco);
   padding: 10px;
   border-radius: 5px;
   display: ${props => props.mostrar ? 'block' : 'none'};

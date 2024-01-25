@@ -32,20 +32,20 @@ export const SelectButton = styled.button`
   padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border: none;
   border-radius: 5px;
 
   &:hover {
-    background-color: #051f34;
+    background-color: var(--azul);
   }
 `;
 export const ModalContent = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: stretch; // Asegúrate de que los hijos ocupen todo el espacio disponible
+  align-items: stretch;
 `;
 export const ModalBody = styled.div`
   margin-bottom: 20px;
@@ -57,7 +57,7 @@ export const ModalHeader = styled.div`
 `;
 export const ModalFooter = styled.div`
   display: flex;
-  justify-content: space-around; // Separar los botones uniformemente
+  justify-content: space-around;
 `;
 export const ButtonCancel = styled.button`
   padding: 10px 20px;
@@ -69,22 +69,22 @@ export const ButtonCancel = styled.button`
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 
   ${({ cancelBtn }) => cancelBtn && `
-    background-color: #ff6347; // Color rojo para cancelar acciones
+    background-color: #ff6347;
     color: white;
   `}
 `;
 export const Title = styled.h1`
-  color: #333;
-  font-size: 40px; /* Tamaño de fuente más grande */
-  margin-bottom: 30px; /* Espaciado debajo del título más grande */
+  color: var(--negro);
+  font-size: 40px;
+  margin-bottom: 30px;
 `;
 
 export const Input = styled.input`
   width: 100%;
-  padding: 15px; /* Más padding para una mayor separación */
-  margin-bottom: 20px; /* Separación más grande entre los inputs */
+  padding: 15px;
+  margin-bottom: 20px;
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -97,10 +97,10 @@ export const EmailInput = styled(Input).attrs({ type: 'email' })``;
 
 export const Select = styled.select`
   width: 100%;
-  padding: 15px; /* Más padding para una mayor separación */
-  margin-bottom: 20px; /* Separación más grande entre los inputs */
+  padding: 15px;
+  margin-bottom: 20px;
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -108,17 +108,17 @@ export const Select = styled.select`
 `;
 
 export const PictureColumn = styled.div`
-  width: 50%; /* Toma la mitad del ancho disponible */
+  width: 50%;
   display: flex;
-  flex-direction: column; /* Para que la imagen esté arriba del botón */
-  align-items: center; /* Centrar los elementos */
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 `;
 
 export const ProfilePictureContainer = styled.div`
   display: flex;
-  flex-direction: column; /* Para que el botón esté debajo de la imagen */
-  align-items: flex-end; /* Alinear a la derecha pero no en la esquina */
+  flex-direction: column;
+  align-items: flex-end;
   margin-bottom: 15px;
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
@@ -140,37 +140,37 @@ export const FormColumn = styled.div`
 export const ProfilePicture = styled.img`
   width: 200px;
   height: 200px;
-  background-color: #D9D9D9;
-  border: 1px solid #ccc;
+  background-color: var(--gris);
+  border: 1px solid var(--gris);
 `;
 export const AdminList = styled.ul`
-    list-style-type: none; /* Para eliminar los bullets de la lista */
+    list-style-type: none;
     padding: 0;
-    max-height: 200px; /* Limita el alto para que no sea demasiado largo */
-    overflow-y: scroll; /* Habilita el desplazamiento vertical en caso de muchos elementos */
-    border: 1px solid #D9D9D9;
+    max-height: 200px;
+    overflow-y: scroll;
+    border: 1px solid var(--gris);
 `;
 export const ListItem = styled.li`
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
-    border-bottom: 1px solid #D9D9D9;
+    border-bottom: 1px solid var(--gris);
 
     &:hover {
-        background-color: #f3f3f3;
+        background-color: var(--gris);
     }
 `;
 export const UploadButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   padding: 10px;
   border: none;
   cursor: pointer;
   margin-top: 10px;
 `;
 export const DatePickerWrapper = styled.div`
-  margin-bottom: 20px; /* Añadir espacio debajo del selector de fecha */
+  margin-bottom: 20px;
   .react-datepicker-wrapper {
     width: 100%;
   }
@@ -181,7 +181,7 @@ export const DatePickerWrapper = styled.div`
     width: 100%;
     padding: 15px;
     border: none;
-    background-color: #D9D9D9;
+    background-color: var(--gris);
     @media (max-width: ${breakpoints.tablet}) {
       padding-right: 0px;
       padding-left: 0px;
@@ -198,14 +198,14 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
+  background-color: var(--negro);
+  color: var(--blanco);
   border: none;
   &:hover {
-    background-color: #555;
+    background-color: var(--gris-oscuro);
   }
   &:disabled {
-    background-color: #ccc;
+    background-color: var(--gris);
     cursor: not-allowed;
   }
 `;

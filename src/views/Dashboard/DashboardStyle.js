@@ -3,7 +3,7 @@ export const Sidebar = styled.div`
   width: 300px;
   height: 100vh;
   background-color: #202424;
-  color: white;
+  color: var(--blanco);
   position: fixed;
   top: 0;
   left: 0;
@@ -23,10 +23,10 @@ export const Sidebar = styled.div`
     overflow-y: auto!important;
     flex-direction: column!important;
     transition: transform 0.3s ease-in-out!important;
-    z-index: 1000!important; // Asegúrate de que está por encima de otros elementos
+    z-index: 1000!important;
     ${props => !props.menuOpen && `
       overflow-y: hidden;
-      align-items: flex-start; // Si necesitas alinear los elementos al inicio
+      align-items: flex-start;
     `}
   }
 `;
@@ -35,7 +35,7 @@ export const Sidebar = styled.div`
 export const ProfileImage = styled.div`
   width: 100px;
   height: 100px;
-  background-color: grey;
+  background-color: var(--gris-oscuro);
   background-image: url(${props => props.image});
   background-size: cover;
   background-position: center;
@@ -63,24 +63,24 @@ export const MenuItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  color: var(--blanco);
   cursor: pointer;
   padding: 15px 10px;
   font-weight: ${props => (props.bold ? 'bold' : 'normal')};
   text-transform: ${props => (props.bold ? 'uppercase' : 'none')};
-  background-color: ${props => (props.active ? '#072B4A' : 'transparent')};
-  border-top: 1px solid #6B6B6B;
-  border-bottom: 1px solid #6B6B6B;
+  background-color: ${props => (props.active ? 'var(--verde-medio)' : 'transparent')};
+  border-top: 1px solid var(--gris-oscuro);
+  border-bottom: 1px solid var(--gris-oscuro);
   transition: all 0.5s ease;
  
   &:hover, &:focus {
-    background-color: ${props => (props.active ? '#1F88A2' : 'rgb(31, 136, 162)')};
+    background-color: ${props => (props.active ? 'var(--verde-medio)' : 'var(--verde-oscuro)')};
   }
 
   @media (max-width: 768px) {
     width: 100vw;
-    border-top: 0px solid #6B6B6B;
-    border-bottom: 0px solid #6B6B6B;
+    border-top: 0px solid var(--gris-oscuro);
+    border-bottom: 0px solid var(--gris-oscuro);
 
     box-sizing: border-box;
   }
@@ -136,8 +136,8 @@ export const Content = styled.div`
   }
 `;
 export const Box = styled.div`
-  background-color: #ffffff;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--blanco);
+  box-shadow: 0px 4px 6px var(--negro-rgba-01);
   margin: 10px;
   padding: 20px 20px 60px 20px;
   position: relative;
@@ -152,9 +152,9 @@ export const Box = styled.div`
 `;
 
 export const SidebarButton = styled.button`
-  background: #FF5465; // Usa el color que prefieras
+  background: var(--rojo); // Usa el color que prefieras
   border: none;
-  color: white;
+  color: var(--blanco);
   padding: 10px;
   position: fixed; // Posición fija en la pantalla
   top: 20px;
@@ -216,8 +216,8 @@ export const TableCell = styled.td`
   }
 `;
 export const BoxButton = styled.button`
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border: none;
   padding: 10px 20px;
   cursor: pointer;
@@ -242,7 +242,7 @@ export const SearchInput = styled.input`
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   border-radius: 4px;
   margin-left: -10px;
 `;
@@ -259,15 +259,15 @@ export const Table = styled.table`
   border-collapse: collapse;
   th, td {
     padding: 10px;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid var(--gris);
     text-align: center;
   }
 
   th {
-    background-color: #f5f5f5;
+    background-color: var(--gris);
   }
 
   tr:hover {
-    background-color: #f9f9f9;
+    background-color: var(--gris);
   }
 `;

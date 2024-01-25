@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export const FooterContainer = styled.footer`
-  background-color: #ffffff;
-  border-top: 1px solid #E8E8E8;
+  background-color: var(--blanco);
+  border-top: 1px solid var(--gris);
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
@@ -16,10 +16,10 @@ export const SocialMediaIcons = styled.div`
   margin-bottom: 10px; // Asegura espacio entre los íconos y el texto de los derechos
   & > a {
     margin: 0 10px;
-    color: #707070;
+    color:var(--gris-oscuro);
     transition: color 0.3s;
     &:hover {
-      color: #2A9D8F;
+      color: var(--verde-medio);
     }
   }
 `;
@@ -31,11 +31,11 @@ export const FooterRights = styled.div`
 export const FooterText = styled.p`
   margin: 0;
   font-size: 14px;
-  color: #707070;
+  color: var(--gris-oscuro);
 `;
 
 export const BrandName = styled.a`
-  color: #2A9D8F;
+  color:  var(--verde-medio);
   font-weight: bold;
   margin-left: 5px;
   text-decoration: none;

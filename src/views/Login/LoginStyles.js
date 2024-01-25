@@ -9,9 +9,9 @@ export const BackgroundImage = styled.div`
 `;
 
 export const Overlay = styled.div`
-  display: flex; /* Añadido para centrar el formulario */
-  align-items: center; /* Alineación vertical */
-  justify-content: center; /* Alineación horizontal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   background: var(--verde-oscuro-rgba-65);
   width: 40%;
@@ -19,18 +19,18 @@ export const Overlay = styled.div`
   position: absolute;
   right: 0;
 
-  @media (max-width: 768px) { /* Cambio de estilo para tablets y móviles */
+  @media (max-width: 768px) {
     width: 100%;
   }
 `;
 
 export const LoginForm = styled.div`
-  background: white;
+  background: var(--blanco);
   width: 300px;
   height: 400px;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 6px var(--negro-rgba-01);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -51,12 +51,12 @@ export const Input = styled.input`
   padding: 10px;
   margin: 10px 0;
   border: none;
-  background: #ececec;
+  background: var(--gris);
   border-radius: 5px;
 `;
 
 export const ForgotPasswordLink = styled.a`
-  color: #9c9c9c;
+  color:  var(--gris);
   text-align: center;
   display: block;
   margin: 10px 0;
@@ -84,9 +84,9 @@ export const StyledModal = styled.div`
   transform: translate(-50%, -50%);
   width: 400px;
   height: 300px;
-  background-color: white;
+  background-color: var(--blanco);
   border-radius: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px var(--negro-rgba-03);
   z-index: 1000;
   padding: 20px;
   display: flex;
@@ -98,7 +98,7 @@ export const StyledModal = styled.div`
 export const AppName = styled.h1`
   font-size: 3em; // Puedes ajustar esto según tus necesidades
   font-weight: bold;
-  color: #072B4A; // Este es el color que usamos para el botón, pero puedes cambiarlo
+  color: var(--azul); // Este es el color que usamos para el botón, pero puedes cambiarlo
   position: absolute;
   top: 20%;
   left: 5%;
