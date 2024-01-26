@@ -27,7 +27,7 @@ const LoginPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const { setIsAuthenticated, setUserData } = useContext(AuthContext);
+  const { setIsAuthenticated, setUserData, setSessionToken } = useContext(AuthContext);
   const [showResetModal, setShowResetModal] = useState(false);
   const [footerHeight, setFooterHeight] = useState(0);
 
@@ -46,6 +46,7 @@ const LoginPage = () => {
   const handleSubmit = () => {
     let validationErrors = {};
 
+    // Validación de los campos del formulario
     if (!email) {
       validationErrors.email = 'El correo electrónico es obligatorio';
     } else if (
@@ -60,11 +61,15 @@ const LoginPage = () => {
 
     setErrors(validationErrors);
 
+    // Si no hay errores de validación, proceder con la solicitud de inicio de sesión
     if (Object.keys(validationErrors).length === 0) {
-      axios
-          .post(`${API_BASE_URL}/auth/login`, { email, password })
+      axios.post(`${API_BASE_URL}/auth/login`, { email, password })
           .then((response) => {
             if (response.data.success) {
+
+              // Establecer los datos del usuario y actualizar el estado de autenticación
+              setSessionToken(response.data.sessionToken);
+
               setUserData({
                 name: response.data.name,
                 lastName: response.data.lastName,
@@ -75,8 +80,11 @@ const LoginPage = () => {
                 id_usuario: response.data.id_usuario
               });
               setIsAuthenticated(true);
+
+              // Navegar al dashboard después del inicio de sesión exitoso
               navigate('/dashboard');
             } else {
+              // Mostrar un mensaje de error si la autenticación falla
               toast.warn(response.data.error, {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
@@ -85,6 +93,8 @@ const LoginPage = () => {
             }
           })
           .catch((error) => {
+            console.error('Error de inicio de sesión:', error);
+            // Manejar errores de la solicitud, como problemas de conexión
             toast.error("Error en la autenticación, por favor intente nuevamente.", {
               position: toast.POSITION.TOP_RIGHT,
               autoClose: 5000,
@@ -93,6 +103,7 @@ const LoginPage = () => {
           });
     }
   };
+
   const navigateToPlans = () => {
     navigate('/planes');
   };

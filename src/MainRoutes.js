@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 import Loader from "./components/Loader/Loader";
@@ -19,11 +19,13 @@ import AsignarEjercicioPaciente from "./views/AsignarEjercicioPaciente/AsignarEj
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
 import PlansPage from "./views/PlansPage/PlansPage";
+import useSessionVerification from "./Hook/sessionToken";
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 
 const MainRoutes = () => {
-    const { isAuthenticated, loading } = useContext(AuthContext);
+    const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);
     const location = useLocation(); // Hook para obtener la ubicación actual
+    useSessionVerification(isAuthenticated, userData, setIsAuthenticated, logout);
 
     if (loading) {
         return <Loader />;
