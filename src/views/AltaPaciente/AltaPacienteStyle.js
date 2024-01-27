@@ -42,7 +42,7 @@ export const Input = styled.input`
   padding: 15px; 
   margin-bottom: 20px; 
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -54,7 +54,7 @@ export const Select = styled.select`
   padding: 15px; 
   margin-bottom: 20px; 
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
 `;
 
 export const PictureColumn = styled.div`
@@ -85,7 +85,7 @@ export const FormColumn = styled.div`
 export const ProfilePicture = styled.img`
   width: 200px;
   height: 200px;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   border: 1px solid #ccc;
 `;
 
@@ -127,7 +127,7 @@ export const FisioList = styled.ul`
     max-height: 200px; 
     overflow: scroll;
     overflow-x: hidden;
-    border: 1px solid #D9D9D9;
+    border: 1px solid var(--gris);
 `;
 
 
@@ -139,7 +139,7 @@ export const ListItem = styled.li`
     justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
-    border-bottom: 1px solid #D9D9D9;
+    border-bottom: 1px solid var(--gris);
 
     &:hover {
         background-color: #f3f3f3;

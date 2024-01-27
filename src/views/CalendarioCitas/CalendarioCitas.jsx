@@ -8,7 +8,29 @@ import esLocale from '@fullcalendar/core/locales/es';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { StyledModal } from '../../components/Modal';
-import { Container, CalendarContainer, ScrollablePatientList, Patient, StyledInput, StyledButton, StyledSelect, InputGroup, StyledLabel, ModalContent, FixedSearchContainer, FixedFilterButton, SearchContainer, ModalHeader, SearchButton, CloseButton, ResetButton, PatientList, PatientSearch, FilterGroup, TimeInput } from './CalendarioCitasStyle';
+import {
+    Container,
+    CalendarContainer,
+    ScrollablePatientList,
+    Patient,
+    StyledInput,
+    StyledButton,
+    StyledSelect,
+    InputGroup,
+    StyledLabel,
+    ModalContent,
+    FixedSearchContainer,
+    FixedFilterButton,
+    SearchContainer,
+    ModalHeader,
+    SearchButton,
+    CloseButton,
+    ResetButton,
+    PatientList,
+    PatientSearch,
+    FilterGroup,
+    TimeInput
+} from './CalendarioCitasStyle';
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/config";
 import { toast } from "react-toastify";

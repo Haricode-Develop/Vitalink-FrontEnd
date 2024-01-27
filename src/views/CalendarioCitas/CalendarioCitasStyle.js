@@ -13,6 +13,7 @@ const slideOut = keyframes`
 
 export const Container = styled.div`
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   padding: 20px;
   gap: 20px;
@@ -21,6 +22,7 @@ export const Container = styled.div`
     align-items: center;
   }
 `;
+
 
 export const PatientList = styled.div`
   width: 300px;
@@ -45,14 +47,14 @@ export const Patient = styled.div`
 `;
 
 export const CalendarContainer = styled.div`
-  flex-grow: 1;
-  width: 100%;
-
+  flex: 1;
+  padding: 0 15px;
   @media (min-width: 768px) {
-    width: auto;
+    max-width: calc(100% - 320px);
   }
   @media (max-width: 768px) {
     width: 100%;
+    order: 2;
   }
 `;
 
@@ -68,9 +70,9 @@ export const PatientSearch = styled.input`
 export const ScrollablePatientList = styled(PatientList)`
   overflow-y: scroll;
   max-height: 100vh;
-  flex-basis: 100%;
   @media (min-width: 768px) {
-    flex-basis: auto;
+    flex-basis: 300px;
+    max-width: 300px;
   }
   @media (max-width: 768px) {
     width: 100%;
@@ -78,7 +80,6 @@ export const ScrollablePatientList = styled(PatientList)`
     margin-right: 0;
   }
 `;
-
 
 
 

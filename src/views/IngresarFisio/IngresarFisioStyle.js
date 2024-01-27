@@ -39,7 +39,7 @@ export const Input = styled.input`
   padding: 15px; /* Más padding para una mayor separación */
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -55,7 +55,7 @@ export const Select = styled.select`
   padding: 15px; /* Más padding para una mayor separación */
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -95,7 +95,7 @@ export const FormColumn = styled.div`
 export const ProfilePicture = styled.img`
   width: 200px;
   height: 200px;
-  background-color: #D9D9D9;
+  background-color: var(--gris);
   border: 1px solid #ccc;
 `;
 
@@ -170,7 +170,7 @@ export const DatePickerWrapper = styled.div`
     width: 100%;
     padding: 15px;
     border: none;
-    background-color: #D9D9D9;
+    background-color: var(--gris);
     @media (max-width: ${breakpoints.tablet}) {
       padding-right: 0px;
       padding-left: 0px;
