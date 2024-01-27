@@ -51,7 +51,7 @@ export const DateInput = styled(Input).attrs({ type: 'date' })``;
 export const EmailInput = styled(Input).attrs({ type: 'email' })``;
 
 export const Select = styled.select`
-  width: 100%;
+  width: calc(100% + 30px);
   padding: 15px; /* Más padding para una mayor separación */
   margin-bottom: 20px; /* Separación más grande entre los inputs */
   border: none;
@@ -111,6 +111,8 @@ export const UploadButton = styled.button`
 export const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-left: 30px;
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -124,6 +126,8 @@ export const DownloadLink = styled.a`
   text-decoration: none;
   cursor: pointer;
   margin-top: 20px;
+  margin-left: 30px;
+
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
@@ -150,7 +154,7 @@ export const Button = styled.button`
 `;
 export const Label = styled.label`
   font-size: 16px;
-  color: #333;
+  color: var(--negro );
   margin-bottom: 5px;
   display: block;
 `;

@@ -155,7 +155,13 @@ export const ModalFooter = styled.div`
   display: flex;
   justify-content: space-around; // Separar los botones uniformemente
 `;
-
+export const Label = styled.label`
+  font-size: 16px;
+  color: var(--negro);
+  margin-bottom: 5px;
+  display: block;
+ 
+`;
 export const ModalHeader = styled.div`
   margin-bottom: 15px;
   text-align: center;

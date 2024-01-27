@@ -12,6 +12,7 @@ import { API_BASE_URL } from "../../utils/config";
 import ActivityFeed from "../../components/Feed/FeedActividad";
 import { StyledModal } from "../../components/Modal";
 import DatePicker from 'react-datepicker';
+import {Label} from "../EliminarAdministrador/EliminarAdministradorStyle";
 
 const ActualizarAdministrador = () => {
     const { userData } = useContext(AuthContext);
@@ -136,9 +137,12 @@ const ActualizarAdministrador = () => {
             <Content>
                 <FormColumn className={"administradorActualizar"}>
                     <Title>Actualizar Administrador</Title>
-                    <Input placeholder="Buscar por nombre" value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
-                    <Input placeholder="Buscar por apellido" value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
-                    <Input placeholder="Buscar por correo electrónico" value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
+                    <Label>Buscar por nombre:</Label>
+                    <Input value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
+                    <Label>Buscar por apellido:</Label>
+                    <Input value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
+                    <Label>Buscar por correo electrónico:</Label>
+                    <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <AdminList>
                         {filteredAdministradores.map(admin => (
                             <ListItem key={admin.ID_USUARIO}>

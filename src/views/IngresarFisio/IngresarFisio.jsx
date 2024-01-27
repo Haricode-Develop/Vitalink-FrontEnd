@@ -171,11 +171,11 @@ const IngresarFisioterapeuta = () => {
           <ToastContainer />
           <FormColumn className={"fisioterapeutaIngreso"}>
             <Title>Ingresar Fisioterapeuta</Title>
-            <Label>Nombre/s</Label>
-            <Input placeholder="Nombre/s" value={nombre} onChange={(e) => setNombre(e.target.value)} onBlur={handleBlur} />
-            <Label>Apellidos</Label>
-            <Input placeholder="Apellidos" value={apellido} onChange={(e) => setApellido(e.target.value)} onBlur={handleBlur} />
-            <Label>Fecha de Nacimiento</Label>
+            <Label>Nombre/s: </Label>
+            <Input value={nombre} onChange={(e) => setNombre(e.target.value)} onBlur={handleBlur} />
+            <Label>Apellidos: </Label>
+            <Input value={apellido} onChange={(e) => setApellido(e.target.value)} onBlur={handleBlur} />
+            <Label>Fecha de Nacimiento: </Label>
             <DatePickerWrapper>
               <DatePicker
                   selected={startDate}
@@ -185,13 +185,12 @@ const IngresarFisioterapeuta = () => {
                   showYearDropdown
                   showMonthDropdown
                   dropdownMode="select"
-                  placeholderText="Selecciona una fecha"
               />
             </DatePickerWrapper>
 
-            <Label>Correo Electrónico</Label>
-            <EmailInput placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleBlur} />
-
+            <Label>Correo Electrónico: </Label>
+            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleBlur} />
+            <Label>Especialización : </Label>
             <Select value={selectedEspecialidad} onChange={(e) => setSelectedEspecialidad(e.target.value)} onBlur={handleBlur}>
               {especialidades.map((especialidad) => (
                   <option key={especialidad.id} value={especialidad.id}>
@@ -205,8 +204,8 @@ const IngresarFisioterapeuta = () => {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileUpload}
-                  style={{ display: 'none' }} // Ocultamos el input original
-                  id="file-upload" // Añadimos un ID para poder referenciarlo
+                  style={{ display: 'none' }}
+                  id="file-upload"
               />
               <UploadButton onClick={() => document.getElementById('file-upload').click()}>
                 {isFileReady ? "Archivo Listo - Cambiar" : "Cargar Archivo"}

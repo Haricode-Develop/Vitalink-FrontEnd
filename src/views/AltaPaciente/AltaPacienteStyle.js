@@ -10,7 +10,13 @@ export const Container = styled.div`
     flex-direction: row;
   }
 `;
-
+export const Label = styled.label`
+  font-size: 16px;
+  color: var(--negro);
+  margin-bottom: 5px;
+  display: block;
+ 
+`;
 export const Content = styled.div`
   display: flex;
   flex-direction: column;

@@ -18,7 +18,8 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
-    TextArea
+    TextArea,
+    Label
 } from './ActualizarFisioStyle';
 
 
@@ -164,9 +165,12 @@ const ActualizarFisio = () => {
                 <ToastContainer />
                 <FormColumn className={"fisioterapeutaActualizar"}>
                     <Title>Actualizar Fisioterapeuta</Title>
-                    <Input placeholder="Buscar por nombre" value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
-                    <Input placeholder="Buscar por apellido" value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
-                    <Input placeholder="Buscar por correo electrónico" value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
+                    <Label>Buscar por nombre:</Label>
+                    <Input value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
+                    <Label>Buscar por apellido:</Label>
+                    <Input value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
+                    <Label>Buscar por correo electrónico:</Label>
+                    <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <FisioList>
                         {transitions((styles, item) => (
                             item && (

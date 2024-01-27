@@ -15,6 +15,7 @@ export const ActivityFeedContainer = styled.div`
     height: calc(100vh - 70px);
     margin-left: 30px; 
   }
+
 `;
 
 export const ActivityTitle = styled.h2`

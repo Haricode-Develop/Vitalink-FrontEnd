@@ -43,6 +43,9 @@ export const Input = styled.input`
     padding-right: 0px;
     padding-left: 0px;
   }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -59,6 +62,7 @@ export const Select = styled.select`
     padding-right: 0px;
     padding-left: 0px;
   }
+  
 `;
 
 export const PictureColumn = styled.div`
@@ -79,6 +83,7 @@ export const ProfilePictureContainer = styled.div`
 export const FormColumn = styled.div`
   width: 50%;
   padding: 20px;
+  
   display: flex; 
   flex-direction: column;
   @media (max-width: ${breakpoints.tablet}) {
@@ -101,14 +106,19 @@ export const UploadButton = styled.button`
   border: none;
   cursor: pointer;
   margin-top: 10px;
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
 `;
 
 export const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-left: 30px;
   @media (max-width: 768px) {
     flex-direction: column;
   }
+  
 `;
 
 export const DownloadLink = styled.a`
@@ -120,6 +130,7 @@ export const DownloadLink = styled.a`
   text-decoration: none;
   cursor: pointer;
   margin-top: 20px;
+  margin-left: 30px;
 
   &:hover {
     background-color: var(--azul);
@@ -127,6 +138,9 @@ export const DownloadLink = styled.a`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
   }
 `;
 export const Button = styled.button`
@@ -143,13 +157,18 @@ export const Button = styled.button`
     background-color: var(--gris);
     cursor: not-allowed;
   }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
 `;
 export const Label = styled.label`
   font-size: 16px;
-  color: var(--gris-oscuro);
+  color: var(--negro);
   margin-bottom: 5px;
   display: block;
+ 
 `;
+
 export const DatePickerWrapper = styled.div`
   margin-bottom: 20px;
   .react-datepicker-wrapper {
@@ -169,6 +188,11 @@ export const DatePickerWrapper = styled.div`
     input {
     padding-right: 0px;
     padding-left: 0px;
+    }
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+    input {
+      width: 95%;
     }
   }
 `;
@@ -201,3 +225,5 @@ export const IndicadorGuardado = styled.div`
   display: ${props => props.mostrar ? 'block' : 'none'};
   animation: ${fade} 2s linear;
 `;
+
+

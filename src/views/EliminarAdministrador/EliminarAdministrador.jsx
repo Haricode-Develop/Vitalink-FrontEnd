@@ -21,7 +21,8 @@ import {
     ModalHeader,
     ModalFooter,
     TextArea,
-    ButtonCancel
+    ButtonCancel,
+    Label
 } from '../EliminarAdministrador/EliminarAdministradorStyle';
 import {API_BASE_URL} from "../../utils/config";
 import ActivityFeed from "../../components/Feed/FeedActividad";
@@ -150,18 +151,19 @@ const EliminarAdministrador = () => {
                 <ToastContainer />
                 <FormColumn className={"administradorEliminar"}>
                     <Title>Eliminar Administrador</Title>
+                    <Label>Buscar por nombre:</Label>
                     <Input
-                        placeholder="Buscar por nombre"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
                     />
+                    <Label>Buscar por apellido:</Label>
                     <Input
-                        placeholder="Buscar por apellido"
                         value={apellido}
                         onChange={(e) => setApellido(e.target.value)}
                     />
+                    <Label>Buscar por correo electrónico:</Label>
+
                     <Input
-                        placeholder="Buscar por correo electrónico"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />

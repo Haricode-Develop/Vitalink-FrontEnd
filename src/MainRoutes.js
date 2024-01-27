@@ -13,7 +13,7 @@ import ResetPasswordPage from "./views/ResetPassword/ResetPassword";
 import ActualizarFisio from "./views/ActualizarFisio/ActualizarFisio";
 import ActualizarAdministrador from "./views/ActualizarAdministrador/ActualizarAdministrador";
 import EliminarFisio from "./views/EliminarFisio/EliminarFisio";
-import ReingresoFisio from "./views/Reingreso/ReingresoFisio";
+import ReingresoFisio from "./views/ReingresoFisio/ReingresoFisio";
 import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
 import AsignarEjercicioPaciente from "./views/AsignarEjercicioPaciente/AsignarEjercicioPaciente";
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";

@@ -40,7 +40,10 @@ export const Input = styled.input`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 95%;
+
   }
+
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -56,6 +59,8 @@ export const Select = styled.select`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 95%;
+
   }
 `;
 
@@ -164,6 +169,16 @@ export const Button = styled.button`
     background-color: var(--gris);
     cursor: not-allowed;
   }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
+`;
+export const Label = styled.label`
+  font-size: 16px;
+  color: var(--negro);
+  margin-bottom: 5px;
+  display: block;
+ 
 `;
 export const AdminList = styled.ul`
     list-style-type: none;
@@ -171,6 +186,10 @@ export const AdminList = styled.ul`
     max-height: 200px;
     overflow-y: scroll;
     border: 1px solid var(--gris);
+  @media (max-width: ${breakpoints.tablet}) {
+
+    width: 95%;
+  }
 `;
 export const ListItem = styled.li`
     display: flex;

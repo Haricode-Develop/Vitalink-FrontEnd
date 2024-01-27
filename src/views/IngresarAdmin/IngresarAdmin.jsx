@@ -21,7 +21,8 @@ import {
     UploadButton,
     Label,
     DatePickerWrapper,
-    IndicadorGuardado
+    IndicadorGuardado,
+    ContenedorBotones
 } from '../IngresarAdmin/IngresarAdminStyle';
 import {API_BASE_URL} from "../../utils/config";
 import ActivityFeed from '../../components/Feed/FeedActividad';
@@ -36,9 +37,9 @@ const IngresarAdministrador = () => {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [confirmarContrasena, setConfirmarContrasena] = useState('');
-    const [isFileReady, setIsFileReady] = useState(false);
-    const [startDate, setStartDate] = useState(new Date());
-    const [mostrarGuardado, setMostrarGuardado] = useState(false);
+  const [isFileReady, setIsFileReady] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [mostrarGuardado, setMostrarGuardado] = useState(false);
 
   let tipoCarga = 2;
 
@@ -174,11 +175,11 @@ const IngresarAdministrador = () => {
       <ToastContainer />
         <FormColumn className={"administradorIngreso"}>
           <Title>Ingresar Administrador</Title>
-            <Label>Nombre/s</Label>
-            <Input placeholder="Nombre/s" value={nombre} onChange={(e) => setNombre(e.target.value)} onBlur={handleBlur} />
-            <Label>Apellidos</Label>
-            <Input placeholder="Apellidos" value={apellido} onChange={(e) => setApellido(e.target.value)} onBlur={handleBlur}/>
-            <Label>Fecha de Nacimiento</Label>
+            <Label>Nombre/s:</Label>
+            <Input value={nombre} onChange={(e) => setNombre(e.target.value)} onBlur={handleBlur} />
+            <Label>Apellidos:</Label>
+            <Input value={apellido} onChange={(e) => setApellido(e.target.value)} onBlur={handleBlur}/>
+            <Label>Fecha de Nacimiento:</Label>
             <DatePickerWrapper>
                 <DatePicker
                     selected={startDate}
@@ -188,11 +189,11 @@ const IngresarAdministrador = () => {
                     showYearDropdown
                     showMonthDropdown
                     dropdownMode="select"
-                    placeholderText="Selecciona una fecha"
                 />            </DatePickerWrapper>
-            <Label>Correo Electrónico</Label>
+            <Label>Correo Electrónico:</Label>
 
-            <EmailInput placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleBlur}/>
+            <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleBlur}/>
+
           <ActionButtons>
             <Button onClick={handleInsert}>Ingresar Administrador</Button>
               <input

@@ -10,7 +10,10 @@ import {
     FisioList,
     ListItem,
     FisioInfo,
-    SelectButton, PacienteInfo, PacienteList,
+    SelectButton,
+    PacienteInfo,
+    PacienteList,
+    Label
 
 } from './ReingresoPacienteStyle';
 
@@ -185,9 +188,12 @@ const ReingresoPaciente = () => {
                 <ToastContainer />
                 <FormColumn className={"pacienteReingreso"}>
                     <Title>Reingreso Paciente</Title>
-                    <Input placeholder="Buscar por nombre" value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
-                    <Input placeholder="Buscar por apellido" value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
-                    <Input placeholder="Buscar por correo electrónico" value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
+                    <Label>Buscar por nombre: </Label>
+                    <Input value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} />
+                    <Label>Buscar por apellido: </Label>
+                    <Input value={busquedaApellido} onChange={(e) => setBusquedaApellido(e.target.value)} />
+                    <Label>Buscar por correo electrónico: </Label>
+                    <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <PacienteList>
                         {pacientesDisponibles  && transitions((styles, item) => (
                             item && (

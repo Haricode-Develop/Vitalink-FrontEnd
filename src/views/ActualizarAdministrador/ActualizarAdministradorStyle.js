@@ -88,7 +88,9 @@ export const Input = styled.input`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 95%;
   }
+
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -142,6 +144,7 @@ export const ProfilePicture = styled.img`
   height: 200px;
   background-color: var(--gris);
   border: 1px solid var(--gris);
+
 `;
 export const AdminList = styled.ul`
     list-style-type: none;
@@ -149,6 +152,10 @@ export const AdminList = styled.ul`
     max-height: 200px;
     overflow-y: scroll;
     border: 1px solid var(--gris);
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
+
 `;
 export const ListItem = styled.li`
     display: flex;
@@ -160,6 +167,7 @@ export const ListItem = styled.li`
     &:hover {
         background-color: var(--gris);
     }
+  
 `;
 export const UploadButton = styled.button`
   background-color: var(--azul);
