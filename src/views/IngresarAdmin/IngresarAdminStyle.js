@@ -117,6 +117,8 @@ export const ActionButtons = styled.div`
   margin-left: 30px;
   @media (max-width: 768px) {
     flex-direction: column;
+    margin-left: 0px;
+
   }
   
 `;
@@ -141,6 +143,8 @@ export const DownloadLink = styled.a`
   }
   @media (max-width: ${breakpoints.tablet}) {
     width: 95%;
+    margin-left: 0px;
+
   }
 `;
 export const Button = styled.button`

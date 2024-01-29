@@ -59,6 +59,7 @@ export const Select = styled.select`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 100%;
   }
 `;
 
@@ -115,6 +116,8 @@ export const ActionButtons = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
+    margin-left: 0px;
+
   }
 `;
 export const DownloadLink = styled.a`
@@ -131,6 +134,8 @@ export const DownloadLink = styled.a`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    margin-left: 0px;
+
   }
 
   &:hover {
