@@ -44,6 +44,11 @@ export const Input = styled.input`
     padding-right: 0px;
     padding-left: 0px;
   }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+    margin-left: 0px;
+
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -60,6 +65,11 @@ export const Select = styled.select`
     padding-right: 0px;
     padding-left: 0px;
     width: 100%;
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+    margin-left: 0px;
+
   }
 `;
 
@@ -107,6 +117,7 @@ export const UploadButton = styled.button`
   border: none;
   cursor: pointer;
   margin-top: 10px;
+
 `;
 
 export const ActionButtons = styled.div`
@@ -116,6 +127,11 @@ export const ActionButtons = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
+    margin-left: 0px;
+
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
     margin-left: 0px;
 
   }
@@ -134,6 +150,11 @@ export const DownloadLink = styled.a`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    margin-left: 0px;
+
+  }
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
     margin-left: 0px;
 
   }
@@ -179,6 +200,11 @@ export const DatePickerWrapper = styled.div`
     @media (max-width: ${breakpoints.tablet}) {
       padding-right: 0px;
       padding-left: 0px;
+    }
+    @media (max-width: ${breakpoints.tablet}) {
+      width: 95%;
+      margin-left: 0px;
+
     }
   }
 `;
