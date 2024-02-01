@@ -29,7 +29,7 @@ export const Container = styled.div`
 
 export const PatientList = styled.div`
   width: 300px;
-  background: #f8f8f8;
+  background: var(--blanco);
   margin-right: 20px;
   padding: 10px;
   border-radius: 5px;
@@ -38,11 +38,11 @@ export const PatientList = styled.div`
 export const Patient = styled.div`
   padding: 10px;
   margin-bottom: 10px;
-  background: #fff;
+  background: var(--gris);
   border-radius: 5px;
   cursor: pointer;
   &:hover {
-    background: #e9e9e9;
+    background:  var(--gris);
   }
   &.removing {
     animation: ${slideOut} 0.5s ease forwards;
@@ -55,22 +55,44 @@ export const CalendarContainer = styled.div`
     max-width: calc(100% - 320px);
   }
   @media (max-width: 768px) {
-    width: 100%;
-    order: 2;
+    .fc-daygrid-day-number {
+      font-size: 1.5rem;
+      color: var(--negro);
+      padding: 0.5em;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .fc-daygrid-day {
+      height: auto;
+    }
+
+    .fc-daygrid-day.fc-day-today {
+      background-color: var(--verde-claro);
+    }
+
+    .fc-toolbar-chunk {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+    }
+
     .fc-button {
       font-size: 1rem;
+      padding: 0.5em 1em;
+      margin: 0 5px;
+      border-radius: 4px;
+      &:hover {
+        background-color: var(--blanco);
+      }
     }
-    .fc-daygrid-day {
-      transition: background-color 0.3s ease;
-    }
-    .fc-daygrid-day.fc-day-today {
-      background-color: #d3f9d8;
-    }
-    .fc-toolbar {
-      flex-direction: column;
-    }
-    .fc-daygrid-day {
-      font-size: 1.2rem;
+
+    .fc-button-primary {
+      background-color:var(--blanco);
+      color: var(--azul);
+      border: 1px solid var(--azul);
     }
   }
 
@@ -81,7 +103,7 @@ export const PatientSearch = styled.input`
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   border-radius: 4px;
 `;
 

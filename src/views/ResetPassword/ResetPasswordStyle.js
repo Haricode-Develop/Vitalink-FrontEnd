@@ -1,23 +1,23 @@
 import styled from 'styled-components';
 
 export const BackgroundColor = styled.div`
-  background: #FAFAFA;
+  background: var(--gris);
   width: 100%;
   height: 100vh;
-  position: fixed; // Cambiado de 'absolute' a 'fixed' para que ocupe toda la pantalla
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: -1;  // Para asegurarse de que el fondo esté detrás de todo
+  z-index: -1;
 `;
 
 export const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 191, 165, 0.65);
+  background: var(--verde-oscuro-rgba-65);
   width: 100%;
-  height: 100vh;  // Asegurarse de que el overlay también ocupe toda la pantalla
-  position: fixed; // Cambiado de 'absolute' a 'fixed' para que ocupe toda la pantalla
+  height: 100vh;
+  position: fixed;
   top: 0;
   left: 0;
 `;
@@ -25,12 +25,12 @@ export const Overlay = styled.div`
 
 
 export const ResetPasswordForm = styled.div`
-  background: white;
+  background: var(--blanco);
   width: 300px;
   height: 400px;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 6px var(--negro-rgba-01);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,8 +38,8 @@ export const ResetPasswordForm = styled.div`
 `;
 
 export const ResetButton = styled.button`
-  background: #00bfa5;
-  color: white;
+  background: var(--verde-medio);
+  color: var(--blanco);
   font-weight: bold;
   padding: 10px;
   border: none;
@@ -56,6 +56,6 @@ export const Input = styled.input`
   padding: 10px;
   margin: 10px 0;
   border: none;
-  background: #ececec;
+  background: var(--gris);
   border-radius: 5px;
 `;

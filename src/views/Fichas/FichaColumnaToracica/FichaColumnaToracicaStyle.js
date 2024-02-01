@@ -9,7 +9,7 @@ export const Form = styled.form`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background: white;
+  background: var(--blanco);
 `;
 
 export const BodyMapStyle = styled.div`
@@ -26,7 +26,7 @@ export const Section = styled.section`
 
 export const Input = styled.input`
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   border-radius: 4px;
   font-size: 16px;
 `;
@@ -39,34 +39,34 @@ export const Label = styled.label`
 
 export const Select = styled.select`
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   border-radius: 4px;
   font-size: 16px;
-  background: white;
+  background: var(--blanco);
 `;
 
 export const Title = styled.h2`
   text-align: center;
-  color: #333;
+  color: var(--negro);
 `;
 
 export const Button = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   font-size: 18px;
   cursor: pointer;
   margin-top: 10px;
 
   &:hover {
-    background-color: #052138;
+    background-color: var(--azul);
   }
 `;
 
 export const DatePickerWrapper = styled.div`
-  margin-bottom: 20px; /* Añadir espacio debajo del selector de fecha */
+  margin-bottom: 20px;
   .react-datepicker-wrapper {
     width: 100%;
   }
@@ -86,8 +86,8 @@ export const IndicadorGuardado = styled.div`
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: rgba(0, 128, 0, 0.7);
-  color: white;
+  background-color: var(--verde-indicador);
+  color: var(--blanco);
   padding: 10px;
   border-radius: 5px;
   display: ${props => props.mostrar ? 'block' : 'none'};
@@ -102,13 +102,13 @@ export const ListItem = styled.li`
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
   list-style: none;
   &:hover {
-    background-color: #f2f2f2;
+    background-color: var(--gris);
     cursor: pointer;
     transform: scale(1.02);
   }
 
   &.selected {
-    background-color: #e0e0e0;
+    background-color:var(--gris);
   }
 `;
 
@@ -117,14 +117,14 @@ export const ListItem = styled.li`
 export const ButtonAceptar = styled.button`
   padding: 10px 20px;
   border: none;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px var(--negro);
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--azul);
     cursor: pointer;
     transform: translateY(-2px);
   }
@@ -134,15 +134,15 @@ export const ButtonAceptar = styled.button`
 export const ButtonCancelar = styled.button`
   padding: 10px 20px;
   border: none;
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--gris-oscuro);
+  color: var(--blanco);
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  margin-left: 10px; // para añadir espacio entre los botones
+  box-shadow: 0 2px 5px var(--negro-rgba-03);
+  margin-left: 10px;
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background-color: #5a6268;
+    background-color: var(--gris-oscuro);
     cursor: pointer;
     transform: translateY(-2px);
   }

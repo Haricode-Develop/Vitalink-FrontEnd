@@ -64,7 +64,7 @@ export const ForgotPasswordLink = styled.a`
 `;
 
 export const Button = styled.button`
-  background: #072B4A;
+  background: var(--azul);
   color: var(--blanco);
   font-weight: bold;
   padding: 10px;
@@ -96,9 +96,9 @@ export const StyledModal = styled.div`
 `;
 
 export const AppName = styled.h1`
-  font-size: 3em; // Puedes ajustar esto según tus necesidades
+  font-size: 3em;
   font-weight: bold;
-  color: var(--azul); // Este es el color que usamos para el botón, pero puedes cambiarlo
+  color: var(--azul);
   position: absolute;
   top: 20%;
   left: 5%;

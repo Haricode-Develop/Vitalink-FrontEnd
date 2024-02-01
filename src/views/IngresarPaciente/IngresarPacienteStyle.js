@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #333;
+  color: var(--negro);
   margin-bottom: 20px;
   @media (max-width: 768px) {
     font-size: 24px;
@@ -69,13 +69,13 @@ export const Tab = styled.button`
           active &&
           css`
             font-weight: bold;
-            color: #007bff;
+            color: var(--azul);
           `}
   &:focus {
     outline: none;
   }
   &:hover {
-    color: #0056b3;
+    color: var(--azul);
   }
 
   @media (max-width: 768px) {
@@ -106,7 +106,7 @@ export const FormWrapper = styled.section`
 
 export const Indicator = styled.div`
   height: 2px;
-  background-color: #007bff;
+  background-color: var(--azul);
   position: absolute;
   bottom: 0;
   transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -120,8 +120,8 @@ export const Indicator = styled.div`
 
 
 export const MobileMenuButton = styled.button`
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   padding: 0.5rem;
   border: none;
   border-radius: 0.3rem;
@@ -146,7 +146,7 @@ export const MobileDropdown = styled.div`
   bottom: 0;
   left: 0;
   padding-top: 120px;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--blanco);
   z-index: 5;
   overflow-y: auto;
   animation: ${fadeIn} 0.3s ease-out forwards;
@@ -157,12 +157,12 @@ export const MobileDropdown = styled.div`
     font-weight: bold;
     padding: 0.5rem;
     border-radius: 0.3rem;
-    background-color: #eaeaea;
+    background-color: var(--gris);
     &:last-child {
       margin-bottom: 0;
     }
     &:hover {
-      background-color: #e7e7e7;
+      background-color: var(--gris);
     }
   }
 `;
@@ -170,19 +170,19 @@ export const MobileDropdown = styled.div`
 
 export const MobileDropdownItem = styled.div`
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
-  background-color: ${({ active }) => active ? '#072B4A' : 'transparent'};
+  border-bottom: 1px solid var(--gris);
+  background-color: ${({ active }) => active ? 'var(--azul)' : 'transparent'};
   color: ${({ active }) => active ? 'white' : 'black'};
   &:last-child {
     border-bottom: none;
   }
   &:hover {
-    background-color: #f0f0f0;
+    background-color: var(--gris);
   }
   ${({ active }) =>
           active &&
           css`
-            background-color: #072B4A;
-            color: white;
+            background-color: var(--azul);
+            color: var(--blanco);
           `}
 `;

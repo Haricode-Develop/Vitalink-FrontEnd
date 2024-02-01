@@ -99,8 +99,8 @@ export const ProfilePicture = styled.img`
 `;
 
 export const UploadButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   padding: 10px;
   border: none;
   cursor: pointer;
@@ -121,14 +121,14 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
+  background-color: var(--gris-oscuro);
+  color: var(--blanco);
   border: none;
   &:hover {
-    background-color: #555;
+    background-color: var(--gris-oscuro);
   }
   &:disabled {
-    background-color: #ccc;
+    background-color: var(--gris);
     cursor: not-allowed;
   }
 
@@ -157,13 +157,13 @@ export const ListItem = styled.li`
     border-bottom: 1px solid var(--gris);
 
     &:hover {
-        background-color: #f3f3f3;
+        background-color: var(--gris);
     }
 
 `;
 export const ModalFooter = styled.div`
   display: flex;
-  justify-content: space-around; // Separar los botones uniformemente
+  justify-content: space-around;
 `;
 export const Label = styled.label`
   font-size: 16px;
@@ -186,7 +186,7 @@ export const TextArea = styled.textarea`
   height: 150px;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   margin-bottom: 20px;
   font-size: 16px;
   resize: vertical;
@@ -197,15 +197,15 @@ export const FisioInfo = styled.span`
 `;
 export const ButtonCancel = styled.button`
   padding: 10px 20px;
-  margin: 0 10px; // Dar espacio entre los botones
+  margin: 0 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 10px var(--negro-rgba-03);
 
   ${({ cancelBtn }) => cancelBtn && `
-    background-color: #FF5465; // Color rojo para cancelar acciones
+    background-color: #FF5465;
     color: white;
   `}
 `;
@@ -216,18 +216,18 @@ export const SelectButton = styled.button`
   padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border: none;
   border-radius: 5px;
 
   &:hover {
-    background-color: #06253f;
+    background-color: var(--azul);
   }
 `;
 export const ModalContent = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: stretch; // Asegúrate de que los hijos ocupen todo el espacio disponible
+  align-items: stretch;
 `;

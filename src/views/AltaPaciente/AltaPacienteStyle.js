@@ -32,7 +32,7 @@ export const Content = styled.div`
   }
 `;
 export const Title = styled.h1`
-  color: #333;
+  color: var(--negro);
   font-size: 40px; 
   margin-bottom: 30px; 
 `;
@@ -95,8 +95,8 @@ export const ProfilePicture = styled.img`
 `;
 
 export const UploadButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   padding: 10px;
   border: none;
   cursor: pointer;
@@ -115,14 +115,14 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
+  background-color: var(--negro);
+  color: var(--blanco);
   border: none;
   &:hover {
-    background-color: #555;
+    background-color: var(--gris-oscuro);
   }
   &:disabled {
-    background-color: #ccc;
+    background-color: var(--gris);
     cursor: not-allowed;
   }
   @media (max-width: ${breakpoints.tablet}) {
@@ -152,7 +152,7 @@ export const ListItem = styled.li`
     border-bottom: 1px solid var(--gris);
 
     &:hover {
-        background-color: #f3f3f3;
+        background-color: var(--gris);
     }
 `;
 export const ModalFooter = styled.div`
@@ -169,7 +169,7 @@ export const TextArea = styled.textarea`
   height: 150px;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gris);
   margin-bottom: 20px;
   font-size: 16px;
   resize: vertical;
@@ -185,7 +185,7 @@ export const ButtonCancel = styled.button`
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 10px var(--negro-rgba-03);
 
   ${({ cancelBtn }) => cancelBtn && `
     background-color: #FF5465; // Color rojo para cancelar acciones
@@ -193,10 +193,10 @@ export const ButtonCancel = styled.button`
   `}
 `;
 export const ModalBody = styled.div`
-  max-height: 400px; // Altura máxima para la ventana modal
-  overflow: auto; // Hacer que sea desplazable si el contenido excede la altura máxima
+  max-height: 400px;
+  overflow: auto;
   overflow-x: hidden;
-  padding: 10px; // Espacio interno para evitar que el contenido toque los bordes
+  padding: 10px;
 `;
 
 export const PatientsList = styled.div`
@@ -208,41 +208,41 @@ export const SelectButton = styled.button`
   padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
-  background-color: #072B4A;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border: none;
   border-radius: 5px;
 
   &:hover {
-    background-color: #06253f;
+    background-color: var(--azul);
   }
 `;
 export const ModalContent = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: stretch; // Asegúrate de que los hijos ocupen todo el espacio disponible
+  align-items: stretch;
 `;
 
 export const PatientItem = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr auto; // Columnas para el número, detalles y motivo
+  grid-template-columns: auto 1fr auto; 
   align-items: center;
-  gap: 10px; // Espacio entre los elementos de la cuadrícula
+  gap: 10px;
 `;
 
 export const PatientNumber = styled.span`
-  white-space: nowrap; // Evitar que el número se envuelva en líneas múltiples
+  white-space: nowrap;
 `;
 export const PatientDetails = styled.span`
-  white-space: nowrap; // Evitar que los detalles se envuelvan en líneas múltiples
-  overflow: hidden; // Ocultar el texto que excede el ancho del elemento
-  text-overflow: ellipsis; // Añadir puntos suspensivos si el texto es muy largo
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 
 export const MotiveInput = styled.input`
   padding: 5px;
-  width: 100%; // Hacer que el input sea lo más ancho posible
-  max-width: 400px; // Ancho máximo para evitar que el input sea demasiado grande
+  width: 100%;
+  max-width: 400px;
 `;

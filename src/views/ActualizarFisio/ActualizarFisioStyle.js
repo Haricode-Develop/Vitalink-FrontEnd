@@ -26,7 +26,7 @@ export const Content = styled.div`
   }
 `;
 export const Title = styled.h1`
-  color: #333;
+  color: var(--negro);
   font-size: 40px; 
   margin-bottom: 30px; 
 `;
@@ -98,8 +98,8 @@ export const ProfilePicture = styled.img`
 `;
 
 export const UploadButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  background-color:var(--azul);
+  color: var(--blanco);
   padding: 10px;
   border: none;
   cursor: pointer;
@@ -118,11 +118,11 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #333;
-  color: white;
+  background-color: var(--negro);
+  color: var(--blanco);
   border: none;
   &:hover {
-    background-color: #555;
+    background-color: var(--gris-oscuro);
   }
   
 `;
