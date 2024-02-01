@@ -18,8 +18,11 @@ export const Container = styled.div`
   padding: 20px;
   gap: 20px;
   @media (max-width: 768px) {
+    display: flex;
     flex-direction: column;
-    align-items: center;
+    padding: 20px;
+    gap: 20px;
+    
   }
 `;
 
@@ -48,14 +51,29 @@ export const Patient = styled.div`
 
 export const CalendarContainer = styled.div`
   flex: 1;
-  padding: 0 15px;
   @media (min-width: 768px) {
     max-width: calc(100% - 320px);
   }
   @media (max-width: 768px) {
     width: 100%;
     order: 2;
+    .fc-button {
+      font-size: 1rem;
+    }
+    .fc-daygrid-day {
+      transition: background-color 0.3s ease;
+    }
+    .fc-daygrid-day.fc-day-today {
+      background-color: #d3f9d8;
+    }
+    .fc-toolbar {
+      flex-direction: column;
+    }
+    .fc-daygrid-day {
+      font-size: 1.2rem;
+    }
   }
+
 `;
 
 

@@ -44,6 +44,11 @@ export const Input = styled.input`
   margin-bottom: 20px; 
   border: none;
   background-color: var(--gris);
+  @media (max-width: ${breakpoints.tablet}) {
+    padding-right: 0px;
+    padding-left: 0px;
+    width: 95%;
+  }
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;

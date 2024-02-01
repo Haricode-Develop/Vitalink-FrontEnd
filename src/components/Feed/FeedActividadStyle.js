@@ -13,8 +13,8 @@ export const ActivityFeedContainer = styled.div`
   overflow-y: auto;
   @media (min-width: ${breakpoints.tablet}) {
     height: calc(100vh - 70px);
-    margin-left: 30px; 
   }
+  margin-left: 20px;
 
 `;
 

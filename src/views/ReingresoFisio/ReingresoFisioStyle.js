@@ -39,6 +39,7 @@ export const Input = styled.input`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 95%;
   }
 `;
 

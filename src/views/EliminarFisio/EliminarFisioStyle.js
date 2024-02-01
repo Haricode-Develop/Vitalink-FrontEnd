@@ -40,7 +40,9 @@ export const Input = styled.input`
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
     padding-left: 0px;
+    width: 95%;
   }
+  
 `;
 
 export const DateInput = styled(Input).attrs({ type: 'date' })``;
@@ -57,6 +59,7 @@ export const Select = styled.select`
     padding-right: 0px;
     padding-left: 0px;
   }
+  
 `;
 
 export const PictureColumn = styled.div`
@@ -102,6 +105,7 @@ export const UploadButton = styled.button`
   border: none;
   cursor: pointer;
   margin-top: 10px;
+  
 `;
 
 export const ActionButtons = styled.div`
@@ -110,6 +114,7 @@ export const ActionButtons = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
   }
+  
 `;
 
 export const Button = styled.button`
@@ -126,6 +131,11 @@ export const Button = styled.button`
     background-color: #ccc;
     cursor: not-allowed;
   }
+
+  @media (max-width: ${breakpoints.tablet}) {
+    width: 95%;
+  }
+
 `;
 export const FisioList = styled.ul`
     list-style-type: none; 
@@ -160,6 +170,7 @@ export const Label = styled.label`
   color: var(--negro);
   margin-bottom: 5px;
   display: block;
+  
  
 `;
 export const ModalHeader = styled.div`
