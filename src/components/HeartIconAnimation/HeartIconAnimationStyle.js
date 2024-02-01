@@ -153,12 +153,18 @@ export const MenuItem = styled.div`
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%; // Ocupar todo el ancho disponible del PopupWindow
-  box-sizing: border-box; // Asegurarse de que el padding no afecte el ancho
+  width: 100%;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #e9e9e9;
   }
+  ${({ hideOnMobile }) => hideOnMobile && `
+    @media (max-width: 768px) {
+      display: none;
+    }
+  `}
+  
 `;
 
 export const ModalBackdrop = styled.div`

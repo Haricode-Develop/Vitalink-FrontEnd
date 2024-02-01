@@ -185,6 +185,10 @@ const Dashboard = () => {
 
 
     const downloadExcel = (data, headers, titulo, nombreArchivoBase) => {
+        if (data.length === 0) {
+            swal("No hay registros", "No hay datos disponibles para descargar.", "warning");
+            return;
+        }
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Hoja1');
 

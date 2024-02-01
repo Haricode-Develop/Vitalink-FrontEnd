@@ -16,7 +16,7 @@ const useSessionVerification = (isAuthenticated, userData, logout) => {
             axios.get(`${API_BASE_URL}/auth/verifySessionToken`, { params: { sessionToken, userId } })
                 .then(response => {
                     if (!response.data.isValid) {
-                        logout(); // Llama al método logout
+                        logout();
                         toast.warn("Tu sesión ha sido cerrada porque se inició sesión en otro lugar.", {
                             position: "top-right",
                             autoClose: 5000,
@@ -31,10 +31,10 @@ const useSessionVerification = (isAuthenticated, userData, logout) => {
                 .catch(error => {
                     console.error('Error al verificar la sesión:', error);
                 });
-        }, 5000); // Verifica cada 5 segundos
+        }, 5000);
 
         return () => clearInterval(intervalId);
-    }, [isAuthenticated, userData, logout]); // Incluye logout en las dependencias
+    }, [isAuthenticated, userData, logout]);
 };
 
 export default useSessionVerification;

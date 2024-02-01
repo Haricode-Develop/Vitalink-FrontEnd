@@ -156,7 +156,7 @@ const HeartIconAnimation = ({ animationData }) => {
                     {!showContactForm && (
                         <>
                             <MenuItem onClick={handleContactClick}>Contactar a soporte</MenuItem>
-                            <MenuItem onClick={startTutorial}>Tutorial Interactivo</MenuItem>
+                            <MenuItem onClick={startTutorial} hideOnMobile>Tutorial Interactivo</MenuItem>
                         </>
                     )}
                     {showContactForm && (
