@@ -121,7 +121,7 @@ export const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  background-color: var(--gris-oscuro);
+  background-color: var(--negro);
   color: var(--blanco);
   border: none;
   &:hover {

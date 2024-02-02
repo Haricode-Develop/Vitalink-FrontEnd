@@ -8,7 +8,7 @@ const BodyMap = ({ onAreaSelected }) => {
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const [color, setColor] = useState('red');
-    const backgroundColor = 'white';
+    const backgroundColor = 'white'; // Asegúrate de que esto coincida con el color de fondo de tu lienzo
 
     const toggleEraser = () => {
         setIsErasing(!isErasing);
@@ -42,33 +42,18 @@ const BodyMap = ({ onAreaSelected }) => {
         contextRef.current = context;
     }, []);
 
-    const getPosition = (nativeEvent) => {
-        if (nativeEvent.touches) {
-            const touch = nativeEvent.touches[0];
-            return {
-                offsetX: touch.clientX - canvasRef.current.getBoundingClientRect().left,
-                offsetY: touch.clientY - canvasRef.current.getBoundingClientRect().top
-            };
-        } else {
-            return {
-                offsetX: nativeEvent.offsetX,
-                offsetY: nativeEvent.offsetY
-            };
-        }
-    };
-
-    const startDrawing = (nativeEvent) => {
-        const { offsetX, offsetY } = getPosition(nativeEvent);
+    const startDrawing = ({ nativeEvent }) => {
+        const { offsetX, offsetY } = nativeEvent;
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
         setIsDrawing(true);
     };
 
-    const draw = (nativeEvent) => {
+    const draw = ({ nativeEvent }) => {
         if (!isDrawing) {
             return;
         }
-        const { offsetX, offsetY } = getPosition(nativeEvent);
+        const { offsetX, offsetY } = nativeEvent;
         contextRef.current.lineTo(offsetX, offsetY);
         contextRef.current.stroke();
     };

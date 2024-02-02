@@ -69,7 +69,10 @@ const LoginPage = () => {
 
               // Establecer los datos del usuario y actualizar el estado de autenticación
               setSessionToken(response.data.sessionToken);
-
+              if (response.data.id_rol === 1) {
+                toast.warn("Lo sentimos, como usuario paciente no tienes acceso a este apartado. Por favor, visita la versión móvil de Vitalink.");
+                return;
+              }
               setUserData({
                 name: response.data.name,
                 lastName: response.data.lastName,

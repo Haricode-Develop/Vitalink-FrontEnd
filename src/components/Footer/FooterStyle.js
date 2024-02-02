@@ -13,7 +13,7 @@ export const FooterContainer = styled.footer`
 
 export const SocialMediaIcons = styled.div`
   font-size: 24px;
-  margin-bottom: 10px; // Asegura espacio entre los íconos y el texto de los derechos
+  margin-bottom: 10px;
   & > a {
     margin: 0 10px;
     color:var(--gris-oscuro);
