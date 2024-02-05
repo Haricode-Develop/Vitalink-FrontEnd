@@ -149,12 +149,30 @@ const FichaExtremidadesSuperiores = () => {
     }, []);
 
     const handleModalFisios = (e) => {
-        e.preventDefault();
-        setIsModalVisible(true);
+        if(userData.id_rol !== 2){
+            e.preventDefault();
+            setIsModalVisible(true);
+        }
+        else{
+            console.log("SE SELECCIONA A UN FISIO: ");
+            console.log(userData.id_rol);
+            setSelectedFisio(userData.id_rol);
+            console.log("ESTE ES EL SEELCTED: ");
+            console.log(selectedFisio);
+            setFormValues(prevFormValues => ({
+                ...prevFormValues,
+                idMedico: userData.id_rol
+            }));
+            handleInsert(e);
+
+        }
+
     };
     const handleInsert = (e) => {
         e.preventDefault();
         setIsModalVisible(false);
+        console.log("ESTE ES EL FISIO SELECCIONADO: ");
+        console.log(selectedFisio);
         if (!selectedFisio) {
             toast.warn("Por favor, selecciona un fisioterapeuta.", {
                 position: toast.POSITION.TOP_RIGHT,

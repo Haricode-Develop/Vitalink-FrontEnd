@@ -15,7 +15,7 @@ import ActualizarAdministrador from "./views/ActualizarAdministrador/ActualizarA
 import EliminarFisio from "./views/EliminarFisio/EliminarFisio";
 import ReingresoFisio from "./views/ReingresoFisio/ReingresoFisio";
 import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
-import AsignarEjercicioPaciente from "./views/AsignarEjercicioPaciente/AsignarEjercicioPaciente";
+import ExerciseAssignment from "./views/AsignarEjercicioPaciente/ExerciseAssignment";
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
 import PlansPage from "./views/PlansPage/PlansPage";
@@ -55,7 +55,7 @@ const MainRoutes = () => {
                         <Route path="actualizar-medico" element={<ActualizarFisio />} />
                         <Route path="reingreso-medico" element={<ReingresoFisio />} />
                         <Route path="alta-paciente" element={<AltaPaciente />} />
-                        <Route path="asignar-ejercicio" element={<AsignarEjercicioPaciente />} />
+                        <Route path="asignar-ejercicio" element={<ExerciseAssignment />} />
                         <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
                         <Route path="calendario-citas" element={<CalendarioCitas />} />
                     </Route>

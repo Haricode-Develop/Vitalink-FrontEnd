@@ -14,6 +14,9 @@ export const ExerciseItem = styled.div`
   background-color: #f3f3f3;
   border: 1px solid #d1d1d1;
   border-radius: 4px;
+  &:hover {
+    background-color: #e9ecef;
+  }
 `;
 
 export const ExerciseName = styled.h3`

@@ -153,8 +153,20 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
         setSelectedBodyParts([...selectedBodyParts, selectedPart]);
     };
     const handleModalFisios = (e) => {
-        e.preventDefault();
-        setIsModalVisible(true);
+        if(userData.id_rol !== 2){
+            e.preventDefault();
+            setIsModalVisible(true);
+        }
+        else{
+            setSelectedFisio(userData.id_rol);
+            setFormValues(prevFormValues => ({
+                ...prevFormValues,
+                idMedico: userData.id_rol
+            }));
+            handleInsert(e);
+
+        }
+
     };
     const handleInsert = (e) => {
         e.preventDefault();

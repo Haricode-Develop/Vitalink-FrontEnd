@@ -104,8 +104,24 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
         setSelectedBodyParts([...selectedBodyParts, selectedPart]);
     };
     const handleModalFisios = (e) => {
-        e.preventDefault();
-        setIsModalVisible(true);
+        if(userData.id_rol !== 2){
+            e.preventDefault();
+            setIsModalVisible(true);
+        }
+        else{
+            console.log("ESTE ES EL FISIO DEL USER.ROL: ");
+            console.log(userData.id_rol);
+            setSelectedFisio(userData.id_rol);
+            console.log("ESTE ES EL FISIO SELECCIONADO: ");
+            console.log(selectedFisio);
+            setFormValues(prevFormValues => ({
+                ...prevFormValues,
+                idMedico: userData.id_rol
+            }));
+            handleInsert(e);
+
+        }
+
     };
     useEffect(() => {
         const datosGuardados = localStorage.getItem('datosFormularioPacienteColumnaToracica');
@@ -147,6 +163,8 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     const handleInsert = (e) => {
         e.preventDefault();
         setIsModalVisible(false);
+        console.log("ESTE ES EL FISIO ANTES DEL INSERT: ");
+
         if (!selectedFisio) {
             toast.warn("Por favor, selecciona un fisioterapeuta.", {
                 position: toast.POSITION.TOP_RIGHT,
