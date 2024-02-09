@@ -5,7 +5,7 @@ import {
 } from './ModalStyle';
 import { useSpring } from 'react-spring';
 
-export const StyledModal = ({ isOpen, onRequestClose, children }) => {
+export const StyledModal = ({ isOpen, onRequestClose, children, width, maxWidth, height }) => {
     const animation = useSpring({
         opacity: isOpen ? 1 : 0,
         transform: isOpen ? 'translateY(0)' : 'translateY(-100%)',
@@ -16,7 +16,13 @@ export const StyledModal = ({ isOpen, onRequestClose, children }) => {
 
     return isOpen ? (
         <ModalBackdrop onClick={onRequestClose}>
-            <ModalWrapper style={animation} onClick={e => e.stopPropagation()}>
+            <ModalWrapper
+                style={animation}
+                onClick={e => e.stopPropagation()}
+                width={width}
+                maxWidth={maxWidth}
+                height={height}
+            >
                 {children}
             </ModalWrapper>
         </ModalBackdrop>

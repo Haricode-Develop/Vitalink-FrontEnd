@@ -4,7 +4,7 @@ import { ListButton, CardButton, ListContainer, ListItem } from './PatientListSt
 
 const PatientList = ({ patients, onSelectPatient }) => {
     const [viewMode, setViewMode] = useState('list'); // O 'card'
-
+    console.log("ESTOS SON LOS PACIENTES: ", patients);
     return (
         <div>
             <ListButton onClick={() => setViewMode('list')} active={viewMode === 'list'}>Lista</ListButton>

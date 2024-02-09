@@ -19,12 +19,12 @@ export const ModalWrapper = styled.div`
   background: white;
   padding: 20px;
   border-radius: 3px;
-  display: flex; // Asegúrate de que no esté configurado en 'none'
+  display: flex;
   flex-direction: column;
   align-items: center;
-  width: 500px;
-  max-width: 500px;
-  height: auto;
+  width: ${props => props.width || '500px'};
+  max-width: ${props => props.maxWidth || '500px'};
+  height: ${props => props.height || 'auto'};;
   margin: 0 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease-out;
