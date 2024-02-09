@@ -1,12 +1,15 @@
 import React from 'react';
-import { ItemContainer, ItemTitle, ItemDescription, ItemButton } from './ExerciseItemStyle';
+import { ItemContainer, ItemTitle, ItemDescription, ItemButton, ItemSelect, ItemPreview, ItemCheckbox, ContentContainer } from './ExerciseItemStyle';
 
 const ExerciseItem = ({ exercise, onAdd }) => {
     return (
-        <ItemContainer>
-            <ItemTitle>{exercise.name}</ItemTitle>
-            <ItemDescription>{exercise.description}</ItemDescription>
-            <ItemButton onClick={() => onAdd(exercise)}>Agregar</ItemButton>
+        <ItemContainer onClick={() => onAdd(exercise.id)}>
+            <ItemPreview />
+            <ContentContainer>
+                <ItemTitle>{exercise.name}</ItemTitle>
+                <ItemDescription>{exercise.description}</ItemDescription>
+            </ContentContainer>
+            <ItemCheckbox type="checkbox" checked={exercise.selected} readOnly />
         </ItemContainer>
     );
 };
