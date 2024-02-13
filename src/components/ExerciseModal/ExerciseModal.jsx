@@ -1,23 +1,18 @@
 import React from 'react';
-import { StyledModal } from '../Modal';
 import { FaFilter } from 'react-icons/fa';
-
 import {
-    modalStyle,
-    leftSection,
-    rightSection,
-    searchBar,
-    videoItem,
-    videoDetails,
-    videoPreview,
-    videoListContainer,
-    filterSection,
-    confirmButtonContainerStyle,
-    confirmButtonStyle, filterButtonStyle
-} from './ExerciseModalStyle';
-
+    LeftSection,
+    RightSection,
+    SearchBar,
+    VideoListContainer,
+    FilterSection,
+    ConfirmButtonContainer,
+    ConfirmButton,
+    FilterButton
+} from './ExerciseModalStyle'; // Suponiendo que los componentes estilizados están aquí
 import ExerciseItem from "../ExerciseItem/ExerciseItem";
 import SelectedPatientItem from "../SelectedPatientItem/SelectedPatientItem";
+import {StyledModal} from "../Modal";
 const ExerciseModal = ({ isOpen, onRequestClose, exercises, onExerciseSelect, selectedExercises, setSelectedExercises }) => {
     const handleSelectExercise = (exerciseId) => {
         const newSelection = new Map(selectedExercises);
@@ -42,46 +37,39 @@ const ExerciseModal = ({ isOpen, onRequestClose, exercises, onExerciseSelect, se
         // ... más pacientes ...
     ];
     return (
-        <StyledModal
-            isOpen={isOpen}
-            onRequestClose={onRequestClose}
-            width='80vw'
-            maxWidth='80vw'
-            height='80vh'
-            flexDirection={'row'}
-        >
-            <div style={leftSection}>
-                <div style={{ width: '100%' }}> {/* Asegúrate de que este div ocupe todo el ancho */}
-                    <input type="text" placeholder="Buscar ejercicios..." style={searchBar} />
-                </div>
-                <div style={filterSection}>
-                    <button style={filterButtonStyle}><FaFilter /> Categoria</button>
-                    <button style={filterButtonStyle}><FaFilter /> Area Corporal</button>
-                    <button style={filterButtonStyle}><FaFilter /> Sub Area Corporal</button>
-                </div>
-                <div style={videoListContainer}>
+        <StyledModal   isOpen={isOpen}
+                       onRequestClose={onRequestClose}
+                       width='80vw'
+                       maxWidth='80vw'
+                       height='80vh'
+                       flexDirection={'row'}>
+            <LeftSection>
+                <SearchBar type="text" placeholder="Buscar ejercicios..." />
+                <FilterSection>
+                    <FilterButton><FaFilter /> Categoria</FilterButton>
+                    <FilterButton><FaFilter /> Area Corporal</FilterButton>
+                    <FilterButton><FaFilter /> Sub Area Corporal</FilterButton>
+                </FilterSection>
+                <VideoListContainer>
                     {sampleExercises.map((exercise) => (
                         <ExerciseItem
                             key={exercise.id}
                             exercise={exercise}
-                            onAdd={() => handleSelectExercise(exercise)}
+                            onAdd={() => handleSelectExercise(exercise.id)}
                         />
                     ))}
-                </div>
-            </div>
-            <div style={rightSection}>
+                </VideoListContainer>
+            </LeftSection>
+            <RightSection>
                 {selectedPatients.map((patient) => (
-                    <SelectedPatientItem
-                        key={patient.id}
-                        patient={patient}
-                    />
+                    <SelectedPatientItem key={patient.id} patient={patient} />
                 ))}
-            </div>
-            <div style={confirmButtonContainerStyle}>
-                <button style={confirmButtonStyle} onClick={handleConfirmSelection}>
+            </RightSection>
+            <ConfirmButtonContainer>
+                <ConfirmButton onClick={handleConfirmSelection}>
                     Confirmar Selección
-                </button>
-            </div>
+                </ConfirmButton>
+            </ConfirmButtonContainer>
         </StyledModal>
     );
 };
