@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter, FaTimes } from 'react-icons/fa';
 import {
     LeftSection,
     RightSection,
@@ -8,7 +8,8 @@ import {
     FilterSection,
     ConfirmButtonContainer,
     ConfirmButton,
-    FilterButton
+    FilterButton,
+    CloseButton
 } from './ExerciseModalStyle'; // Suponiendo que los componentes estilizados están aquí
 import ExerciseItem from "../ExerciseItem/ExerciseItem";
 import SelectedPatientItem from "../SelectedPatientItem/SelectedPatientItem";
@@ -39,10 +40,13 @@ const ExerciseModal = ({ isOpen, onRequestClose, exercises, onExerciseSelect, se
     return (
         <StyledModal   isOpen={isOpen}
                        onRequestClose={onRequestClose}
-                       width='80vw'
-                       maxWidth='80vw'
-                       height='80vh'
+                       width='90vw'
+                       maxWidth='90vw'
+                       height='85vh'
                        flexDirection={'row'}>
+            <CloseButton onClick={onRequestClose}>
+                <FaTimes />
+            </CloseButton>
             <LeftSection>
                 <SearchBar type="text" placeholder="Buscar ejercicios..." />
                 <FilterSection>
@@ -67,7 +71,7 @@ const ExerciseModal = ({ isOpen, onRequestClose, exercises, onExerciseSelect, se
             </RightSection>
             <ConfirmButtonContainer>
                 <ConfirmButton onClick={handleConfirmSelection}>
-                    Confirmar Selección
+                    Asignar
                 </ConfirmButton>
             </ConfirmButtonContainer>
         </StyledModal>

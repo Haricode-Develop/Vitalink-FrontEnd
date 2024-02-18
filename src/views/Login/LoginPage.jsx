@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { StyledModal } from '../../components/Modal';
 import { AuthContext } from '../../context/AuthContext';
 import { useSpring, animated } from 'react-spring';
-
+import logo from '../../assets/login/logo.png'
 import Swal from 'sweetalert2';
 import {
   BackgroundImage,
@@ -142,7 +142,7 @@ const LoginPage = () => {
         <Overlay>
           <animated.div style={formAnimation}>
             <LoginForm>
-              <Logo src="path/to/logo.png" alt="logo" />
+              <Logo src={logo} alt="logo" />
               <Input
                   type="email"
                   placeholder="Email"

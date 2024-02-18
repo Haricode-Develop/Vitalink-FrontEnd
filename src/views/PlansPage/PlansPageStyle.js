@@ -89,7 +89,7 @@ export const FeatureItem = styled.li`
 `;
 
 export const PlanPrice = styled.div`
-  color: var(--rojo);
+  color: var(--azul);
   font-size: 1.75rem;
   font-weight: bold;
   margin-bottom: 1rem;

@@ -13,7 +13,7 @@ export const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   
-  background: var(--verde-oscuro-rgba-65);
+  background: var(--celeste-rgba-65);
   width: 40%;
   height: 100%;
   position: absolute;
@@ -41,8 +41,7 @@ export const LoginForm = styled.div`
 export const Logo = styled.img`
   display: block;
   margin: 0 auto 20px;
-  border-radius: 50%;
-  width: 100px;
+  width: 60%;
 `;
 
 export const Input = styled.input`

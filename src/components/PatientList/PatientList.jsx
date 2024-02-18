@@ -3,7 +3,7 @@ import PatientCard from '../PatientCard/PatientCard';
 import { ListButton, CardButton, ListContainer, ListItem } from './PatientListStyle';
 
 const PatientList = ({ patients, onSelectPatient }) => {
-    const [viewMode, setViewMode] = useState('list'); // O 'card'
+    const [viewMode, setViewMode] = useState('card'); // Cambiado a 'card' para hacerlo el valor por defecto
     console.log("ESTOS SON LOS PACIENTES: ", patients);
     return (
         <div>
@@ -13,7 +13,7 @@ const PatientList = ({ patients, onSelectPatient }) => {
                 <ListContainer>
                     {patients.map((patient) => (
                         <ListItem key={patient.id}>
-                            {patient.nombre} - <button onClick={() => onSelectPatient(patient)}>Seleccionar</button>
+                            {patient.nombre} {patient.apellido} - {patient.email} - <button onClick={() => onSelectPatient(patient)}>Seleccionar</button>
                         </ListItem>
                     ))}
                 </ListContainer>

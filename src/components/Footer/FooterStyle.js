@@ -19,7 +19,7 @@ export const SocialMediaIcons = styled.div`
     color:var(--gris-oscuro);
     transition: color 0.3s;
     &:hover {
-      color: var(--verde-medio);
+      color: var(--celeste-rgba-65);
     }
   }
 `;
@@ -35,7 +35,7 @@ export const FooterText = styled.p`
 `;
 
 export const BrandName = styled.a`
-  color:  var(--verde-medio);
+  color:  var(--celeste-rgba-65);
   font-weight: bold;
   margin-left: 5px;
   text-decoration: none;
