@@ -55,17 +55,19 @@ export const VideoListContainer = styled.div`
   border: 1px solid var(--gris);
   padding: 15px;
   margin-top: 20px;
-  max-height: 60vh;
+  min-height: 60vh;
+  height: 60vh;
   overflow-y: auto;
 
   @media (max-width: 768px) {
-    max-height: none;
-    flex: 1;
+    min-height: 50vh;
+    height: 50vh;
   }
 `;
 
 
 export const FilterSection = styled.div`
+  position: relative;
   margin-bottom: 20px;
 `;
 
@@ -123,4 +125,56 @@ export const CloseButton = styled.button`
   border: none;
   font-size: 24px;
   cursor: pointer;
+`;
+
+export const FilterDropdown = styled.div`
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 10px;
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  top: 100%;
+  left: 0;
+  right: 0;
+`;
+export const FilterItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+
+  &:hover {
+    background-color: #f7f7f7;
+  }
+`;
+
+export const FilterCheckbox = styled.input`
+  cursor: pointer;
+  margin-right: 10px;
+`;
+
+
+export const StyledFilterDropdown = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  width: auto;
+  max-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  padding: 0;
 `;

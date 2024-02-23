@@ -11,7 +11,7 @@ const ExerciseAssignment = () => {
     const [selectedExercises, setSelectedExercises] = useState(new Map());
     const [modalOpen, setModalOpen] = useState(false);
     const [pacientes, setPacientes] = useState([]);
-    const [areasEjercicios, setAreasEjercicios] = useState([]);
+    const [ejercicios, setEjercicios] = useState([]);
 
     const handleSelectPatient = (patient) => {
         setSelectedPatient(patient);
@@ -19,7 +19,6 @@ const ExerciseAssignment = () => {
     };
 
     const handleSubmit = () => {
-        console.log('Ejercicios seleccionados:', Array.from(selectedExercises.entries()));
         setSelectedExercises(new Map());
     };
 
@@ -37,13 +36,8 @@ const ExerciseAssignment = () => {
             .then(data => setPacientes(data))
             .catch(error => console.error(error));
 
-        fetch(`${API_BASE_URL}/asignacion/ejercicios/detalle`)
-            .then(response => response.ok ? response.json() : Promise.reject('Error al cargar ejercicios'))
-            .then(data => {
-                // Procesamiento de los datos si es necesario
-                setAreasEjercicios(data);
-            })
-            .catch(error => console.error(error));
+        console.log("ESTOS SON LOS EJERCICIOS:", ejercicios);
+
     }, []);
 
     const isExerciseSelected = (exerciseId) => selectedExercises.get(exerciseId) || false;
@@ -59,8 +53,10 @@ const ExerciseAssignment = () => {
                 <ExerciseModal
                     isOpen={modalOpen}
                     onRequestClose={() => setModalOpen(false)}
-                    exercises={[]}
+                    selectedExercises={selectedExercises}
                     onExerciseSelect={handleExerciseSelect}
+                    selectedPatient={selectedPatient}
+                    onSubmit={handleSubmit}
                 />
             )}
         </Container>

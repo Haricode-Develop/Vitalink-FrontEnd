@@ -2,13 +2,13 @@ import styled from 'styled-components';
 
 export const FooterContainer = styled.footer`
   background-color: var(--blanco);
-  border-top: 1px solid var(--gris);
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60px;
+  height: 100px;
+  z-index: 10;
 `;
 
 export const SocialMediaIcons = styled.div`

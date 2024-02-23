@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const HeaderContainer = styled.div`
   width: 100%;
   padding: 100px 0;
-  background-color: var(--verde-claro);
+  background-color: var(--celeste-rgba);
   margin-bottom: -100px;
   text-align: center;
   position: relative;
@@ -15,7 +15,7 @@ export const HeaderContainer = styled.div`
 `;
 
 export const HeaderTitle = styled.h1`
-  color: var(--negro);
+  color: var(--blanco);
   font-size: 2.5rem;
   margin: 0;
   @media (max-width: 768px) {
@@ -24,7 +24,7 @@ export const HeaderTitle = styled.h1`
 `;
 
 export const HeaderSubtitle = styled.p`
-  color: var(--negro);
+  color: var(--blanco);
   font-size: 1.25rem;
   margin-top: 0.5rem;
   @media (max-width: 768px) {

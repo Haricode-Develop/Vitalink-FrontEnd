@@ -15,7 +15,7 @@ import {
   Input,
   ForgotPasswordLink,
   Button,
-  PlansTextLink
+  PlansTextLink, CharacterCircle, CharacterCircleContainer
 } from './LoginStyles';
 import {API_BASE_URL} from "../../utils/config";
 import Footer from "../../components/Footer/Footer";
@@ -139,7 +139,12 @@ const LoginPage = () => {
   return (
       <>
       <BackgroundImage>
+        <CharacterCircleContainer>
+          <CharacterCircle />
+        </CharacterCircleContainer>
+
         <Overlay>
+
           <animated.div style={formAnimation}>
             <LoginForm>
               <Logo src={logo} alt="logo" />
@@ -159,8 +164,9 @@ const LoginPage = () => {
                   onKeyDown={handleKeyDown}
               />
               {errors.password && <div style={{ color: 'red' }}>{errors.password}</div>}
-              <Button onClick={handleForgotPasswordClick}>¿Olvidaste tu contraseña?</Button>
-              <Button onClick={handleSubmit}>INGRESAR</Button>
+              <Button onClick={handleForgotPasswordClick} style={{marginTop: "30px"}}>¿Olvidaste tu contraseña?</Button>
+              <Button onClick={handleSubmit} style={{ background: "var(--rojo)" }}>Ingresar</Button>
+
               <PlansTextLink onClick={navigateToPlans}>
                 ¿Primera vez con Vitalink? Conoce nuestros planes
               </PlansTextLink>
