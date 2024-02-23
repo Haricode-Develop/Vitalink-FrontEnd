@@ -13,7 +13,7 @@ import {
     CloseButton,
     FilterCheckbox,
     FilterItem,
-    StyledFilterDropdown
+    StyledFilterDropdown, FilterButtonContainer
 } from './ExerciseModalStyle';
 import ExerciseItem from "../ExerciseItem/ExerciseItem";
 import SelectedPatientItem from "../SelectedPatientItem/SelectedPatientItem";
@@ -163,10 +163,12 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
                 <SearchBar type="text" placeholder="Buscar ejercicios..." onChange={handleSearch} />
                 <FilterSection>
                     {/* Categoría */}
+                    <FilterButtonContainer>
+
                     <FilterButton onClick={() => toggleFilterDropdown('categoria')}>Categoría <FaFilter /></FilterButton>
                     {showFilterDropdown.categoria && (
                         <StyledFilterDropdown ref={categoriaRef}>
-                            {filters.categorias.map((categoria) => (
+                            {filters.categorias.map(categoria => (
                                 <FilterItem key={categoria.id}>
                                     <FilterCheckbox
                                         type="checkbox"
@@ -178,15 +180,18 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
                             ))}
                         </StyledFilterDropdown>
                     )}
+                    </FilterButtonContainer>
+                    <FilterButtonContainer>
+
                     {/* Área Corporal */}
                     <FilterButton onClick={() => toggleFilterDropdown('areaCorporal')}>Área Corporal <FaFilter /></FilterButton>
                     {showFilterDropdown.areaCorporal && (
-                        <StyledFilterDropdown ref={areaCorporalRef }>
-                            {filters.areasCorporales.map((area) => (
+                        <StyledFilterDropdown ref={areaCorporalRef}>
+                            {filters.areasCorporales.map(area => (
                                 <FilterItem key={area.id}>
                                     <FilterCheckbox
                                         type="checkbox"
-                                        checked={isFilterSelected('areaCorporal', area.nombre)}
+                                        checked={isFilterSelected('areaCorporal', area.id)}
                                         onChange={() => handleFilterSelect('areaCorporal', area.id)}
                                     />
                                     {area.nombre}
@@ -194,15 +199,19 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
                             ))}
                         </StyledFilterDropdown>
                     )}
+                    </FilterButtonContainer>
+
                     {/* Sub Área Corporal */}
+                    <FilterButtonContainer>
+
                     <FilterButton onClick={() => toggleFilterDropdown('subArea')}>Sub Área Corporal <FaFilter /></FilterButton>
                     {showFilterDropdown.subArea && (
                         <StyledFilterDropdown ref={subAreaRef}>
-                            {filters.subAreas.map((subArea) => (
+                            {filters.subAreas.map(subArea => (
                                 <FilterItem key={subArea.id}>
                                     <FilterCheckbox
                                         type="checkbox"
-                                        checked={isFilterSelected('subArea', subArea.nombre)}
+                                        checked={isFilterSelected('subArea', subArea.id)}
                                         onChange={() => handleFilterSelect('subArea', subArea.id)}
                                     />
                                     {subArea.nombre}
@@ -210,6 +219,8 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
                             ))}
                         </StyledFilterDropdown>
                     )}
+                    </FilterButtonContainer>
+
                 </FilterSection>
                 <VideoListContainer>
                     {ejercicios.map((exercise) => (

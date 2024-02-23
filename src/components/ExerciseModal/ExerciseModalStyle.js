@@ -108,9 +108,8 @@ export const FilterButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  margin-right: 15px;
   color: var(--celeste-rgba-65);
   font-size: 16px;
   margin-bottom: 10px;
@@ -145,10 +144,14 @@ export const FilterDropdown = styled.div`
 export const FilterItem = styled.div`
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 20px 12px;
+  
   cursor: pointer;
   background-color: #fff;
   border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background-color: #f7f7f7;
@@ -169,12 +172,19 @@ export const StyledFilterDropdown = styled.div`
   border: 1px solid #ddd;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  min-width: 150px;
   width: auto;
-  max-width: 100%;
+  max-width: 300px;
   max-height: 200px;
   overflow-y: auto;
   z-index: 10;
-  top: 100%;
+  top: calc(100% + 5px);
   left: 0;
   padding: 0;
+`;
+
+export const FilterButtonContainer = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-right: 15px;
 `;
