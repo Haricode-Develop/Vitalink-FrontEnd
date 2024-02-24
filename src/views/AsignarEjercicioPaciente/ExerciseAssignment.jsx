@@ -12,33 +12,73 @@ const ExerciseAssignment = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [pacientes, setPacientes] = useState([]);
     const [ejercicios, setEjercicios] = useState([]);
+    const [filteredExercises, setFilteredExercises] = useState([]); // Nuevo estado para ejercicios filtrados
+    const [filteredPatients, setFilteredPatients] = useState([]); // Estado para pacientes filtrados
 
     const handleSelectPatient = (patient) => {
         setSelectedPatient(patient);
         setModalOpen(true); // Abre el modal aquí
     };
 
-    const handleSubmit = () => {
+    const handleAssignExercises = () => {
+        selectedExercises.forEach((isSelected, exerciseId) => {
+            if (isSelected) {
+                fetch(`${API_BASE_URL}/asignacion/usuario/ejercicio`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        idUsuario: selectedPatient.id,
+                        idEjercicio: exerciseId,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Asignación exitosa', data);
+                    })
+                    .catch(error => {
+                        console.error('Error en la asignación:', error);
+                    });
+            }
+        });
+
         setSelectedExercises(new Map());
+        setModalOpen(false);
     };
 
-    const handleExerciseSelect = (exerciseId) => {
-        setSelectedExercises(new Map(selectedExercises.set(exerciseId, !selectedExercises.get(exerciseId))));
+
+    const handleExerciseSelect = (exerciseId, isSelected) => {
+        const updatedSelectedExercises = new Map(selectedExercises);
+        updatedSelectedExercises.set(exerciseId, !isSelected);
+        setSelectedExercises(updatedSelectedExercises);
     };
 
     const handleSearch = (term) => {
         setSearchTerm(term);
     };
 
+
+
     useEffect(() => {
         fetch(`${API_BASE_URL}/asignacion/pacientes/ejercicios`)
             .then(response => response.ok ? response.json() : Promise.reject('Error al cargar los pacientes'))
-            .then(data => setPacientes(data))
-            .catch(error => console.error(error));
-
-        console.log("ESTOS SON LOS EJERCICIOS:", ejercicios);
-
+            .then(data => {
+                setPacientes(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }, []);
+
+
+    useEffect(() => {
+        const filtered = pacientes.filter(patient =>
+            patient.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            patient.apellido.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredPatients(filtered);
+    }, [searchTerm, pacientes]);
 
     const isExerciseSelected = (exerciseId) => selectedExercises.get(exerciseId) || false;
 
@@ -48,7 +88,7 @@ const ExerciseAssignment = () => {
             <SearchContainer>
                 <SearchAndFilter onSearch={handleSearch} />
             </SearchContainer>
-            <PatientList patients={pacientes} onSelectPatient={handleSelectPatient} />
+            <PatientList patients={filteredPatients} onSelectPatient={handleSelectPatient} />
             {modalOpen && (
                 <ExerciseModal
                     isOpen={modalOpen}
@@ -56,7 +96,7 @@ const ExerciseAssignment = () => {
                     selectedExercises={selectedExercises}
                     onExerciseSelect={handleExerciseSelect}
                     selectedPatient={selectedPatient}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleAssignExercises}
                 />
             )}
         </Container>

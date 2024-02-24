@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import lottie from 'lottie-web';
 import { FaArrowLeft } from 'react-icons/fa';
 import {
     PopupWindow,
@@ -10,11 +9,12 @@ import {
     TextArea,
     Button,
     BackButton,
-    ModalBackdrop
+    ModalBackdrop, IconContainer
 } from './HeartIconAnimationStyle';
 import Tutorial from "../Tutorial/Tutorial";
 import {API_BASE_URL} from "../../utils/config";
 import {toast, ToastContainer } from "react-toastify";
+import Vita from "./img/vita.png"
 
 const messages = [
     "Bienvenido!", // Español
@@ -43,16 +43,9 @@ const HeartIconAnimation = ({ animationData }) => {
     });
     const [isTutorialActive, setIsTutorialActive] = useState(false);
 
-    const size = { width: 250, height: 250 };
-
+    const iconSize = 75;
     useEffect(() => {
-        const anim = lottie.loadAnimation({
-            container: animationContainer.current,
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            animationData: animationData
-        });
+
 
         // Función para agregar un nuevo mensaje a la cola
         const addMessageToQueue = (msg) => {
@@ -72,10 +65,9 @@ const HeartIconAnimation = ({ animationData }) => {
         }, 30000);
 
         return () => {
-            anim.destroy();
             clearInterval(messageInterval);
         };
-    }, [animationData, showPopup]);
+    }, [showPopup]);
 
     const togglePopup = () => {
         setShowPopup(!showPopup);
@@ -142,15 +134,9 @@ const HeartIconAnimation = ({ animationData }) => {
     return (
         <>
             {showPopup && <ModalBackdrop onClick={closePopup} />}
-            <div onClick={togglePopup} ref={animationContainer} style={{
-                position: 'fixed',
-                bottom: '-70px',
-                right: '-70px',
-                width: `${size.width}px`,
-                height: `${size.height}px`,
-                zIndex: 1000,
-                cursor: 'pointer'
-            }} />
+            <IconContainer onClick={togglePopup} size={iconSize}>
+                <img src={Vita} alt="Vita" width={iconSize} height={iconSize} />
+            </IconContainer>
             {showPopup && (
                 <PopupWindow>
                     {!showContactForm && (

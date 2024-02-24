@@ -7,18 +7,16 @@ export const LeftSection = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-
-
-  @media (max-width: 768px) {
-    order: 1;
-    height: 50%; // Ajuste para mostrar más ejercicios en pantalla
-  }
-
+  height: 85vh;
   @media (min-width: 768px) {
     flex: 0 0 60%;
-    order: 1; // En pantallas más grandes, será el primero
   }
+`;
+export const SearchAndFilterContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
 `;
 
 export const RightSection = styled.div`
@@ -55,36 +53,38 @@ export const VideoListContainer = styled.div`
   border: 1px solid var(--gris);
   padding: 15px;
   margin-top: 20px;
-  min-height: 60vh;
-  height: 60vh;
+  flex-grow: 1;
   overflow-y: auto;
-
+  height: calc(100% - 120px);
   @media (max-width: 768px) {
-    min-height: 50vh;
-    height: 50vh;
+    margin-top: 0;
   }
 `;
 
 
 export const FilterSection = styled.div`
   position: relative;
+  
   margin-bottom: 20px;
 `;
 
 export const ConfirmButtonContainer = styled.div`
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
-  transform: translateX(-50%);
-  width: 100%;
   display: flex;
   justify-content: center;
-  background-color: #fff;
+  padding: 10px 0;
 
   @media (max-width: 768px) {
-    position: static;
-    transform: none;
-    margin-top: 20px;
+    position: fixed; // Cambiar a fixed para dispositivos móviles
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 0;
+    background-color: #fff;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
   }
 `;
 
@@ -187,4 +187,59 @@ export const FilterButtonContainer = styled.div`
   position: relative;
   display: inline-block;
   margin-right: 15px;
+`;
+
+export const MainFilterButton = styled.button`
+  background: var(--celeste-rgba-65);
+  color: var(--blanco);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+export const FilterMenuButton = styled.button`
+  display: none; // El botón está oculto por defecto
+
+  @media (max-width: 768px) {
+    display: block; // Solo se muestra en pantallas menores a 768px
+    background-color: var(--celeste-rgba-65);
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    text-align: left;
+    font-size: 16px;
+    &:after {
+      content: '▼';
+      float: right;
+    }
+    &:active, &:focus {
+      outline: none;
+    }
+  }
+`;
+export const MobileFilterContainer = styled.div`
+  display: block;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 20;
+    overflow-y: auto;
+    max-height: 100vh;
+    
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+  }
 `;

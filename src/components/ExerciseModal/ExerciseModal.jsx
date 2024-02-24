@@ -13,7 +13,11 @@ import {
     CloseButton,
     FilterCheckbox,
     FilterItem,
-    StyledFilterDropdown, FilterButtonContainer
+    StyledFilterDropdown,
+    FilterButtonContainer,
+    FilterMenuButton,
+    SearchAndFilterContainer,
+    MobileFilterContainer
 } from './ExerciseModalStyle';
 import ExerciseItem from "../ExerciseItem/ExerciseItem";
 import SelectedPatientItem from "../SelectedPatientItem/SelectedPatientItem";
@@ -31,6 +35,10 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
     const [showFilterDropdown, setShowFilterDropdown] = useState({ categoria: false, areaCorporal: false, subArea: false });
     const [ejercicios, setEjercicios] = useState([]);
 
+    const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(true);
+    const toggleFilterMenu = () => {
+        setIsFilterMenuOpen(!isFilterMenuOpen);
+    };
 
     // Refs para los menús desplegables
     const categoriaRef = useRef(null);
@@ -42,6 +50,20 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
             setShowFilterDropdown(prevState => ({ ...prevState, [filter]: false }));
         }
     };
+
+
+    const toggleExerciseSelection = (exerciseId) => {
+        const isSelected = selectedExercises.has(exerciseId);
+        const newSelectedExercises = new Map(selectedExercises);
+        if (isSelected) {
+            newSelectedExercises.delete(exerciseId);
+        } else {
+            newSelectedExercises.set(exerciseId, true);
+        }
+        onExerciseSelect(newSelectedExercises);
+    };
+
+
 
     useEffect(() => {
         // Función para agregar el listener de eventos
@@ -118,6 +140,9 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
     const handleSearch = (e) => {
         setSearchTerm(e.target.value.toLowerCase());
     };
+    const closeFilterMenu = () => {
+        setIsFilterMenuOpen(false);
+    };
 
     const handleConfirmSelection = () => {
         onExerciseSelect(Array.from(selectedExercises.entries()));
@@ -125,12 +150,12 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
     };
 
     const toggleFilterDropdown = (filter) => {
-        if (showFilterDropdown[filter]) {
-            setShowFilterDropdown(prevState => ({ ...prevState, [filter]: false }));
-        } else {
-            closeOtherDropdowns(filter);
-        }
+        setShowFilterDropdown(prevState => ({
+            ...prevState,
+            [filter]: !prevState[filter]
+        }));
     };
+
     const handleFilterSelect = (filterType, id) => {
         setSelectedFilters(prevState => {
             const newSelectedFilters = { ...prevState };
@@ -156,79 +181,127 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
             fetchFilteredExercises();
         }
     }, [selectedFilters, isOpen]);
+
+    useEffect(() => {
+        const fetchExercises = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/asignacion/ejercicios/buscar?termino=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar los ejercicios');
+                }
+                const data = await response.json();
+                setEjercicios(data);
+            } catch (error) {
+                console.error(error);
+            }
+
+        };
+
+        const delayDebounceFn = setTimeout(() => {
+            fetchExercises();
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsFilterMenuOpen(true);
+            } else {
+                setIsFilterMenuOpen(false);
+            }
+        };
+
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+
     return (
         <StyledModal isOpen={isOpen} onRequestClose={onRequestClose} width='90vw' maxWidth='90vw' height='85vh' flexDirection={'row'}>
             <CloseButton onClick={onRequestClose}><FaTimes /></CloseButton>
             <LeftSection>
-                <SearchBar type="text" placeholder="Buscar ejercicios..." onChange={handleSearch} />
-                <FilterSection>
-                    {/* Categoría */}
-                    <FilterButtonContainer>
+                {window.innerWidth < 768 && (
+                    <FilterMenuButton onClick={toggleFilterMenu}>Filtros</FilterMenuButton>
+                )}
+                {(isFilterMenuOpen || window.innerWidth >= 768) && (
+                    <MobileFilterContainer isOpen={isFilterMenuOpen}>
 
-                    <FilterButton onClick={() => toggleFilterDropdown('categoria')}>Categoría <FaFilter /></FilterButton>
-                    {showFilterDropdown.categoria && (
-                        <StyledFilterDropdown ref={categoriaRef}>
-                            {filters.categorias.map(categoria => (
-                                <FilterItem key={categoria.id}>
-                                    <FilterCheckbox
-                                        type="checkbox"
-                                        checked={isFilterSelected('categoria', categoria.id)}
-                                        onChange={() => handleFilterSelect('categoria', categoria.id)}
-                                    />
-                                    {categoria.nombre}
-                                </FilterItem>
-                            ))}
-                        </StyledFilterDropdown>
-                    )}
-                    </FilterButtonContainer>
-                    <FilterButtonContainer>
+                    <SearchBar type="text" placeholder="Buscar ejercicios..." onChange={handleSearch} />
+                        <FilterSection>
+                            {/* Categoría */}
+                            <FilterButtonContainer>
 
-                    {/* Área Corporal */}
-                    <FilterButton onClick={() => toggleFilterDropdown('areaCorporal')}>Área Corporal <FaFilter /></FilterButton>
-                    {showFilterDropdown.areaCorporal && (
-                        <StyledFilterDropdown ref={areaCorporalRef}>
-                            {filters.areasCorporales.map(area => (
-                                <FilterItem key={area.id}>
-                                    <FilterCheckbox
-                                        type="checkbox"
-                                        checked={isFilterSelected('areaCorporal', area.id)}
-                                        onChange={() => handleFilterSelect('areaCorporal', area.id)}
-                                    />
-                                    {area.nombre}
-                                </FilterItem>
-                            ))}
-                        </StyledFilterDropdown>
-                    )}
-                    </FilterButtonContainer>
+                                <FilterButton onClick={() => toggleFilterDropdown('categoria')}>Categoría <FaFilter /></FilterButton>
+                                {showFilterDropdown.categoria && (
+                                    <StyledFilterDropdown ref={categoriaRef}>
+                                        {filters.categorias.map(categoria => (
+                                            <FilterItem key={categoria.id}>
+                                                <FilterCheckbox
+                                                    type="checkbox"
+                                                    checked={isFilterSelected('categoria', categoria.id)}
+                                                    onChange={() => handleFilterSelect('categoria', categoria.id)}
+                                                />
+                                                {categoria.nombre}
+                                            </FilterItem>
+                                        ))}
+                                    </StyledFilterDropdown>
+                                )}
+                            </FilterButtonContainer>
+                            <FilterButtonContainer>
 
-                    {/* Sub Área Corporal */}
-                    <FilterButtonContainer>
+                                {/* Área Corporal */}
+                                <FilterButton onClick={() => toggleFilterDropdown('areaCorporal')}>Área Corporal <FaFilter /></FilterButton>
+                                {showFilterDropdown.areaCorporal && (
+                                    <StyledFilterDropdown ref={areaCorporalRef}>
+                                        {filters.areasCorporales.map(area => (
+                                            <FilterItem key={area.id}>
+                                                <FilterCheckbox
+                                                    type="checkbox"
+                                                    checked={isFilterSelected('areaCorporal', area.id)}
+                                                    onChange={() => handleFilterSelect('areaCorporal', area.id)}
+                                                />
+                                                {area.nombre}
+                                            </FilterItem>
+                                        ))}
+                                    </StyledFilterDropdown>
+                                )}
+                            </FilterButtonContainer>
 
-                    <FilterButton onClick={() => toggleFilterDropdown('subArea')}>Sub Área Corporal <FaFilter /></FilterButton>
-                    {showFilterDropdown.subArea && (
-                        <StyledFilterDropdown ref={subAreaRef}>
-                            {filters.subAreas.map(subArea => (
-                                <FilterItem key={subArea.id}>
-                                    <FilterCheckbox
-                                        type="checkbox"
-                                        checked={isFilterSelected('subArea', subArea.id)}
-                                        onChange={() => handleFilterSelect('subArea', subArea.id)}
-                                    />
-                                    {subArea.nombre}
-                                </FilterItem>
-                            ))}
-                        </StyledFilterDropdown>
-                    )}
-                    </FilterButtonContainer>
+                            {/* Sub Área Corporal */}
+                            <FilterButtonContainer>
 
-                </FilterSection>
+                                <FilterButton onClick={() => toggleFilterDropdown('subArea')}>Sub Área Corporal <FaFilter /></FilterButton>
+                                {showFilterDropdown.subArea && (
+                                    <StyledFilterDropdown ref={subAreaRef}>
+                                        {filters.subAreas.map(subArea => (
+                                            <FilterItem key={subArea.id}>
+                                                <FilterCheckbox
+                                                    type="checkbox"
+                                                    checked={isFilterSelected('subArea', subArea.id)}
+                                                    onChange={() => handleFilterSelect('subArea', subArea.id)}
+                                                />
+                                                {subArea.nombre}
+                                            </FilterItem>
+                                        ))}
+                                    </StyledFilterDropdown>
+                                )}
+                            </FilterButtonContainer>
+
+                        </FilterSection>
+                    </MobileFilterContainer>
+                )}
                 <VideoListContainer>
                     {ejercicios.map((exercise) => (
                         <ExerciseItem
                             key={exercise.id}
                             exercise={exercise}
-                            onAdd={() => onExerciseSelect(exercise.id, !selectedExercises.get(exercise.id))}
-                            selected={selectedExercises.get(exercise.id)}
+                            onAdd={onExerciseSelect}
+                            selected={selectedExercises.get(exercise.id) || false}
                         />
                     ))}
                 </VideoListContainer>
@@ -244,3 +317,4 @@ const ExerciseModal = ({ isOpen, onRequestClose, selectedExercises, onExerciseSe
 };
 
 export default ExerciseModal;
+

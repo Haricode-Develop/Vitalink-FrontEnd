@@ -29,25 +29,30 @@ const ExerciseItem = ({ exercise, onAdd, selected }) => {
         <ItemContainer>
             {exercise.VIDEO_URL && (
                 <ItemPreview
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
+                    onMouseEnter={() => videoRef.current && videoRef.current.play()}
+                    onMouseLeave={() => videoRef.current && videoRef.current.pause()}
                     onClick={toggleModal}
                 >
                     <video
                         ref={videoRef}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         src={`${exercise.VIDEO_URL}#t=0.1`}
+
                         muted
                         loop
                         controls={false}
                     />
                 </ItemPreview>
             )}
-            <ContentContainer onClick={onAdd}>
+            <ContentContainer>
                 <ItemTitle>{exercise.NombreEjercicio}</ItemTitle>
                 <ItemDescription>{exercise.DESCRIPCION}</ItemDescription>
             </ContentContainer>
-            <ItemCheckbox type="checkbox" checked={selected} onChange={onAdd} />
+            <ItemCheckbox
+                type="checkbox"
+                checked={selected}
+                onChange={() => onAdd(exercise.id)}
+            />
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={toggleModal}

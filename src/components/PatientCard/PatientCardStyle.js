@@ -30,10 +30,10 @@ export const SelectButton = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: var(--verde-medio);
   color: white;
   cursor: pointer;
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--verde-oscuro);
   }
 `;

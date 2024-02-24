@@ -16,6 +16,7 @@ export const Sidebar = styled.div`
     left: 0!important;
     width: 100vw!important;
     height: 100vh!important;
+    max-height: 150vh!important;
     display: flex;
     align-items: center!important;
     justify-content: flex-start!important;
@@ -36,17 +37,33 @@ export const ProfileImage = styled.div`
   width: 100px;
   height: 100px;
   background-color: var(--gris-oscuro);
-  background-image: url(${props => props.image});
+  background-image: url(${(props) => props.image});
   background-size: cover;
   background-position: center;
   border-radius: 50%;
   margin: 20px auto;
+  position: relative;
+  z-index: 2;
+
+  @media (max-width: 768px) {
+    position: relative;
+    margin-top: 20px;
+    width: 80px;
+    height: 80px;
+    align-self: center;
+  }
 `;
 
 
 export const UserInfo = styled.div`
   text-align: center;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    position: relative;
+    align-self: center;
+    margin-top: 0;
+  }
 `;
 
 export const Menu = styled.div`

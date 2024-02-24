@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const ItemContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -10,29 +10,34 @@ export const ItemContainer = styled.div`
   cursor: pointer;
 `;
 
-
 export const ItemPreview = styled.div`
-  width: 250px;
-  height: 140px;
-  background-color: #ddd;
-  margin-right: 10px;
-  cursor: pointer;
-  overflow: hidden; 
+  flex: 0 0 160px; /* Ancho fijo para el contenedor de previsualización */
+  height: 90px; /* Altura fija basada en una relación de aspecto de 16:9 */
+  overflow: hidden;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-right: 10px; /* Añadir un margen derecho para separar del contenido */
+
+  & > video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Asegura que el video cubra el área asignada */
+  }
 `;
+
 export const ContentContainer = styled.div`
   flex-grow: 1;
+  display: flex;
+  flex-direction: column; /* Organizar el título y la descripción en columna */
 `;
 
 export const ItemTitle = styled.h4`
-  margin: 0;
-  font-size: 18px;
+  font-size: 16px; /* Ajustar el tamaño del título si es necesario */
+  margin: 0 0 5px 0; /* Espacio debajo del título */
 `;
+
 export const ItemDescription = styled.p`
   font-size: 14px;
+  flex-grow: 1; /* Asegurarse de que la descripción ocupe el espacio restante */
 `;
 
 export const ItemButton = styled.button`
@@ -60,7 +65,8 @@ export const ItemSelect = styled.select`
 `;
 
 export const ItemCheckbox = styled.input`
-  margin-left: auto; 
+  align-self: start;
+  margin-left: auto;
   cursor: pointer;
 `;
 export const customStyles = {

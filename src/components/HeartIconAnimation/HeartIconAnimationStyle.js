@@ -176,3 +176,21 @@ export const ModalBackdrop = styled.div`
   z-index: 1040; // Menor que el PopupWindow para que aparezca detrás
   background-color: transparent; // Cambiar si se desea un fondo oscurecido
 `;
+
+
+export const IconContainer = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: ${props => props.size}px;
+  height: ${props => props.size}px;
+  z-index: 1000;
+  cursor: pointer;
+  border-radius: 50%; /* Esto hará que el contenedor sea circular */
+  overflow: hidden; /* Asegúrate de que la imagen no se desborde del contenedor circular */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white; /* Cambia esto por el color de fondo de tu preferencia */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Esto dará efecto de elevación al botón */
+`;
