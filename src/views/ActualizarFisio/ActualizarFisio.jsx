@@ -209,7 +209,7 @@ const ActualizarFisio = () => {
                                 placeholderText="Selecciona una fecha"
                             />
                         </DatePickerWrapper>
-                        <EmailInput placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        {/*<EmailInput placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} />*/}
                     </ModalBody>
                     <ModalFooter>
                         <Button onClick={handleUpdate}>Confirmar Actualización</Button>

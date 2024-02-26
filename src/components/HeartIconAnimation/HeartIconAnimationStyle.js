@@ -85,7 +85,7 @@ export const TextArea = styled.textarea`
   margin-bottom: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  height: 100px; // Altura fija para el área de texto
+  height: 100px;
 `;
 export const Button = styled.button`
   padding: 10px 15px;
@@ -173,8 +173,8 @@ export const ModalBackdrop = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1040; // Menor que el PopupWindow para que aparezca detrás
-  background-color: transparent; // Cambiar si se desea un fondo oscurecido
+  z-index: 1040;
+  background-color: transparent;
 `;
 
 
@@ -186,11 +186,11 @@ export const IconContainer = styled.div`
   height: ${props => props.size}px;
   z-index: 1000;
   cursor: pointer;
-  border-radius: 50%; /* Esto hará que el contenedor sea circular */
-  overflow: hidden; /* Asegúrate de que la imagen no se desborde del contenedor circular */
+  border-radius: 50%;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white; /* Cambia esto por el color de fondo de tu preferencia */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Esto dará efecto de elevación al botón */
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 `;

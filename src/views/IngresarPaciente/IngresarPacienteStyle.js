@@ -152,17 +152,18 @@ export const MobileDropdown = styled.div`
   animation: ${fadeIn} 0.3s ease-out forwards;
 
   & > div {
-    margin-bottom: 0.5rem;
+    margin: 0.2rem 0;
+    padding: 0.8rem;
     font-size: 1.2rem;
     font-weight: bold;
-    padding: 0.5rem;
     border-radius: 0.3rem;
-    background-color: var(--gris);
+    background-color: var(--azul);
     &:last-child {
       margin-bottom: 0;
     }
     &:hover {
-      background-color: var(--gris);
+      background-color: var(--azul);
+      color: var(--blanco);
     }
   }
 `;
@@ -170,19 +171,22 @@ export const MobileDropdown = styled.div`
 
 export const MobileDropdownItem = styled.div`
   padding: 10px 20px;
-  border-bottom: 1px solid var(--gris);
-  background-color: ${({ active }) => active ? 'var(--azul)' : 'transparent'};
-  color: ${({ active }) => active ? 'white' : 'black'};
+  border-bottom: 1px solid var(--gris-claro); /* Asegúrate de tener esta variable de color definida */
+  background-color: ${({ active }) => (active ? 'var(--azul)' : 'transparent')};
+  color: ${({ active }) => (active ? 'var(--blanco)' : 'var(--gris-oscuro)')}; /* Cambiar a un gris oscuro para visibilidad */
+  transition: color 0.5s ease, background-color 0.5s ease; /* Suavizar las transiciones */
   &:last-child {
     border-bottom: none;
   }
   &:hover {
-    background-color: var(--gris);
+    background-color: var(--azul-claro); /* Asegúrate de que este color contraste bien con el blanco */
+    color: var(--blanco);
   }
   ${({ active }) =>
           active &&
           css`
             background-color: var(--azul);
             color: var(--blanco);
+            font-weight: bold;
           `}
 `;

@@ -4,92 +4,120 @@ import Body from "./Body";
 
 const BodyMap = ({ onAreaSelected }) => {
     const [isDrawing, setIsDrawing] = useState(false);
-    const [isErasing, setIsErasing] = useState(false);
+    const [color, setColor] = useState('red');
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
-    const [color, setColor] = useState('red');
-    const backgroundColor = 'white'; // Asegúrate de que esto coincida con el color de fondo de tu lienzo
 
-    const toggleEraser = () => {
-        setIsErasing(!isErasing);
-        setColor(isErasing ? 'red' : backgroundColor);
-    };
-
-    const clearCanvas = () => {
+    // Esta función inicializa el contexto del lienzo y ajusta el tamaño.
+    const initCanvas = () => {
         const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
-    };
-
-    useEffect(() => {
-        if (contextRef.current) {
-            contextRef.current.strokeStyle = isErasing ? backgroundColor : color;
-        }
-    }, [color, isErasing]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
 
         const context = canvas.getContext('2d');
-        context.scale(1, 1);
         context.lineCap = 'round';
         context.strokeStyle = color;
         context.lineWidth = 3;
         contextRef.current = context;
+    };
+
+    useEffect(() => {
+        initCanvas();
+        // Añade el event listener para el redimensionamiento de la ventana
+        window.addEventListener('resize', initCanvas);
+        return () => {
+            // Limpia el event listener cuando el componente se desmonte
+            window.removeEventListener('resize', initCanvas);
+        };
     }, []);
 
+    useEffect(() => {
+        if (contextRef.current) {
+            contextRef.current.strokeStyle = color;
+        }
+    }, [color]);
+
+    // Previene el desplazamiento en dispositivos móviles al dibujar
+    const preventScroll = (event) => {
+        if (isDrawing) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+
+    // Actualiza el estado de isDrawing a true y comienza el dibujo
     const startDrawing = ({ nativeEvent }) => {
-        const { offsetX, offsetY } = nativeEvent;
+        nativeEvent.preventDefault();
+        const { offsetX, offsetY } = getOffset(nativeEvent);
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
         setIsDrawing(true);
     };
 
+    // Continúa el dibujo si isDrawing es true
     const draw = ({ nativeEvent }) => {
         if (!isDrawing) {
             return;
         }
-        const { offsetX, offsetY } = nativeEvent;
+        nativeEvent.preventDefault();
+        const { offsetX, offsetY } = getOffset(nativeEvent);
         contextRef.current.lineTo(offsetX, offsetY);
         contextRef.current.stroke();
     };
 
-    const finishDrawing = () => {
+    // Termina el dibujo y actualiza el estado de isDrawing a false
+    const finishDrawing = ({ nativeEvent }) => {
+        nativeEvent.preventDefault();
         contextRef.current.closePath();
         setIsDrawing(false);
     };
 
-    const handleAreaClick = (area) => {
-        onAreaSelected(area);
+    // Obtiene las coordenadas para el dibujo basado en eventos de mouse o táctiles
+    const getOffset = (nativeEvent) => {
+        if (nativeEvent.touches) {
+            const touch = nativeEvent.touches[0];
+            const rect = canvasRef.current.getBoundingClientRect();
+            return {
+                offsetX: touch.clientX - rect.left,
+                offsetY: touch.clientY - rect.top,
+            };
+        } else {
+            return {
+                offsetX: nativeEvent.offsetX,
+                offsetY: nativeEvent.offsetY,
+            };
+        }
+    };
+
+    // Limpia el lienzo
+    const clearCanvas = () => {
+        const canvas = canvasRef.current;
+        contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
     };
 
     return (
-        <BodyMapContainer className={"pacienteEsquema"}>
+        <BodyMapContainer>
             <Body />
             <Canvas
                 onMouseDown={startDrawing}
                 onMouseUp={finishDrawing}
+                onMouseOut={finishDrawing}
                 onMouseMove={draw}
-                onMouseLeave={finishDrawing}
                 onTouchStart={startDrawing}
-                onTouchMove={draw}
                 onTouchEnd={finishDrawing}
+                onTouchMove={draw}
                 ref={canvasRef}
             />
             <Controls>
                 <ControlButton onClick={clearCanvas}>Limpiar</ControlButton>
-                <ControlButton onClick={toggleEraser}>
-                    {isErasing ? 'Dibujar' : 'Borrar'}
+                <ControlButton onClick={() => setColor(color === 'red' ? 'white' : 'red')}>
+                    {color === 'red' ? 'Borrar' : 'Dibujar'}
                 </ControlButton>
                 <ColorPicker
                     type="color"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    disabled={isErasing}
+                    disabled={color !== 'red'}
                 />
             </Controls>
         </BodyMapContainer>

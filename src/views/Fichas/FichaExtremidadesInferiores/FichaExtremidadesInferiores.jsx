@@ -96,6 +96,7 @@ const FichaExtremidadesInferiores = () => {
                 radiologiaNota: '',
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
+                diagnostico: '',
                 idInstitucion: userData.id_empresa,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
@@ -1463,7 +1464,9 @@ const FichaExtremidadesInferiores = () => {
                     onChange={handleInputChange}
                 />
 
+                <label htmlFor="objetivosPaciente">Diagnóstico:</label>
 
+                <textarea rows="10" cols="100" id="diagnostico" name="diagnostico" value={formValues.diagnostico} onChange={handleInputChange}></textarea>
                 <BodyMapStyle>
                     <BodyMap key={"BodyMapExtremidadesInferiores"}/>
                 </BodyMapStyle>

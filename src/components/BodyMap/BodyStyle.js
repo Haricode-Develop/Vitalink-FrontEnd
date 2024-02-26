@@ -6,6 +6,7 @@ export const BodyMapContainer = styled.div`
   margin: 50px;
   width: 30rem; 
   height: 30rem;
+ 
 `;
 
 export const Canvas = styled.canvas`
@@ -15,6 +16,10 @@ export const Canvas = styled.canvas`
   width: 100%;
   height: 100%;
   cursor: crosshair;
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+  }
 `;
 
 export const Controls = styled.div`

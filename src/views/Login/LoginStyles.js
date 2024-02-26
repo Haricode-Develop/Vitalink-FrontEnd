@@ -8,7 +8,12 @@ export const BackgroundImage = styled.div`
   background-position: left center;
   width: 100%;
   min-height: 100vh;
+
+  @media (max-width: 768px) {
+    background: none;
+  }
 `;
+
 
 export const Overlay = styled.div`
   display: flex;
@@ -21,15 +26,20 @@ export const Overlay = styled.div`
   right: 0;
 
   @media (max-width: 768px) {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center; 
   }
 `;
 
-// Estilos actualizados para CharacterCircle para posicionarlo correctamente
 export const CharacterCircleContainer = styled.div`
   overflow: hidden;
-  width: 800px; // El ancho total del CharacterCircle
-  height: 450px; // La mitad de la altura para mostrar solo la parte superior
+  width: 800px;
+  height: 450px;
   position: absolute;
   bottom: 0;
   right: 70%;
@@ -49,6 +59,9 @@ export const CharacterCircleContainer = styled.div`
     right: 50%;
     transform: translateX(55%);
   }
+  @media (max-height: 927px) and (max-width: 768px){
+    display: none;
+  }
   @media (max-width: 576px) {
     width: 300px;
     height: 150px;
@@ -56,7 +69,6 @@ export const CharacterCircleContainer = styled.div`
 `;
 
 
-// Componente para el círculo gráfico
 export const CharacterCircle = styled.div`
   background: #fff;
   border-radius: 50%;
@@ -82,6 +94,7 @@ export const CharacterCircle = styled.div`
     width: 475px;
     height: 475px;
   }
+
   @media (max-width: 768px) {
     width: 375px;
     height: 375px;
@@ -109,12 +122,24 @@ export const LoginForm = styled.div`
   justify-content: center;
   position: relative;
   z-index: 2;
+  @media (max-width: 768px) {
+    width: 80%;
+    margin: auto;
+    padding: 40px 20px;
+  }
 `;
 
 export const Logo = styled.img`
   display: block;
   margin: 0 auto 20px;
   width: 60%;
+  height: auto;
+  object-fit: contain;
+
+  @media (max-width: 768px) {
+    width: 50%;
+    height: auto;
+  }
 `;
 
 export const Input = styled.input`
@@ -170,13 +195,13 @@ export const StyledModal = styled.div`
 export const AppName = styled.h1`
   font-size: 3em;
   font-weight: bold;
-  color: #0000ff; // Un color azul para el nombre de la app
+  color: #0000ff;
   position: absolute;
   top: 20%;
   left: 5%;
   transform: translate(-5%, -20%);
   white-space: nowrap;
-  z-index: 2; // Para asegurarse de que esté encima del círculo
+  z-index: 2;
 `;
 
 export const PlansTextLink = styled.div`

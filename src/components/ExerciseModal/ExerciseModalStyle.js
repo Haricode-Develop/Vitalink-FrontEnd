@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-// Definimos los componentes estilizados aquí.
 
 
 export const LeftSection = styled.div`
@@ -34,7 +33,7 @@ export const RightSection = styled.div`
 
   @media (min-width: 768px) {
     flex: 0 0 40%;
-    order: 2; // En pantallas más grandes, será el segundo
+    order: 2;
   }
 `;
 
@@ -78,7 +77,7 @@ export const ConfirmButtonContainer = styled.div`
   padding: 10px 0;
 
   @media (max-width: 768px) {
-    position: fixed; // Cambiar a fixed para dispositivos móviles
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
@@ -206,10 +205,10 @@ export const MainFilterButton = styled.button`
 `;
 
 export const FilterMenuButton = styled.button`
-  display: none; // El botón está oculto por defecto
+  display: none;
 
   @media (max-width: 768px) {
-    display: block; // Solo se muestra en pantallas menores a 768px
+    display: block;
     background-color: var(--celeste-rgba-65);
     color: white;
     border: none;

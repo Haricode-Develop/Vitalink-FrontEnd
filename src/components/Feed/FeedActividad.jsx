@@ -38,8 +38,8 @@ const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => 
                 return <FaEdit color="orange" />;
             case 'Eliminado':
                 return <FaTrash color="red" />;
-            case 'Reingresado':  // Agregamos la nueva acción
-                return <FaRedo color="blue" />; // Icono para Reingreso
+            case 'Reingresado':
+                return <FaRedo color="blue" />;
             default:
                 return <FaEdit />;
         }

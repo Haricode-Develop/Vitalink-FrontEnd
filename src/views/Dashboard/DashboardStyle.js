@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 export const Sidebar = styled.div`
   width: 300px;
-  height: 100vh;
+  height: 100%; // Altura basada en el contenido del sidebar
   background-color: #202424;
   color: var(--blanco);
   position: fixed;
@@ -14,13 +14,13 @@ export const Sidebar = styled.div`
     position: fixed!important;
     top: 0!important;
     left: 0!important;
-    width: 100vw!important;
-    height: 100vh!important;
+    width: 100%!important;
+    height: 100%!important;
     max-height: 150vh!important;
     display: flex;
     align-items: center!important;
     justify-content: flex-start!important;
-    transform: ${props => props.menuOpen ? 'translateX(0)' : 'translateX(-100vw)'}!important;
+    transform: ${props => props.menuOpen ? 'translateX(0)' : 'translateX(-100%)'}!important;
     overflow-y: auto!important;
     flex-direction: column!important;
     transition: transform 0.3s ease-in-out!important;
