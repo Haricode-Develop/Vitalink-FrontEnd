@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 export const Sidebar = styled.div`
   width: 300px;
-  height: 100%; // Altura basada en el contenido del sidebar
+  height: 100%;
   background-color: #202424;
   color: var(--blanco);
   position: fixed;
@@ -140,10 +140,10 @@ export const Content = styled.div`
   grid-template-columns: repeat(2, 1fr);
   flex-grow: 1;
   padding: 20px;
-  padding-left: ${props => props.isSidebarOpen ? '250px' : '0'}; // Ajusta esto según el ancho de tu sidebar
+  padding-left: ${props => props.isSidebarOpen ? '250px' : '0'};
 
 
-  width: calc(100% - 250px); // Resta el ancho del sidebar cuando está abierto
+  width: calc(100% - 250px);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -157,6 +157,7 @@ export const Box = styled.div`
   box-shadow: 0px 4px 6px var(--negro-rgba-01);
   margin: 10px;
   padding: 20px 20px 60px 20px;
+  
   position: relative;
   min-height: 180px;
 
@@ -169,26 +170,26 @@ export const Box = styled.div`
 `;
 
 export const SidebarButton = styled.button`
-  background: var(--rojo); // Usa el color que prefieras
+  background: var(--rojo);
   border: none;
   color: var(--blanco);
   padding: 10px;
-  position: fixed; // Posición fija en la pantalla
+  position: fixed;
   top: 20px;
-  left: ${props => props.open ? '250px' : '0'}; // Posición basada en si el sidebar está abierto o no
+  left: ${props => props.open ? '250px' : '0'};
   transition: left 0.3s ease;
-  z-index: 100; // Asegúrate de que el botón esté por encima de otros elementos
+  z-index: 100;
   cursor: pointer;
 
   &:focus {
-    outline: none; // Elimina el contorno al hacer clic
+    outline: none;
   }
 
   @media (max-width: 768px) {
     position: fixed;
     top: 20px;
     left: 0;
-    z-index: 1050; // Debe estar por encima del Sidebar/Navbar
+    z-index: 1050;
   }
 `;
 export const ChartContainer = styled.div`
@@ -212,9 +213,9 @@ export const ChartContainerTime = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%; // Usa el 100% del ancho del contenedor padre
-  max-width: 600px; // Establece un ancho máximo si es necesario
-  height: 300px; // Altura automática para mantener la proporción
+  width: 100%;
+  max-width: 600px;
+  height: 300px;
   position: relative;
 `;
 
@@ -245,6 +246,7 @@ export const BoxButton = styled.button`
 `;
 export const TableContainer = styled.div`
   width: 100%;
+  margin-bottom: 20px;
   max-height: 300px;
   overflow: auto;
   position: relative;
@@ -266,7 +268,7 @@ export const SearchInput = styled.input`
 export const BoxTitleMobile = styled(BoxTitle)`
   
   @media (max-width: 768px) {
-    display: block; // Visible solo en móviles
+    display: block;
     width: 100%;
     text-align: center;
   }

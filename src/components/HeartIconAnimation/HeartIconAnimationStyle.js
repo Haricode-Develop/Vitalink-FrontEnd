@@ -60,7 +60,7 @@ export const PopupWindow = styled.div`
     justify-content: center;
     border-radius: 0;
   `};
-  @media (min-width: 600px) {
+  @media (min-width: 700px) {
     bottom: 30px;
     padding: 35px;
     right: 100px;
