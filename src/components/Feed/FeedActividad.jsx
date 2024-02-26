@@ -44,7 +44,15 @@ const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => 
                 return <FaEdit />;
         }
     };
-
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    };
     return (
         <ActivityFeedContainer className={"FeedActividades"}>
             <ActivityTitle>Feed de Actividades</ActivityTitle>
@@ -57,7 +65,7 @@ const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => 
                             <strong>Acción:</strong> {activity.NOMBRE_ACCION}<br />
                             <strong>Afectado:</strong> {activity.NOMBRE_USUARIO_AFECTADO} {activity.APELLIDO_USUARIO_AFECTADO}
                         </ActivityDescription>
-                        <ActivityTime>{new Date(activity.FECHA_ACCION).toLocaleString()}</ActivityTime>
+                        <ActivityTime>{formatDate(activity.FECHA_ACCION)}</ActivityTime>
                     </ActivityItem>
                 ))}
             </ActivityList>
