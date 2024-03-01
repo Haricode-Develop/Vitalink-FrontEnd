@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BodyMapContainer, Canvas, Controls, ControlButton, ColorPicker } from "./BodyStyle";
+import { BodyMapContainer, Canvas, Controls, ControlButton, ColorPicker, CanvasStyled } from "./BodyStyle";
 import Body from "./Body";
 
 const BodyMap = ({ onAreaSelected }) => {
@@ -11,15 +11,18 @@ const BodyMap = ({ onAreaSelected }) => {
     // Esta función inicializa el contexto del lienzo y ajusta el tamaño.
     const initCanvas = () => {
         const canvas = canvasRef.current;
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-
+        const container = canvas.parentElement; // El contenedor padre debería ser BodyMapContainer
+        // Asegúrate de que el canvas tome el tamaño del contenedor padre
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
         const context = canvas.getContext('2d');
         context.lineCap = 'round';
         context.strokeStyle = color;
         context.lineWidth = 3;
         contextRef.current = context;
     };
+
+
 
     useEffect(() => {
         initCanvas();
@@ -30,6 +33,9 @@ const BodyMap = ({ onAreaSelected }) => {
             window.removeEventListener('resize', initCanvas);
         };
     }, []);
+
+
+
 
     useEffect(() => {
         if (contextRef.current) {
@@ -46,81 +52,79 @@ const BodyMap = ({ onAreaSelected }) => {
     };
 
     // Actualiza el estado de isDrawing a true y comienza el dibujo
-    const startDrawing = ({ nativeEvent }) => {
-        nativeEvent.preventDefault();
-        const { offsetX, offsetY } = getOffset(nativeEvent);
+
+    const startDrawing = (event) => {
+        event.preventDefault();
+        setIsDrawing(true);
+        const { offsetX, offsetY } = getOffset(event);
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
-        setIsDrawing(true);
     };
-
     // Continúa el dibujo si isDrawing es true
-    const draw = ({ nativeEvent }) => {
-        if (!isDrawing) {
-            return;
-        }
-        nativeEvent.preventDefault();
-        const { offsetX, offsetY } = getOffset(nativeEvent);
+    const draw = (event) => {
+        if (!isDrawing) return;
+        event.preventDefault();
+        const { offsetX, offsetY } = getOffset(event);
         contextRef.current.lineTo(offsetX, offsetY);
         contextRef.current.stroke();
+
     };
 
-    // Termina el dibujo y actualiza el estado de isDrawing a false
-    const finishDrawing = ({ nativeEvent }) => {
-        nativeEvent.preventDefault();
-        contextRef.current.closePath();
-        setIsDrawing(false);
+    const preventGlobalScroll = (e) => {
+        e.preventDefault();
     };
+    const finishDrawing = () => {
+        setIsDrawing(false);
+        contextRef.current.closePath();
+    };
+
+
 
     // Obtiene las coordenadas para el dibujo basado en eventos de mouse o táctiles
-    const getOffset = (nativeEvent) => {
-        if (nativeEvent.touches) {
-            const touch = nativeEvent.touches[0];
-            const rect = canvasRef.current.getBoundingClientRect();
-            return {
-                offsetX: touch.clientX - rect.left,
-                offsetY: touch.clientY - rect.top,
-            };
-        } else {
-            return {
-                offsetX: nativeEvent.offsetX,
-                offsetY: nativeEvent.offsetY,
-            };
-        }
+
+    const getOffset = (event) => {
+        const target = canvasRef.current;
+        const rect = target.getBoundingClientRect();
+        const offsetX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+        const offsetY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+        return { offsetX, offsetY };
     };
 
     // Limpia el lienzo
     const clearCanvas = () => {
-        const canvas = canvasRef.current;
-        contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
+        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     };
 
     return (
+        <div>
         <BodyMapContainer>
             <Body />
-            <Canvas
+            <CanvasStyled
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={finishDrawing}
                 onMouseDown={startDrawing}
+                onMouseMove={draw}
                 onMouseUp={finishDrawing}
                 onMouseOut={finishDrawing}
-                onMouseMove={draw}
-                onTouchStart={startDrawing}
-                onTouchEnd={finishDrawing}
-                onTouchMove={draw}
                 ref={canvasRef}
             />
-            <Controls>
-                <ControlButton onClick={clearCanvas}>Limpiar</ControlButton>
-                <ControlButton onClick={() => setColor(color === 'red' ? 'white' : 'red')}>
-                    {color === 'red' ? 'Borrar' : 'Dibujar'}
-                </ControlButton>
-                <ColorPicker
-                    type="color"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    disabled={color !== 'red'}
-                />
-            </Controls>
+
         </BodyMapContainer>
+
+    <Controls>
+        <ControlButton onClick={clearCanvas}>Limpiar</ControlButton>
+        <ControlButton onClick={() => setColor(color === 'red' ? 'white' : 'red')}>
+            {color === 'red' ? 'Borrar' : 'Dibujar'}
+        </ControlButton>
+        <ColorPicker
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            disabled={color !== 'red'}
+        />
+    </Controls>
+        </div>
     );
 };
 

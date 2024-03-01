@@ -300,6 +300,7 @@ const FichaColumnaCervical = () => {
                     autoClose: 5000,
                     hideProgressBar: true,
                 });
+                localStorage.removeItem('datosFormularioPacienteColumnaCervical');
             })
             .catch(error => {
                 console.error('Error al cargar el PDF:', error);
@@ -333,13 +334,15 @@ const FichaColumnaCervical = () => {
                     value={formValues.apellido}
                     onChange={handleInputChange}
                 />
-                <label htmlFor="email">Email</label>
-                <input type="email"
-                       id="email"
-                       name="email"
-                       value={formValues.email}
-                       onChange={handleInputChange}
-                />
+
+                {/* Sexo */}
+                <Label htmlFor="sexo">Sexo M/F</Label>
+                <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
+                    <option value="">Seleccionar</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                </Select>
+
                 {/* Dirección */}
                 <label htmlFor="direccion">Dirección</label>
                 <input
@@ -348,6 +351,15 @@ const FichaColumnaCervical = () => {
                     name="direccion"
                     value={formValues.direccion}
                     onChange={handleInputChange}
+                />
+
+                {/* Email */}
+                <label htmlFor="email">Email</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       value={formValues.email}
+                       onChange={handleInputChange}
                 />
 
                 {/* Teléfono */}
@@ -360,13 +372,6 @@ const FichaColumnaCervical = () => {
                     onChange={handleInputChange}
                 />
 
-                {/* Sexo */}
-                <Label htmlFor="sexo">Sexo M/F</Label>
-                <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
-                    <option value="">Seleccionar</option>
-                    <option value="M">M</option>
-                    <option value="F">F</option>
-                </Select>
 
                 {/* Fecha de Nacimiento */}
                 <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
@@ -393,7 +398,7 @@ const FichaColumnaCervical = () => {
                 />
 
                 {/* Remitido por */}
-                <label htmlFor="remitidoPor">Remitido por Dr./Dra./Otro</label>
+                <label htmlFor="remitidoPor">Remitido por Dr./Él./Otro</label>
                 <input
                     type="text"
                     id="remitidoPor"
@@ -682,7 +687,7 @@ const FichaColumnaCervical = () => {
                         <input
                             type="text"
                             id="sintomasPeoresOtro"
-                            name="sintomasPeoresOtro" // Nombre actualizado para ser único
+                            name="sintomasPeoresOtro"
                             placeholder="Especifique si es otro"
                             value={formValues.sintomasPeores.includes('otro') ? formValues.sintomasPeoresOtro : ''}
                             onChange={handleInputChange}
@@ -1012,7 +1017,7 @@ const FichaColumnaCervical = () => {
                     value={formValues.medicacion}
                     onChange={handleInputChange}
                 />
-                <label htmlFor="medicacion">Salud general:
+                <label htmlFor="medicacion">Salud general / Comorbilidades:
 
                 </label>
                 <input
@@ -1151,6 +1156,8 @@ const FichaColumnaCervical = () => {
 
                     />
                 </label>
+
+
                 <input
                     type="text"
                     id="perdidaPesoNota"

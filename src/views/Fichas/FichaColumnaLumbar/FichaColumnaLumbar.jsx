@@ -312,6 +312,9 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                     autoClose: 5000,
                     hideProgressBar: true,
                 });
+
+                localStorage.removeItem('datosFormularioPaciente')
+
             })
             .catch(error => {
                 console.error('Error al cargar el PDF:', error);
@@ -345,6 +348,15 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 value={formValues.apellido}
                 onChange={handleInputChange}
             />
+            {/* Sexo */}
+            <Label htmlFor="sexo">Sexo M/F</Label>
+            <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
+                <option value="">Seleccionar</option>
+                <option value="M">M</option>
+                <option value="F">F</option>
+            </Select>
+
+
             <label htmlFor="email">Email</label>
             <input type="email"
             id="email"
@@ -372,14 +384,6 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 onChange={handleInputChange}
             />
 
-            {/* Sexo */}
-            <Label htmlFor="sexo">Sexo M/F</Label>
-            <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
-                <option value="">Seleccionar</option>
-                <option value="M">M</option>
-                <option value="F">F</option>
-            </Select>
-
             {/* Fecha de Nacimiento */}
             <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
             <DatePickerWrapper>
@@ -390,6 +394,8 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                     showYearDropdown
                     showMonthDropdown
                     dropdownMode="select"
+                    yearDropdownItemNumber={60}
+                    scrollableYearDropdown={true}
                     placeholderText="Selecciona una fecha"
                 />
             </DatePickerWrapper>
@@ -405,7 +411,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             />
 
             {/* Remitido por */}
-            <label htmlFor="remitidoPor">Remitido por Dr./Dra./Otro</label>
+            <label htmlFor="remitidoPor">Remitido por Dr./Él./Otro</label>
             <input
                 type="text"
                 id="remitidoPor"
@@ -445,7 +451,6 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             />
 
             {/* Resultado del test */}
-            {/* Suponiendo que es un campo de texto, si no, ajustar según sea necesario */}
             <label htmlFor="resultadoTest">Resultado del test</label>
             <input
                 type="text"
@@ -466,8 +471,6 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
 
             />
 
-
-
             {/* Síntomas presentes */}
             <label htmlFor="sintomasPresentes">Síntomas presentes</label>
             <input
@@ -477,8 +480,6 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 value={formValues.sintomasPresentes}
                 onChange={handleInputChange}
             />
-
-
             {/* Comienzo de síntomas */}
             <label htmlFor="comienzoSintomas">Presentes desde</label>
             <input
@@ -679,8 +680,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center',marginTop: '20px' }}>
                     <div>
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="Flexionando" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Flexionando')}
-                            /> Flexionando
+                            <input type="checkbox" name="sintomasPeores" value="Flexionando" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Flexionando')}/> Flexionando
                         </label>
                     </div>
                     <div>
@@ -745,7 +745,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                     <input
                         type="text"
                         id="sintomasPeoresOtro"
-                        name="sintomasPeoresOtro" // Nombre actualizado para ser único
+                        name="sintomasPeoresOtro"
                         placeholder="Especifique si es otro"
                         value={formValues.sintomasPeores.includes('otro') ? formValues.sintomasPeoresOtro : ''}
                         onChange={handleInputChange}
@@ -1081,7 +1081,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 value={formValues.medicacion}
                 onChange={handleInputChange}
             />
-            <label htmlFor="medicacion">Salud general:
+            <label htmlFor="medicacion">Salud general / Comorbilidades:
 
             </label>
             <input

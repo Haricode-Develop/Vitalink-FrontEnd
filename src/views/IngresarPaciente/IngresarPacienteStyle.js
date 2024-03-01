@@ -129,7 +129,7 @@ export const MobileMenuButton = styled.button`
   top: 1rem;
   right: 1rem;
   z-index: 1000;
-
+  cursor: pointer;
   @media (min-width: 769px) {
     display: none;
   }
@@ -171,15 +171,16 @@ export const MobileDropdown = styled.div`
 
 export const MobileDropdownItem = styled.div`
   padding: 10px 20px;
-  border-bottom: 1px solid var(--gris-claro); /* Asegúrate de tener esta variable de color definida */
+  border-bottom: 1px solid var(--gris-claro);
   background-color: ${({ active }) => (active ? 'var(--azul)' : 'transparent')};
-  color: ${({ active }) => (active ? 'var(--blanco)' : 'var(--gris-oscuro)')}; /* Cambiar a un gris oscuro para visibilidad */
-  transition: color 0.5s ease, background-color 0.5s ease; /* Suavizar las transiciones */
+  color: ${({ active }) => (active ? 'var(--blanco)' : 'var(--gris-oscuro)')};
+  transition: color 0.5s ease, background-color 0.5s ease;
+  cursor: pointer;
   &:last-child {
     border-bottom: none;
   }
   &:hover {
-    background-color: var(--azul-claro); /* Asegúrate de que este color contraste bien con el blanco */
+    background-color: var(--azul-claro);
     color: var(--blanco);
   }
   ${({ active }) =>

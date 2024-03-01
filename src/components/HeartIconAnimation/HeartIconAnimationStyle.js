@@ -31,8 +31,8 @@ export const PopupWindow = styled.div`
   position: fixed;
   bottom: 30px;
   right: 100px;
-  width: 90%;
-  max-width: 300px;
+  width: 55%;
+  max-width: 55%;
   background: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);

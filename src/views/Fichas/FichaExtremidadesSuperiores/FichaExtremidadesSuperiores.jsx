@@ -305,6 +305,7 @@ const FichaExtremidadesSuperiores = () => {
                     autoClose: 5000,
                     hideProgressBar: true,
                 });
+                localStorage.removeItem('datosFormularioPacienteExtremidadesSuperiores');
             })
             .catch(error => {
                 console.error('Error al cargar el PDF:', error);
@@ -338,6 +339,16 @@ const FichaExtremidadesSuperiores = () => {
                     value={formValues.apellido}
                     onChange={handleInputChange}
                 />
+
+                {/* Sexo */}
+                <Label htmlFor="sexo">Sexo M/F</Label>
+                <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
+                    <option value="">Seleccionar</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                </Select>
+
+
                 <label htmlFor="email">Email</label>
                 <input type="email"
                        id="email"
@@ -345,6 +356,7 @@ const FichaExtremidadesSuperiores = () => {
                        value={formValues.email}
                        onChange={handleInputChange}
                 />
+
                 {/* Dirección */}
                 <label htmlFor="direccion">Dirección</label>
                 <input
@@ -364,14 +376,6 @@ const FichaExtremidadesSuperiores = () => {
                     value={formValues.telefono}
                     onChange={handleInputChange}
                 />
-
-                {/* Sexo */}
-                <Label htmlFor="sexo">Sexo M/F</Label>
-                <Select id="sexo" name="sexo" value={formValues.sexo} onChange={handleInputChange}>
-                    <option value="">Seleccionar</option>
-                    <option value="M">M</option>
-                    <option value="F">F</option>
-                </Select>
 
                 {/* Fecha de Nacimiento */}
                 <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
@@ -398,7 +402,8 @@ const FichaExtremidadesSuperiores = () => {
                 />
 
                 {/* Remitido por */}
-                <label htmlFor="remitidoPor">Remitido por Dr./Dra./Otro</label>
+                <label htmlFor="remitidoPor">Remitido por Dr./Él/Otro</label>
+
                 <input
                     type="text"
                     id="remitidoPor"
@@ -438,7 +443,6 @@ const FichaExtremidadesSuperiores = () => {
                 />
 
                 {/* Resultado del test */}
-                {/* Suponiendo que es un campo de texto, si no, ajustar según sea necesario */}
                 <label htmlFor="puntuacionIncapacidad">Puntuación en incapacidad funcional</label>
                 <input
                     type="text"
@@ -552,7 +556,8 @@ const FichaExtremidadesSuperiores = () => {
                     </div>
                     <div>
                         <label>
-                            <input type="radio" name="parentesia" value="No" onChange={handleInputChange} checked={formValues.parentesia.includes('No')}/> No
+                            <input type="radio" name="parentesia" value="No" onChange={handleInputChange} checked={formValues.parentesia.includes('No')}
+                            /> No
                         </label>
                     </div>
                 </div>
@@ -625,7 +630,7 @@ const FichaExtremidadesSuperiores = () => {
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Girando Cuella')} /> Girando Cuella
+                                <input type="checkbox" name="sintomasPeores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Girando Cuella')} /> Girando Cuello
                             </label>
                         </div>
                             <label>
@@ -695,7 +700,7 @@ const FichaExtremidadesSuperiores = () => {
                         <input
                             type="text"
                             id="sintomasPeoresOtro"
-                            name="sintomasPeoresOtro" // Nombre actualizado para ser único
+                            name="sintomasPeoresOtro"
                             placeholder="Especifique si es otro"
                             value={formValues.sintomasPeores.includes('otro') ? formValues.sintomasPeoresOtro : ''}
                             onChange={handleInputChange}
@@ -724,7 +729,7 @@ const FichaExtremidadesSuperiores = () => {
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Girando Cuella')} /> Girando Cuella
+                                <input type="checkbox" name="sintomasMejores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Girando Cuella')} /> Girando Cuello
                             </label>
                         </div>
                         <label>
@@ -966,7 +971,7 @@ const FichaExtremidadesSuperiores = () => {
                             onChange={handleInputChange}
                             checked={formValues.otrasPreguntas.includes('Hinchazon')}
 
-                        /> Hinchazon
+                        /> Hinchazón
                     </label>
                 </div>
                     <div style={{ marginLeft: 'auto' }}>

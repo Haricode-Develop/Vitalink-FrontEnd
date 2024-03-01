@@ -3,10 +3,14 @@ import styled from "styled-components";
 
 export const BodyMapContainer = styled.div`
   position: relative;
-  margin: 50px;
-  width: 30rem; 
-  height: 30rem;
- 
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    max-width: 100%;
+    margin: 0;
+  }
 `;
 
 export const Canvas = styled.canvas`
@@ -61,3 +65,18 @@ export const ColorPicker = styled.input`
   }
 `;
 
+
+export const CanvasStyled = styled.canvas`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%; // Esto asegura que el canvas tome el ancho completo del contenedor
+  height: 100%; // Esto asegura que el canvas tome la altura completa del contenedor
+  cursor: crosshair;
+  touch-action: none;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+  }
+`;

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import logo from '../../assets/login/background.jpg';
+import logo from '../../assets/login/background2.webp';
 import circleGraphic from '../../assets/login/Vita_Login.png'
 
 export const BackgroundImage = styled.div`

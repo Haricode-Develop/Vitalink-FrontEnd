@@ -166,10 +166,12 @@ const LoginPage = () => {
               {errors.password && <div style={{ color: 'red' }}>{errors.password}</div>}
               <Button onClick={handleForgotPasswordClick} style={{marginTop: "30px"}}>¿Olvidaste tu contraseña?</Button>
               <Button onClick={handleSubmit} style={{ background: "var(--rojo)" }}>Ingresar</Button>
-
-              <PlansTextLink onClick={navigateToPlans}>
-                ¿Primera vez con Vitalink? Conoce nuestros planes
+              {/*
+                        <PlansTextLink onClick={navigateToPlans}>
+                 ¿Primera vez con Vitalink? Conoce nuestros planes
               </PlansTextLink>
+              */}
+
             </LoginForm>
           </animated.div>
           <StyledModal isOpen={showResetModal} onRequestClose={() => setShowResetModal(false)}>
