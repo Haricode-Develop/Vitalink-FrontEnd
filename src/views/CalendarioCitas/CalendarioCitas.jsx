@@ -36,12 +36,19 @@ import { API_BASE_URL } from "../../utils/config";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
 import { FaFilter, FaSave, FaSearch, FaTimes, FaUndo } from 'react-icons/fa';
+import ModalCalendar from "../../components/modalCalendar/modalCalendar";
+import moment from 'moment';
+import 'moment/locale/es';
 
+moment.locale('es');
 const FILTER_OPTIONS = {
     ALL: 'all',
     PAST: 'past',
     CURRENT: 'current'
 };
+
+
+
 const AppointmentCalendar = () => {
     const [currentEvents, setCurrentEvents] = useState([]);
     const { userData } = useContext(AuthContext);
@@ -64,11 +71,12 @@ const AppointmentCalendar = () => {
     const [searchTermCalendar, setSearchTermCalendar] = useState('');
     const [removingPatients, setRemovingPatients] = useState([]);
     const [filterModalOpen, setFilterModalOpen] = useState(false);
-    const [filter, setFilter] = useState(FILTER_OPTIONS.ALL);
+    const [filter, setFilter] = useState(FILTER_OPTIONS.CURRENT);
     const [shouldFilterEvents, setShouldFilterEvents] = useState(false);
     const [allEvents, setAllEvents] = useState([]);
     const calendarRef = useRef(null);
-
+    const [modalCalendarOpen, setModalCalendarOpen] = useState(false);
+    const [selectedDayEvents, setSelectedDayEvents] = useState([]);
     const handlePatientClick = (patient) => {
         setSelectedPatient(patient);
         setModalIsOpen(true);
@@ -102,28 +110,70 @@ const AppointmentCalendar = () => {
 
 
     const handleEventClick = ({ event }) => {
-        const { extendedProps, start, title, id } = event;
-        if (extendedProps.readOnly) {
+        if (event.extendedProps.readOnly) {
+
+            toast.info(`Cita: ${event.title} - Fecha: ${event.start.toLocaleDateString()} - Hora: ${event.extendedProps.startTime}`, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        } else {
+            if (!event.extendedProps.readOnly) {
+                setSelectedDate(event.start);
+                setModalCalendarOpen(true);
+            } else {
+                const patientList = pacientesConCitaFilter;
+                const patient = patientList.find(p => p.ID_USUARIO === event.extendedProps.idUsuario);
+
+                if (!patient) {
+                    toast.error('No se encontró el paciente seleccionado.', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                    return;
+                }
+
+                setSelectedPatient(patient);
+                setSelectedEvent({
+                    id: event.extendedProps.idCita,
+                    date: event.start,
+                    estado: event.extendedProps.estado,
+                    hour: event.extendedProps.startTime.split(':')[0],
+                    minute: event.extendedProps.startTime.split(':')[1],
+                    idEstado: event.extendedProps.idEstado,
+                });
+
+                setEditModalOpen(true);
+            }
+        }
+    };
+    const handleSelectPatientFromCalendar = (cita) => {
+        const patientList = pacientesConCitaFilter;
+        const patient = patientList.find(p => p.ID_USUARIO === cita.extendedProps.idUsuario);
+
+        if (!patient) {
+            toast.error('No se encontró el paciente seleccionado.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
             return;
         }
 
-        const patientId = extendedProps.idUsuario;
-        const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === patientId);
-        if (patient) {
-            setSelectedPatient(patient);
-        }
+        setSelectedPatient(patient);
 
-        const [hour, minute] = extendedProps.startTime ? extendedProps.startTime.split(':') : ['00', '00'];
         setSelectedEvent({
-            id: extendedProps.idCita,
-            title,
-            date: start,
-            estado: extendedProps.estado,
-            hour,
-            minute,
-            idEstado: extendedProps.idEstado
+            id: cita.extendedProps.idCita,
+            date: cita.start,
+            estado: cita.extendedProps.estado,
+            hour: cita.extendedProps.startTime.split(':')[0],
+            minute: cita.extendedProps.startTime.split(':')[1],
+            idEstado: cita.extendedProps.idEstado,
         });
+
         setEditModalOpen(true);
+        setModalCalendarOpen(false);
     };
     const handleSearchChange = (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -183,10 +233,15 @@ const AppointmentCalendar = () => {
         setFilteredPacientes(pacientes);
     }, [pacientes]);
 
+
+    useEffect(() => {
+        const filtered = filterEvents(allEvents, FILTER_OPTIONS.CURRENT); // Usar el filtro 'CURRENT'
+        setCurrentEvents(filtered);
+    }, [allEvents]);
     const handleFilterChange = (newFilter) => {
 
         setFilter(newFilter);
-        setShouldFilterEvents(true); // Indica que los eventos deben ser filtrados
+        setShouldFilterEvents(true);
     };
     const filterEvents = (events) => {
         switch (filter) {
@@ -228,7 +283,9 @@ const AppointmentCalendar = () => {
                 idEstado: selectedEstado
             })
                 .then(response => {
-                    console.log('Cita creada con éxito', response);
+                    const addedEvent = createEventObject(selectedPatient, dateWithTime, estadoName, formattedTime, response.data.citaId);
+                    setAllEvents(prevEvents => [...prevEvents, addedEvent]);
+                    setCurrentEvents(prevEvents => [...prevEvents, addedEvent]);
                 })
                 .catch(error => {
                     console.error('Error al crear la cita', error);
@@ -239,14 +296,13 @@ const AppointmentCalendar = () => {
 
             setAllEvents(prevEvents => [...prevEvents, newEvent]);
             setCurrentEvents(prevEvents => [...prevEvents, newEvent]);
+            calendarRef.current.getApi().refetchEvents();
 
             const newPacientes = pacientes.filter(p => p.ID_USUARIO !== selectedPatient.ID_USUARIO);
             setPacientes(newPacientes);
             setFilteredPacientes(newPacientes);
-
             setSelectedEstado('');
             setModalIsOpen(false);
-
             await cargarPacientesConCita();
             await cargarPacientesConCitaHistorial();
 
@@ -259,8 +315,40 @@ const AppointmentCalendar = () => {
         }
     };
 
+    const handleDateClick = (arg) => {
+        const dateEvents = allEvents.filter(event =>
+            new Date(event.start).toDateString() === new Date(arg.dateStr).toDateString() &&
+            !event.extendedProps.readOnly
+        );
+
+        if (dateEvents.length > 0) {
+            setSelectedDate(arg.dateStr);
+            setModalCalendarOpen(true);
+        }
+
+        const hasCurrentEvents = allEvents.some(event => {
+            const isSameDay = moment(event.start).isSame(arg.date, 'day');
+            return isSameDay && event.color === 'blue';
+        });
+
+        // Solo abrir modal si hay eventos actuales
+        if (hasCurrentEvents) {
+            setSelectedDate(arg.dateStr);
+            setModalCalendarOpen(true);
+        }
+
+    };
+
     const handleUpdateCita = () => {
-        console.log(selectedEvent);
+        if (!selectedEvent || !selectedPatient) {
+            toast.error('Información de la cita no disponible.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
         if (selectedEvent && selectedEvent.id && selectedEvent.date && selectedEvent.hour && selectedEvent.minute) {
             const dateWithTime = new Date(selectedEvent.date);
             dateWithTime.setHours(parseInt(selectedEvent.hour, 10), parseInt(selectedEvent.minute, 10));
@@ -484,29 +572,6 @@ const AppointmentCalendar = () => {
     return (
         <Container>
 
-
-            <ScrollablePatientList className={"listaDeEspera"}>
-                <FixedSearchContainer>
-                    <StyledInput
-                        type="text"
-                        placeholder="Buscar paciente..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                    />
-
-                </FixedSearchContainer>
-                {filteredPacientes.map((patient) => (
-                    <Patient
-                        key={patient.ID_USUARIO.toString()}
-                        onClick={() => handlePatientClick(patient)}
-                        className={removingPatients.includes(patient.ID_USUARIO) ? 'removing' : ''}
-                    >
-                        <div style={{ fontWeight: 'bold' }}>{patient.NOMBRE} {patient.APELLIDO}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.EMAIL}</div>
-                    </Patient>
-                ))}
-
-            </ScrollablePatientList>
             <FixedFilterButton onClick={() => setFilterModalOpen(true)}>
                 <FaFilter /> Filtros
             </FixedFilterButton>
@@ -520,6 +585,8 @@ const AppointmentCalendar = () => {
                     events={currentEvents}
                     eventColor={colorEvent}
                     eventClick={handleEventClick}
+
+                    dateClick={handleDateClick}
                 />
 
             </CalendarContainer>
@@ -651,7 +718,38 @@ const AppointmentCalendar = () => {
                     </CloseButton>
                 </ModalContent>
             </StyledModal>
+            <ScrollablePatientList className={"listaDeEspera"}>
+                <FixedSearchContainer>
+                    <h1>Pacientes sin cita</h1>
+                    <StyledInput
+                        type="text"
+                        placeholder="Buscar paciente..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
 
+                </FixedSearchContainer>
+                {filteredPacientes.map((patient) => (
+                    <Patient
+                        key={patient.ID_USUARIO.toString()}
+                        onClick={() => handlePatientClick(patient)}
+                        className={removingPatients.includes(patient.ID_USUARIO) ? 'removing' : ''}
+                    >
+                        <div style={{ fontWeight: 'bold' }}>{patient.NOMBRE} {patient.APELLIDO}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.EMAIL}</div>
+                    </Patient>
+                ))}
+
+            </ScrollablePatientList>
+            <ModalCalendar
+                isOpen={modalCalendarOpen}
+                onRequestClose={() => setModalCalendarOpen(false)}
+                selectedDate={selectedDate}
+                onPatientSelect={handleSelectPatientFromCalendar}
+                citas={currentEvents}
+                cargarCitas={cargarPacientesConCitaHistorial}
+                actualizarCita={handleUpdateCita}
+            />
         </Container>
     );
 };

@@ -1,5 +1,19 @@
 import styled, { keyframes } from 'styled-components';
 
+
+const colors = {
+    verdeClaro: 'var(--verde-claro)',
+    verdeMedio: 'var(--verde-medio)',
+    verdeOscuro: 'var(--verde-oscuro)',
+    azul: 'var(--azul)',
+    rojo: 'var(--rojo)',
+    blanco: 'var(--blanco)',
+    negro: 'var(--negro)',
+    gris: 'var(--gris)',
+    grisOscuro: 'var(--gris-oscuro)',
+};
+
+
 const slideOut = keyframes`
   from {
     transform: translateX(0);
@@ -36,16 +50,39 @@ export const PatientList = styled.div`
 `;
 
 export const Patient = styled.div`
-  padding: 10px;
-  margin-bottom: 10px;
-  background: var(--gris);
-  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: ${colors.blanco};
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   cursor: pointer;
+  border-left: 5px solid ${colors.verdeMedio}; // Añadir un borde izquierdo como indicador de estado
+
   &:hover {
-    background:  var(--gris);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
   }
-  &.removing {
-    animation: ${slideOut} 0.5s ease forwards;
+
+  h3 {
+    font-size: 1.2rem;
+    color: ${colors.azul};
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: ${colors.grisOscuro};
+    margin-top: 5px;
+  }
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: ${props => props.statusColor || colors.verdeMedio};
+    display: inline-block;
+    margin-right: 10px;
   }
 `;
 
@@ -65,9 +102,14 @@ export const CalendarContainer = styled.div`
     }
 
     .fc-daygrid-day {
-      height: auto;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
     }
 
+    .fc-day-today {
+      background-color: var(--verde-oscuro-rgba);
+    }
     .fc-daygrid-day.fc-day-today {
       background-color: var(--verde-claro);
     }
@@ -88,11 +130,27 @@ export const CalendarContainer = styled.div`
         background-color: var(--blanco);
       }
     }
-
+    .fc-event {
+      background-color: var(--gris);
+      border: none;
+      border-radius: 6px;      
+      font-size: 0.8rem;
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+    .fc-daygrid-day-top {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 3rem;
+    }
     .fc-button-primary {
       background-color:var(--blanco);
       color: var(--azul);
       border: 1px solid var(--azul);
+    }
+    .fc-day-selected {
+      border: 2px solid var(--color-primario); // Borde para día seleccionado
     }
   }
 
@@ -108,19 +166,24 @@ export const PatientSearch = styled.input`
 `;
 
 export const ScrollablePatientList = styled(PatientList)`
-  overflow-y: scroll;
+  overflow-y: auto;
+  
   max-height: 100vh;
+  padding-top: 70px;
+  position: relative;
+  margin-left: 0;
   @media (min-width: 768px) {
     flex-basis: 300px;
     max-width: 300px;
   }
   @media (max-width: 768px) {
     width: 100%;
-    max-height: 50vh;
+    padding-top: 0px;
+
+    max-height: 100vh;
     margin-right: 0;
   }
 `;
-
 
 
 export const TimeInput = styled.input`
@@ -151,11 +214,12 @@ export const StyledInput = styled.input`
 `;
 export const FixedSearchContainer = styled.div`
   position: sticky;
-  top: 0; // Fijar en la parte superior del contenedor ScrollablePatientList
+  top: 0;
   background-color: white;
-  padding-right: 20px;
-  margin-bottom: 20px ;
-  z-index: 10; // Asegurarse que se muestre encima del contenido al desplazar
+  padding: 20px;
+  z-index: 10;
+  margin-left: -20px;
+  width: calc(95%);
 `;
 
 export const SearchContainer = styled.div`
@@ -247,9 +311,8 @@ export const StyledLabel = styled.label`
 
 export const FixedFilterButton = styled.button`
   position: fixed;
-  top: 20px;
-  
-  right: 190px;
+  top: 25px;
+  left: 500px;
   z-index: 100;
   background-color: #007bff;
   color: white;
@@ -273,7 +336,7 @@ export const FixedFilterButton = styled.button`
   @media (max-width: 768px) {
     position: relative;
     margin-bottom: 10px;
-    right: auto;
+    left: auto;
     top: auto;
     width: 100%;
   }

@@ -1,5 +1,19 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Form, Input, Label, Title, Button, Section, Select, BodyMapStyle, DatePickerWrapper, IndicadorGuardado, ListItem, ButtonAceptar,ButtonCancelar} from './FichaColumnaLumbarStyle';
+import {
+    Form,
+    Input,
+    Label,
+    Title,
+    Button,
+    Section,
+    Select,
+    BodyMapStyle,
+    DatePickerWrapper,
+    IndicadorGuardado,
+    ListItem,
+    ButtonAceptar,
+    ButtonCancelar
+} from './FichaColumnaLumbarStyle';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import BodyMap from "../../../components/BodyMap/BodyMap";
@@ -312,8 +326,8 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                     autoClose: 5000,
                     hideProgressBar: true,
                 });
-
                 localStorage.removeItem('datosFormularioPaciente')
+
 
             })
             .catch(error => {

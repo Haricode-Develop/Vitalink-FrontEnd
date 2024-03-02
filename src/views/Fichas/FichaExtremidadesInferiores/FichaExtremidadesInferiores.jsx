@@ -622,21 +622,21 @@ const FichaExtremidadesInferiores = () => {
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Levantarse')} /> Levantarse
+                                <input type="checkbox" name="sintomasPeores" value="Levantarse" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Levantarse')} /> Levantarse
                             </label>
                         </div>
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="Vestirse" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('Primeros pasos')}/> Primeros pasos
+                            <input type="checkbox" name="sintomasPeores" value="Primeros pasos" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('Primeros pasos')}/> Primeros pasos
                         </label>
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="Elevar Brazo" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('De píe')}/> De píe
+                            <input type="checkbox" name="sintomasPeores" value="De píe" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('De píe')}/> De píe
                         </label>
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="Apretar" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('Caminando')}/> Caminando
+                            <input type="checkbox" name="sintomasPeores" value="Caminando" onChange={handleInputChange}  checked={formValues.sintomasPeores.includes('Caminando')}/> Caminando
                         </label>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="AM" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Escaleras')} /> Escaleras
+                                <input type="checkbox" name="sintomasPeores" value="Escaleras" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Escaleras')} /> Escaleras
                             </label>
                         </div>
 
@@ -644,27 +644,27 @@ const FichaExtremidadesInferiores = () => {
                     <div  style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginTop: '20px' }}>
 
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="Con forme pasa el día" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Sentadilla')}  /> Sentadilla
+                            <input type="checkbox" name="sintomasPeores" value="Sentadilla" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Sentadilla')}  /> Sentadilla
                         </label>
 
                         <label>
-                            <input type="checkbox" name="sintomasPeores" value="PM" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Arrodillado')} /> Arrodillado
+                            <input type="checkbox" name="sintomasPeores" value="Arrodillado" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Arrodillado')} /> Arrodillado
                         </label>
 
                         <div style={{ marginLeft: 'auto' }}>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Quieto" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('AM')} /> AM
+                                <input type="checkbox" name="sintomasPeores" value="AM" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('AM')} /> AM
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="En movimiento" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Conforme pasa el día')}/> Conforme pasa el día
+                                <input type="checkbox" name="sintomasPeores" value="Conforme pasa el día" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Conforme pasa el día')}/> Conforme pasa el día
                             </label>
                         </div>
 
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Prono" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('PM')} /> PM
+                                <input type="checkbox" name="sintomasPeores" value="PM" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('PM')} /> PM
                             </label>
                         </div>
 
@@ -675,13 +675,13 @@ const FichaExtremidadesInferiores = () => {
 
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Sup" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('En movimiento')}/> Quieto
+                                <input type="checkbox" name="sintomasPeores" value="Quieto" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Quieto')}/> Quieto
                             </label>
                         </div>
 
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Sup" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('En movimiento')}/> En movimiento
+                                <input type="checkbox" name="sintomasPeores" value="En movimiento" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('En movimiento')}/> En movimiento
                             </label>
                         </div>
 
@@ -744,41 +744,41 @@ const FichaExtremidadesInferiores = () => {
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="Girando Cuella" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('De pie')} /> De pie
+                                <input type="checkbox" name="sintomasMejores" value="De pie" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('De pie')} /> De pie
                             </label>
                         </div>
                         <label>
-                            <input type="checkbox" name="sintomasMejores" value="Vestirse" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Caminando')}/> Caminando
+                            <input type="checkbox" name="sintomasMejores" value="Caminando" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Caminando')}/> Caminando
                         </label>
                         <label>
-                            <input type="checkbox" name="sintomasMejores" value="Elevar Brazo" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Escaleras')}/> Escaleras
+                            <input type="checkbox" name="sintomasMejores" value="Escaleras" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Escaleras')}/> Escaleras
                         </label>
                         <div style={{ marginLeft: 'auto' }}>
 
                         </div>
                         <label>
-                            <input type="checkbox" name="sintomasMejores" value="Apretar" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Sentadilla')}/> Sentadilla
+                            <input type="checkbox" name="sintomasMejores" value="Sentadilla" onChange={handleInputChange}  checked={formValues.sintomasMejores.includes('Sentadilla')}/> Sentadilla
                         </label>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="AM" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Arrodillado')} /> Arrodillado
+                                <input type="checkbox" name="sintomasMejores" value="Arrodillado" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Arrodillado')} /> Arrodillado
                             </label>
                     </div>
                     <div  style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginTop: '20px' }}>
 
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="Con forme pasa el día" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('AM')}  /> AM
+                                <input type="checkbox" name="sintomasMejores" value="AM" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('AM')}  /> AM
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="PM" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Conforme pasa el día')} /> Conforme pasa el día
+                                <input type="checkbox" name="sintomasMejores" value="Conforme pasa el día" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Conforme pasa el día')} /> Conforme pasa el día
                             </label>
                         </div>
 
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="Quieto" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('PM')} /> PM
+                                <input type="checkbox" name="sintomasMejores" value="PM" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('PM')} /> PM
                             </label>
                         </div>
                         <div style={{ marginLeft: 'auto' }}>
@@ -786,34 +786,34 @@ const FichaExtremidadesInferiores = () => {
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasMejores" value="En movimiento" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Quieto')}/> Quieto
+                                <input type="checkbox" name="sintomasMejores" value="Quieto" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Quieto')}/> Quieto
                             </label>
                         </div>
                         <div>
                         <label>
-                                <input type="checkbox" name="sintomasMejores" value="Prono" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('En movimiento')} /> En movimiento
+                                <input type="checkbox" name="sintomasMejores" value="En movimiento" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('En movimiento')} /> En movimiento
                             </label>
                         </div>
 
                         <div style={{ marginLeft: 'auto' }}>
                             Durmiendo:
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Prono" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Prono')} /> Prono
+                                <input type="checkbox" name="sintomasMejores" value="Prono" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Prono')} /> Prono
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Sup" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Sup')}/> Sup
+                                <input type="checkbox" name="sintomasMejores" value="Sup" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Sup')}/> Sup
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Lado I" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Lado I')}/> Lado I
+                                <input type="checkbox" name="sintomasMejores" value="Lado I" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Lado I')}/> Lado I
                             </label>
                         </div>
                         <div>
                             <label>
-                                <input type="checkbox" name="sintomasPeores" value="Lado D" onChange={handleInputChange} checked={formValues.sintomasPeores.includes('Lado D')}/> Lado D
+                                <input type="checkbox" name="sintomasMejores" value="Lado D" onChange={handleInputChange} checked={formValues.sintomasMejores.includes('Lado D')}/> Lado D
                             </label>
                         </div>
                     </div>
@@ -940,7 +940,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Cuello"
+                                value="Espalda"
                                 onChange={handleInputChange}
                                 checked={formValues.lugar.includes('Espalda')}
 
@@ -951,7 +951,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Hombro"
+                                value="Cadera"
                                 onChange={handleInputChange}
                                 checked={formValues.lugar.includes('Cadera')}
 
@@ -962,7 +962,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Codo"
+                                value="Rodilla"
                                 onChange={handleInputChange}
                                 checked={formValues.lugar.includes('Rodilla')}
 
@@ -973,7 +973,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Muñeca"
+                                value="Tobilla"
                                 onChange={handleInputChange}
                                 checked={formValues.lugar.includes('Tobilla')}
 
@@ -984,7 +984,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Mano"
+                                value="pie"
                                 onChange={handleInputChange}
                                 checked={formValues.lugar.includes('pie')}
 
@@ -1003,7 +1003,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="otrasPreguntas"
                                 name="otrasPreguntas"
-                                value="Hinchazon"
+                                value="Inflamación"
                                 onChange={handleInputChange}
                                 checked={formValues.otrasPreguntas.includes('Inflamación')}
 
@@ -1014,7 +1014,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="otrasPreguntas"
                                 name="otrasPreguntas"
-                                value="Se engancha"
+                                value="Chasquido"
                                 onChange={handleInputChange}
                                 checked={formValues.otrasPreguntas.includes('Chasquido')}
 
@@ -1025,7 +1025,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="otrasPreguntas"
                                 name="otrasPreguntas"
-                                value="Chasquido"
+                                value="Bloqueo"
                                 onChange={handleInputChange}
                                 checked={formValues.otrasPreguntas.includes('Bloqueo')}
 
@@ -1038,7 +1038,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="otrasPreguntas"
                                 name="otrasPreguntas"
-                                value="Bloqueo"
+                                value="Fallo"
                                 onChange={handleInputChange}
                                 checked={formValues.otrasPreguntas.includes('Fallo')}
 
@@ -1050,7 +1050,7 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="otrasPreguntas"
                                 name="otrasPreguntas"
-                                value="Subluxación"
+                                value="Debilidad"
                                 onChange={handleInputChange}
                                 checked={formValues.otrasPreguntas.includes('Debilidad')}
 

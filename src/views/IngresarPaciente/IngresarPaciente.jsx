@@ -144,7 +144,7 @@ const IngresarPaciente = () => {
                 )}
 
                 {activeTab === 'extremidadesInferiores' && visibleTab === 'extremidadesInferiores' && (
-                <TabPanel active={activeTab === 'extremidadesInferiores'}><FichaExtremidadesInferiores key={"extremidadesInferiores"} /></TabPanel>
+                    <TabPanel active={activeTab === 'extremidadesInferiores'}><FichaExtremidadesInferiores key={"extremidadesInferiores"} /></TabPanel>
                 )}
             </FormWrapper>
 
