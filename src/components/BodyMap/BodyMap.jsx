@@ -4,15 +4,14 @@ import Body from "./Body";
 
 const BodyMap = ({ onAreaSelected }) => {
     const [isDrawing, setIsDrawing] = useState(false);
-    const [color, setColor] = useState('red');
+    const [isErasing, setIsErasing] = useState(false);
+    const [color, setColor] = useState('#ff0000');
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
 
-    // Esta función inicializa el contexto del lienzo y ajusta el tamaño.
     const initCanvas = () => {
         const canvas = canvasRef.current;
-        const container = canvas.parentElement; // El contenedor padre debería ser BodyMapContainer
-        // Asegúrate de que el canvas tome el tamaño del contenedor padre
+        const container = canvas.parentElement;
         canvas.width = container.offsetWidth;
         canvas.height = container.offsetHeight;
         const context = canvas.getContext('2d');
@@ -40,10 +39,10 @@ const BodyMap = ({ onAreaSelected }) => {
     useEffect(() => {
         if (contextRef.current) {
             contextRef.current.strokeStyle = color;
+            contextRef.current.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
         }
-    }, [color]);
+    }, [color, isErasing]);
 
-    // Previene el desplazamiento en dispositivos móviles al dibujar
     const preventScroll = (event) => {
         if (isDrawing) {
             event.preventDefault();
@@ -51,7 +50,6 @@ const BodyMap = ({ onAreaSelected }) => {
         }
     };
 
-    // Actualiza el estado de isDrawing a true y comienza el dibujo
 
     const startDrawing = (event) => {
         event.preventDefault();
@@ -80,7 +78,6 @@ const BodyMap = ({ onAreaSelected }) => {
 
 
 
-    // Obtiene las coordenadas para el dibujo basado en eventos de mouse o táctiles
 
     const getOffset = (event) => {
         const target = canvasRef.current;
@@ -90,9 +87,17 @@ const BodyMap = ({ onAreaSelected }) => {
         return { offsetX, offsetY };
     };
 
-    // Limpia el lienzo
     const clearCanvas = () => {
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    };
+
+    const handleError = (e) => {
+        console.error("Error al seleccionar el color:", e);
+    };
+
+
+    const toggleEraser = () => {
+        setIsErasing(!isErasing);
     };
 
     return (
@@ -112,18 +117,20 @@ const BodyMap = ({ onAreaSelected }) => {
 
         </BodyMapContainer>
 
-    <Controls>
-        <ControlButton onClick={clearCanvas}>Limpiar</ControlButton>
-        <ControlButton onClick={() => setColor(color === 'red' ? 'white' : 'red')}>
-            {color === 'red' ? 'Borrar' : 'Dibujar'}
-        </ControlButton>
-        <ColorPicker
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={color !== 'red'}
-        />
-    </Controls>
+
+            <Controls>
+                <ControlButton onClick={clearCanvas}>Limpiar</ControlButton>
+                <ControlButton onClick={toggleEraser}>
+                    {isErasing ? 'Dibujar' : 'Borrar'}
+                </ControlButton>
+                <ColorPicker
+                    type="color"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    style={{ width: '50px', height: '50px', borderRadius: '50%', border: 'none', padding: '0' }}
+                    disabled={isErasing} // Desactivamos la selección de color cuando se está borrando
+                />
+            </Controls>
         </div>
     );
 };

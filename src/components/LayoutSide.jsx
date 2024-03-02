@@ -215,8 +215,10 @@ const LayoutSide = ({ children }) => {
             <SubMenuItem onClick={handleDarAltaPacienteClick} className={"pacienteSeccionEliminar"}>Dar de alta</SubMenuItem>
             <SubMenuItem onClick={handleReingresarPacienteClick} className={"pacienteSeccionReingreso"}>Reingreso</SubMenuItem>
             <SubMenuItem onClick={handleCalendarioCitasClick} className={"calendarioCitasPaciente"}>Calendario de citas</SubMenuItem>
-            <SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>
+            {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
+
           </SubMenu>
+
           <MenuItem onClick={handleLogoutClick}>
           &nbsp;Cerrar sesión
             <ChevronIcon className="fa fa-sign-out" rotate={activeSubMenu === 'CerrarSesion'} />
