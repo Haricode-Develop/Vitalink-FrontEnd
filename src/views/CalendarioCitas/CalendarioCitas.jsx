@@ -642,7 +642,7 @@ const AppointmentCalendar = () => {
                 onRequestClose={() => setEditModalOpen(false)}
             >
                 <ModalContent>
-                    <h2>Editar Cita</h2>
+                    <h2>Actualizar Cita</h2>
                     <InputGroup>
                         <StyledLabel>Fecha:</StyledLabel>
                         <DatePicker
@@ -682,7 +682,7 @@ const AppointmentCalendar = () => {
                             ))}
                         </StyledSelect>
                     </InputGroup>
-                    <StyledButton onClick={handleUpdateCita}>Actualizar Cita</StyledButton>
+                    <StyledButton onClick={handleUpdateCita}>Actualizar</StyledButton>
                 </ModalContent>
             </StyledModal>
             <StyledModal isOpen={filterModalOpen} onRequestClose={() => setFilterModalOpen(false)}>

@@ -155,6 +155,23 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
 
 
     }, []);
+
+    const validarYConstruirFichaJson = (fichaJsonOriginal) => {
+        const camposAValidar = ['idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'email', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'];
+        const fichaJsonValidado = {};
+        let camposFaltantes = [];
+
+        camposAValidar.forEach(campo => {
+            if(fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
+                camposFaltantes.push(campo);
+            } else {
+                fichaJsonValidado[campo] = fichaJsonOriginal[campo];
+            }
+        });
+
+        return { fichaJsonValidado, camposFaltantes };
+    };
+
     useEffect(() => {
         if (resetBodyMap) {
             setSelectedBodyParts([]);
@@ -164,8 +181,6 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     const handleInsert = (e) => {
         e.preventDefault();
         setIsModalVisible(false);
-        console.log("ESTE ES EL FISIO ANTES DEL INSERT: ");
-
         if (!selectedFisio) {
             toast.warn("Por favor, selecciona un fisioterapeuta.", {
                 position: toast.POSITION.TOP_RIGHT,
@@ -175,8 +190,19 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             return;
         }
 
+        const { fichaJsonValidado, camposFaltantes } = validarYConstruirFichaJson(formValues);
 
-        const fichaJSONString = JSON.stringify(formValues);
+        if (camposFaltantes.length > 0) {
+            toast.warn(`Faltan datos por llenar: ${camposFaltantes.join(', ')}.`, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
+
+        const fichaJSONString = JSON.stringify(fichaJsonValidado);
 
         axios.post(`${API_BASE_URL}/paciente/insertarPaciente`, { fichaJson: fichaJSONString }, {
             headers: {

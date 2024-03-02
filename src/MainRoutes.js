@@ -20,6 +20,7 @@ import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
 import PlansPage from "./views/PlansPage/PlansPage";
 import useSessionVerification from "./Hook/sessionToken";
+import FichaEvolucion from "./views/FichaEvolucion/FichaEvolucion";
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 
 const MainRoutes = () => {
@@ -58,6 +59,7 @@ const MainRoutes = () => {
                         <Route path="asignar-ejercicio" element={<ExerciseAssignment />} />
                         <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
                         <Route path="calendario-citas" element={<CalendarioCitas />} />
+                        <Route path="ficha-evolucion" element={<FichaEvolucion />} />
                     </Route>
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />

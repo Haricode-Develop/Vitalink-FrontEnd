@@ -118,6 +118,13 @@ const LayoutSide = ({ children }) => {
     navigate('/dashboard/asignar-ejercicio');
 
   }
+  const handleFichaEvolucionClick = () => {
+    if(isMobile()){
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/ficha-evolucion');
+  }
+
   const handleCalendarioCitasClick = () => {
     if(isMobile()){
       setIsMenuOpen(false);
@@ -181,7 +188,7 @@ const LayoutSide = ({ children }) => {
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
                 Administrador
-                {activeSubMenu === 'Administrador' ? <FaChevronUp /> : <FaChevronUp style={{ transform: 'rotate(180deg)' }} />}
+                {activeSubMenu === 'Administrador' ? <FaChevronUp /> : <FaChevronUp />}
               </MenuItem>
               <SubMenu active={activeSubMenu === 'Administrador'}>
                 <SubMenuItem onClick={handleAgregarAdministradorClick} className={"administradorSeccionIngreso"}>Añadir</SubMenuItem>
@@ -215,8 +222,8 @@ const LayoutSide = ({ children }) => {
             <SubMenuItem onClick={handleDarAltaPacienteClick} className={"pacienteSeccionEliminar"}>Dar de alta</SubMenuItem>
             <SubMenuItem onClick={handleReingresarPacienteClick} className={"pacienteSeccionReingreso"}>Reingreso</SubMenuItem>
             <SubMenuItem onClick={handleCalendarioCitasClick} className={"calendarioCitasPaciente"}>Calendario de citas</SubMenuItem>
+            <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
             {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
-
           </SubMenu>
 
           <MenuItem onClick={handleLogoutClick}>

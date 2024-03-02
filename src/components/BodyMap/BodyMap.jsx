@@ -25,7 +25,6 @@ const BodyMap = ({ onAreaSelected }) => {
 
     useEffect(() => {
         initCanvas();
-        // Añade el event listener para el redimensionamiento de la ventana
         window.addEventListener('resize', initCanvas);
         return () => {
             // Limpia el event listener cuando el componente se desmonte
@@ -58,7 +57,6 @@ const BodyMap = ({ onAreaSelected }) => {
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
     };
-    // Continúa el dibujo si isDrawing es true
     const draw = (event) => {
         if (!isDrawing) return;
         event.preventDefault();
@@ -128,7 +126,7 @@ const BodyMap = ({ onAreaSelected }) => {
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
                     style={{ width: '50px', height: '50px', borderRadius: '50%', border: 'none', padding: '0' }}
-                    disabled={isErasing} // Desactivamos la selección de color cuando se está borrando
+                    disabled={isErasing}
                 />
             </Controls>
         </div>

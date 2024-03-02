@@ -1,3 +1,18 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /ingresar-medico
+Disallow: /ingresar-administrador
+Disallow: /eliminar-administrador
+Disallow: /actualizar-administrador
+Disallow: /eliminar-medico
+Disallow: /actualizar-medico
+Disallow: /reingreso-medico
+Disallow: /reingreso-paciente
+Disallow: /resetPassword
+Disallow: /agregar-administrador
+Disallow: /actualizar-administrador
+Disallow: /ingresar-paciente
+Disallow: /alta-paciente
+Disallow: /asignar-ejercicio
+Disallow: /calendario-citas
+Disallow: /ficha-evolucion
+Sitemap: https://www.vitalink.es/sitemap.xml

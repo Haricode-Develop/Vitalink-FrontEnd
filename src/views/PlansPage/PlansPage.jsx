@@ -15,6 +15,9 @@ import {
     IndividualPlanHeader,
     IndividualPlansContainer
 } from './PlansPageStyle';
+
+import { Helmet } from 'react-helmet';
+
 const plansDataIndividual = [
     {
         id: 1,
@@ -83,6 +86,11 @@ const plansData = [
 const PlansPage = () => {
     return (
         <>
+            <Helmet>
+                <title>Planes de Suscripción - Elige el Mejor para Ti</title>
+                <meta name="description" content="Descubre nuestros planes de suscripción adaptados a tus necesidades. Básico, Profesional, Empresarial. Únete ahora y comienza con 1 mes gratis." />
+                <meta name="keywords" content="planes de suscripción, básico, profesional, empresarial, suscripción salud, gestión pacientes" />
+            </Helmet>
             <HeaderContainer>
                 <HeaderTitle>Elige el plan que mejor se ajuste a ti</HeaderTitle>
                 <HeaderSubtitle>Únete a nosotros y mejora la gestión con tus pacientes.</HeaderSubtitle>

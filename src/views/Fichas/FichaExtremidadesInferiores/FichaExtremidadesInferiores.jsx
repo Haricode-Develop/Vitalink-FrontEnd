@@ -172,7 +172,21 @@ const FichaExtremidadesInferiores = () => {
             idMedico: fisioId
         }));
     };
+    const validarYConstruirFichaJson = (fichaJsonOriginal) => {
+        const camposAValidar = ['idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'email', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'];
+        const fichaJsonValidado = {};
+        let camposFaltantes = [];
 
+        camposAValidar.forEach(campo => {
+            if(fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
+                camposFaltantes.push(campo);
+            } else {
+                fichaJsonValidado[campo] = fichaJsonOriginal[campo];
+            }
+        });
+
+        return { fichaJsonValidado, camposFaltantes };
+    };
 
     const handleInsert = (e) => {
         e.preventDefault();
@@ -186,7 +200,18 @@ const FichaExtremidadesInferiores = () => {
             return;
         }
 
-        const fichaJSONString = JSON.stringify(formValues);
+        const { fichaJsonValidado, camposFaltantes } = validarYConstruirFichaJson(formValues);
+
+        if (camposFaltantes.length > 0) {
+            toast.warn(`Faltan datos por llenar: ${camposFaltantes.join(', ')}.`, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
+        const fichaJSONString = JSON.stringify(fichaJsonValidado);
 
         axios.post(`${API_BASE_URL}/paciente/insertarPaciente`, { fichaJson: fichaJSONString }, {
             headers: {

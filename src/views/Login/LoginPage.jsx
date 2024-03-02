@@ -7,6 +7,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { useSpring, animated } from 'react-spring';
 import logo from '../../assets/login/logo.png'
 import Swal from 'sweetalert2';
+import { Helmet } from 'react-helmet';
+
 import {
   BackgroundImage,
   Overlay,
@@ -138,6 +140,12 @@ const LoginPage = () => {
 
   return (
       <>
+        <Helmet>
+          <title>Login - Vitalink</title>
+          <meta name="description" content="Inicia sesión en Vitalink para gestionar tus citas médicas, historial de salud y ejercicios de rehabilitación." />
+          <meta name="keywords" content="login, acceso, salud, gestión médica, citas online" />
+        </Helmet>
+
       <BackgroundImage>
         <CharacterCircleContainer>
           <CharacterCircle />

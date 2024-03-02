@@ -72,8 +72,8 @@ const IngresarPaciente = () => {
     };
     const toTitleCase = (str) => {
         return str
-            .replace(/([A-Z])/g, ' $1') // inserta un espacio antes de las mayúsculas
-            .replace(/^./, (char) => char.toUpperCase()) // convierte la primera letra en mayúscula
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (char) => char.toUpperCase())
             .trim();
     };
     const handleTabClick = (tabName) => {

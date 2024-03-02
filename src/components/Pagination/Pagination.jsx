@@ -1,6 +1,6 @@
 import React from 'react';
+import { PaginationContainer, PageNumber } from './PaginationStyle';
 
-import { PaginationContainer, PageNumber} from '../Pagination/PaginationStyle';
 const Pagination = ({ patientsPerPage, totalPatients, paginate, currentPage }) => {
     const pageNumbers = [];
 
