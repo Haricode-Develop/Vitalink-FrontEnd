@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Container,
     Title,
@@ -14,18 +14,20 @@ import {
     Textarea,
     TabList,
     Tab,
-    TabPanel, ScrollableContent, EvolutionCard, EvolutionHistoryContainer
+    TabPanel,
+    ScrollableContent,
+    EvolutionCard,
+    EvolutionHistoryContainer
 } from './FichaEvolucionStyle';
-
+import { FaBroom } from 'react-icons/fa';
 import PatientList from '../../components/PatientList/PatientList';
 import SearchAndFilter from '../../components/SearchAndFilterExercisePatient/SearchAndFilterExercisePatient';
-import EvolutionRecord from '../../components/EvolutionRecord/EvolutionRecord';
 import axios from 'axios';
 import { API_BASE_URL } from "../../utils/config";
-import {AuthContext} from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { ToastContainer, toast } from 'react-toastify';
+import { StyledModal } from "../../components/Modal";
 
-import {StyledModal} from "../../components/Modal";
 const FichaEvolucion = () => {
     const { userData } = useContext(AuthContext);
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,20 +39,20 @@ const FichaEvolucion = () => {
     const [notes, setNotes] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
     const [activeTab, setActiveTab] = useState('ingresarFicha');
-
-
+    const [filterStartDate, setFilterStartDate] = useState('');
+    const [filterEndDate, setFilterEndDate] = useState('');
 
     const loadPatients = (search = '') => {
         const searchParam = search ? `?busqueda=${search}` : '';
         axios.get(`${API_BASE_URL}/paciente/todosLosPacientesFichaEvolucion/${userData.id_empresa}${searchParam}`)
             .then(response => {
                 setPatients(response.data.pacientes);
-                console.log("ESTOS SON LOS PACIENTES: ", patients);
             })
             .catch(error => {
                 console.error('Error al cargar los pacientes:', error);
             });
     };
+
     useEffect(() => {
         loadPatients();
     }, []);
@@ -58,14 +60,13 @@ const FichaEvolucion = () => {
     useEffect(() => {
         loadPatients(searchTerm);
     }, [searchTerm]);
+
     const handleSelectPatient = (patient) => {
         setSelectedPatient(patient);
         setDate('');
         setNotes('');
         setDiagnosis('');
         setModalOpen(true);
-
-        // Cargar fichas de evolución del paciente seleccionado
         axios.get(`${API_BASE_URL}/paciente/fichaEvolucionPorUsuario/${patient.id}`)
             .then(response => {
                 setEvolutionData(response.data.fichasEvolucion);
@@ -76,25 +77,45 @@ const FichaEvolucion = () => {
             });
     };
 
+    const filteredEvolutionData = () => {
+        if (filterStartDate && filterEndDate) {
+            const start = new Date(filterStartDate);
+            const end = new Date(filterEndDate);
+            return evolutionData.filter(ficha => {
+                const fecha = new Date(ficha.fecha);
+                return fecha >= start && fecha <= end;
+            });
+        }
+        return evolutionData;
+    };
 
-    const EvolutionHistory = ({ fichas }) => (
-        <div>
-            {fichas.length > 0 ? (
-                fichas.map((ficha, index) => (
-                    <EvolutionCard key={index}>
-                        <strong>Fecha:</strong> {new Date(ficha.fecha).toLocaleDateString()}
-                        <ScrollableContent>
-                            <strong>Diagnóstico:</strong> {ficha.diagnostico}
-                        </ScrollableContent>
-                    </EvolutionCard>
-                ))
-            ) : (
-                <p>No hay fichas de evolución disponibles.</p>
-            )}
-        </div>
-    );
+    const EvolutionHistory = () => {
+        const fichas = filteredEvolutionData(); // Use filtered evolution data
+        return (
+            <EvolutionHistoryContainer>
+                {fichas.length > 0 ? (
+                    fichas.map((ficha, index) => (
+                        <EvolutionCard key={index}>
+                            <strong>Fecha:</strong> {new Date(ficha.fecha).toLocaleDateString()}
+                            <ScrollableContent>
+                                <strong>Diagnóstico:</strong> {ficha.diagnostico}
+                            </ScrollableContent>
+                        </EvolutionCard>
+                    ))
+                ) : (
+                    <p>No hay fichas de evolución disponibles para el rango de fechas seleccionado.</p>
+                )}
+            </EvolutionHistoryContainer>
+        );
+    };
+
     const handleSearch = (term) => {
         setSearchTerm(term);
+    };
+
+    const handleClearFilters = () => {
+        setFilterStartDate('');
+        setFilterEndDate('');
     };
 
     const handleSubmitEvolution = (event) => {
@@ -115,6 +136,8 @@ const FichaEvolucion = () => {
                     progress: undefined,
                 });
                 setModalOpen(false);
+                // Reload evolution data for the selected patient
+                handleSelectPatient(selectedPatient);
             })
             .catch(error => {
                 toast.error("Error al guardar la ficha de evolución", {
@@ -128,8 +151,6 @@ const FichaEvolucion = () => {
                 });
             });
     };
-
-
 
     return (
         <Container>
@@ -163,16 +184,29 @@ const FichaEvolucion = () => {
                             </ModalFooter>
                         </TabPanel>
                     )}
-
                     {activeTab === 'historialFichas' && (
                         <TabPanel>
-                            <EvolutionHistoryContainer>
-                                <EvolutionHistory fichas={evolutionData} />
-                            </EvolutionHistoryContainer>
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', marginBottom: '15px' }}>
+                                <Input
+                                    type="date"
+                                    value={filterStartDate}
+                                    onChange={e => setFilterStartDate(e.target.value)}
+                                    style={{ width: '140px' }}
+                                />
+                                <Input
+                                    type="date"
+                                    value={filterEndDate}
+                                    onChange={e => setFilterEndDate(e.target.value)}
+                                    style={{ width: '140px' }}
+                                />
+                                <button onClick={handleClearFilters} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                                    <FaBroom />
+                                </button>
+                            </div>
+                            <EvolutionHistory /> {/* Use the EvolutionHistory component here */}
                         </TabPanel>
                     )}
                 </ModalBody>
-
             </StyledModal>
         </Container>
     );
