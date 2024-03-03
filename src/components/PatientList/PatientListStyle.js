@@ -14,7 +14,6 @@ export const ListButton = styled.button`
 `;
 
 export const CardButton = styled(ListButton)`
-  // Estilos para el botón que muestra la vista de tarjetas, heredando de ListButton
 `;
 
 export const ListContainer = styled.ul`

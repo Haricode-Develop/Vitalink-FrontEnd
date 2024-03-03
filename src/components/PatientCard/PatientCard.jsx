@@ -8,7 +8,6 @@ const PatientCard = ({ patient, onSelect }) => (
         exit={{ opacity: 0 }}
         layout
     >
-        <img src={patient.foto} alt={`${patient.nombre} ${patient.apellido}`} />
         <Name>{patient.nombre} {patient.apellido}</Name>
         <Email>{patient.email}</Email>
         <SelectButton onClick={() => onSelect(patient)}>Seleccionar</SelectButton>

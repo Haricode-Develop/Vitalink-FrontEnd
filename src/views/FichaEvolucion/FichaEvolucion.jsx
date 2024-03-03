@@ -3,15 +3,20 @@ import {
     Container,
     Title,
     SearchContainer,
-    EvolutionModal,
     CloseButton,
-    ModalContent,
     ModalHeader,
     ModalFooter,
     EvolutionForm,
     ModalTitle,
-    ModalBody, EvolutionCard, SubmitButton, Textarea, Input
+    ModalBody,
+    SubmitButton,
+    Input,
+    Textarea,
+    TabList,
+    Tab,
+    TabPanel, ScrollableContent, EvolutionCard, EvolutionHistoryContainer
 } from './FichaEvolucionStyle';
+
 import PatientList from '../../components/PatientList/PatientList';
 import SearchAndFilter from '../../components/SearchAndFilterExercisePatient/SearchAndFilterExercisePatient';
 import EvolutionRecord from '../../components/EvolutionRecord/EvolutionRecord';
@@ -31,11 +36,16 @@ const FichaEvolucion = () => {
     const [date, setDate] = useState('');
     const [notes, setNotes] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
+    const [activeTab, setActiveTab] = useState('ingresarFicha');
+
+
+
     const loadPatients = (search = '') => {
         const searchParam = search ? `?busqueda=${search}` : '';
         axios.get(`${API_BASE_URL}/paciente/todosLosPacientesFichaEvolucion/${userData.id_empresa}${searchParam}`)
             .then(response => {
                 setPatients(response.data.pacientes);
+                console.log("ESTOS SON LOS PACIENTES: ", patients);
             })
             .catch(error => {
                 console.error('Error al cargar los pacientes:', error);
@@ -52,11 +62,37 @@ const FichaEvolucion = () => {
         setSelectedPatient(patient);
         setDate('');
         setNotes('');
+        setDiagnosis('');
         setModalOpen(true);
+
+        // Cargar fichas de evolución del paciente seleccionado
+        axios.get(`${API_BASE_URL}/paciente/fichaEvolucionPorUsuario/${patient.id}`)
+            .then(response => {
+                setEvolutionData(response.data.fichasEvolucion);
+            })
+            .catch(error => {
+                console.error('Error al cargar fichas de evolución:', error);
+                setEvolutionData([]);
+            });
     };
 
 
-
+    const EvolutionHistory = ({ fichas }) => (
+        <div>
+            {fichas.length > 0 ? (
+                fichas.map((ficha, index) => (
+                    <EvolutionCard key={index}>
+                        <strong>Fecha:</strong> {new Date(ficha.fecha).toLocaleDateString()}
+                        <ScrollableContent>
+                            <strong>Diagnóstico:</strong> {ficha.diagnostico}
+                        </ScrollableContent>
+                    </EvolutionCard>
+                ))
+            ) : (
+                <p>No hay fichas de evolución disponibles.</p>
+            )}
+        </div>
+    );
     const handleSearch = (term) => {
         setSearchTerm(term);
     };
@@ -92,6 +128,9 @@ const FichaEvolucion = () => {
                 });
             });
     };
+
+
+
     return (
         <Container>
             <Title>Ficha de Evolución</Title>
@@ -106,16 +145,34 @@ const FichaEvolucion = () => {
                     <CloseButton onClick={() => setModalOpen(false)}>✕</CloseButton>
                 </ModalHeader>
                 <ModalBody>
-                    <EvolutionForm id="evolution-form" onSubmit={handleSubmitEvolution}>
-                        <label htmlFor="date">Fecha:</label>
-                        <Input type="date" id="date" value={date} onChange={e => setDate(e.target.value)} required />
-                        <label htmlFor="diagnosis">Diagnóstico:</label>
-                        <Textarea id="diagnosis" value={diagnosis} onChange={e => setDiagnosis(e.target.value)} required />
-                    </EvolutionForm>
+                    <TabList>
+                        <Tab onClick={() => setActiveTab('ingresarFicha')} active={activeTab === 'ingresarFicha'}>Ingresar Ficha</Tab>
+                        <Tab onClick={() => setActiveTab('historialFichas')} active={activeTab === 'historialFichas'}>Historial de Fichas</Tab>
+                    </TabList>
+
+                    {activeTab === 'ingresarFicha' && (
+                        <TabPanel>
+                            <EvolutionForm id="evolution-form" onSubmit={handleSubmitEvolution}>
+                                <label htmlFor="date">Fecha:</label>
+                                <Input type="date" id="date" value={date} onChange={e => setDate(e.target.value)} required />
+                                <label htmlFor="diagnosis">Diagnóstico:</label>
+                                <Textarea id="diagnosis" value={diagnosis} onChange={e => setDiagnosis(e.target.value)} required />
+                            </EvolutionForm>
+                            <ModalFooter>
+                                <SubmitButton type="submit" form="evolution-form">Guardar Evolución</SubmitButton>
+                            </ModalFooter>
+                        </TabPanel>
+                    )}
+
+                    {activeTab === 'historialFichas' && (
+                        <TabPanel>
+                            <EvolutionHistoryContainer>
+                                <EvolutionHistory fichas={evolutionData} />
+                            </EvolutionHistoryContainer>
+                        </TabPanel>
+                    )}
                 </ModalBody>
-                <ModalFooter>
-                    <SubmitButton type="submit" form="evolution-form">Guardar Evolución</SubmitButton>
-                </ModalFooter>
+
             </StyledModal>
         </Container>
     );

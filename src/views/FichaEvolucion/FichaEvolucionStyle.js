@@ -5,6 +5,7 @@ export const Container = styled.div`
   flex-direction: column;
   padding: 20px;
   width: 100%;
+  box-sizing: border-box; 
 `;
 
 export const Title = styled.h1`
@@ -33,8 +34,11 @@ export const EvolutionModal = styled.div`
   z-index: 1050;
   border-radius: 8px;
   box-shadow: 0 10px 30px var(--verde-claro-rgba);
-  width: 80%; // Ajusta el ancho del modal
-  max-width: 800px; // Asegura que el modal no sea demasiado grande
+  width: auto;
+  max-width: 95%;
+  @media (min-width: 768px) {
+    max-width: 800px;
+  }
 `;
 
 
@@ -124,5 +128,58 @@ export const SubmitButton = styled.button`
   cursor: pointer;
   &:hover {
     background-color: var(--verde-medio);
+  }
+`;
+
+
+export const TabList = styled.div`
+  display: flex;
+  border-bottom: 1px solid #ccc;
+`;
+
+export const Tab = styled.button`
+  padding: 10px 20px;
+  border: none;
+  border-bottom: 3px solid ${props => props.active ? 'var(--azul)' : 'transparent'};
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-bottom-color: var(--azul);
+  }
+`;
+
+export const TabPanel = styled.div`
+  padding: 20px;
+`;
+
+
+export const ScrollableContent = styled.div`
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 15px; 
+  margin-right: -15px;
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--verde-medio);
+    border-radius: 5px;
+  }
+`;
+
+
+export const EvolutionHistoryContainer = styled.div`
+  max-height: 400px;
+  overflow-y: auto;
+  margin-right: -15px;
+  padding-right: 15px;
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--verde-oscuro);
+    border-radius: 5px;
   }
 `;
