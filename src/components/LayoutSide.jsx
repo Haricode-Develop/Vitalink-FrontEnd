@@ -157,6 +157,12 @@ const LayoutSide = ({ children }) => {
       setIsSidebarOpen(false);
     }
   };
+
+  const userHasRole = (roleName) => {
+    return userData?.roles.some(role => role.name.toLowerCase() === roleName.toLowerCase());
+  }
+  const showFisioterapeutaMenu = userHasRole('Gestor') || userHasRole('Administrador');
+
   return (
       <LayoutContext.Provider value={{ activeSubMenu, setActiveSubMenu, handleNavigate }}>
     <div style={{ display: 'flex' }}>
@@ -170,21 +176,22 @@ const LayoutSide = ({ children }) => {
       top: 0,
       left: 0,
       height: '100vh',
-      width: '250px', // Suponiendo un ancho de 250px para el sidebar, ajusta según tus necesidades
+      width: '250px',
       overflowY: 'auto',
         transition: 'transform 0.3s ease-in-out'
     }}>
         <ProfileImage image={profilePicture} />
         <UserInfo>
           <div style={{ paddingTop: '10px' }}>{userData?.name} {userData?.lastName}</div>
-          <div>{userData?.role}</div>
+          <div>{userData?.roles.map(role => role.name).join(', ')}</div>
+
         </UserInfo>
 
         <Menu>
           <MenuItem bold onClick={handleDashboardClick} className="dashboard">
             Dashboard
           </MenuItem>
-          {userData?.id_rol === 4 && (
+          { userHasRole('Gestor') && (
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
                 Administrador
@@ -198,7 +205,7 @@ const LayoutSide = ({ children }) => {
             </>
           )}
 
-          {userData?.id_rol !== 2 && (
+          {showFisioterapeutaMenu && (
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Fisioterapeuta')} className={"fisioterapeuta"}>
                 Fisioterapeuta

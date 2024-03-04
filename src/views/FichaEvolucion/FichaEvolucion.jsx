@@ -90,7 +90,7 @@ const FichaEvolucion = () => {
     };
 
     const EvolutionHistory = () => {
-        const fichas = filteredEvolutionData(); // Use filtered evolution data
+        const fichas = filteredEvolutionData();
         return (
             <EvolutionHistoryContainer>
                 {fichas.length > 0 ? (
@@ -136,7 +136,6 @@ const FichaEvolucion = () => {
                     progress: undefined,
                 });
                 setModalOpen(false);
-                // Reload evolution data for the selected patient
                 handleSelectPatient(selectedPatient);
             })
             .catch(error => {

@@ -67,8 +67,8 @@ const LoginPage = () => {
     if (Object.keys(validationErrors).length === 0) {
       axios.post(`${API_BASE_URL}/auth/login`, { email, password })
           .then((response) => {
+            console.log("MI RESPUESTA DEL ENDPOINT", response);
             if (response.data.success) {
-
               // Establecer los datos del usuario y actualizar el estado de autenticación
               setSessionToken(response.data.sessionToken);
               if (response.data.id_rol === 1) {
@@ -78,18 +78,15 @@ const LoginPage = () => {
               setUserData({
                 name: response.data.name,
                 lastName: response.data.lastName,
-                role: response.data.role,
+                roles: response.data.roles,
                 id_empresa: response.data.id_empresa,
-                id_rol: response.data.id_rol,
                 estado_contrasena: response.data.estado_contrasena,
                 id_usuario: response.data.id_usuario
               });
               setIsAuthenticated(true);
 
-              // Navegar al dashboard después del inicio de sesión exitoso
               navigate('/dashboard');
             } else {
-              // Mostrar un mensaje de error si la autenticación falla
               toast.warn(response.data.error, {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
@@ -99,7 +96,6 @@ const LoginPage = () => {
           })
           .catch((error) => {
             console.error('Error de inicio de sesión:', error);
-            // Manejar errores de la solicitud, como problemas de conexión
             toast.error("Error en la autenticación, por favor intente nuevamente.", {
               position: toast.POSITION.TOP_RIGHT,
               autoClose: 5000,
@@ -127,8 +123,7 @@ const LoginPage = () => {
         .then(response => {
           if (response.data.success) {
             toast.success("Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.");
-            setShowResetModal(false); // Aquí cerramos el modal con showResetModal
-          } else {
+            setShowResetModal(false);
             toast.warn(response.data.error);
           }
         })

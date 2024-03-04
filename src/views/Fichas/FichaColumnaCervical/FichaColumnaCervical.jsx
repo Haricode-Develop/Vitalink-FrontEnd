@@ -275,7 +275,7 @@ const FichaColumnaCervical = () => {
         // Formatear la fecha a YYYY-MM-DD
         const formattedDate = [
             date.getFullYear(),
-            (date.getMonth() + 1).toString().padStart(2, '0'), // Meses son 0-indexed, +1 para compensar
+            (date.getMonth() + 1).toString().padStart(2, '0'),
             date.getDate().toString().padStart(2, '0')
         ].join('-');
 
