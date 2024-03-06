@@ -117,14 +117,14 @@ export const ListItem = styled.li`
 export const ButtonAceptar = styled.button`
   padding: 10px 20px;
   border: none;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--azul);
+  color: var(--blanco);
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px var(--negro-rgba-03);
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--azul);
     cursor: pointer;
     transform: translateY(-2px);
   }
@@ -134,15 +134,14 @@ export const ButtonAceptar = styled.button`
 export const ButtonCancelar = styled.button`
   padding: 10px 20px;
   border: none;
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--gris);
+  color: var(--negro);
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   margin-left: 10px; // para añadir espacio entre los botones
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background-color: #5a6268;
+    background-color: var(--gris);
     cursor: pointer;
     transform: translateY(-2px);
   }

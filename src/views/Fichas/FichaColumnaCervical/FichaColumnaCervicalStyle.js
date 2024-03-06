@@ -134,9 +134,8 @@ export const ButtonCancelar = styled.button`
   padding: 10px 20px;
   border: none;
   background-color: var(--gris);
-  color: var(--blanco);
+  color: var(--negro);
   border-radius: 5px;
-  box-shadow: 0 2px 5px var(--negro);
   margin-left: 10px;
   transition: all 0.3s ease-in-out;
 

@@ -134,15 +134,14 @@ export const ButtonAceptar = styled.button`
 export const ButtonCancelar = styled.button`
   padding: 10px 20px;
   border: none;
-  background-color: var(--gris-oscuro);
-  color: var(--blanco);
+  background-color: var(--gris);
+  color: var(--negro);
   border-radius: 5px;
-  box-shadow: 0 2px 5px var(--negro-rgba-03);
   margin-left: 10px;
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    background-color: var(--gris-oscuro);
+    background-color: var(--gris);
     cursor: pointer;
     transform: translateY(-2px);
   }

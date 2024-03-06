@@ -21,7 +21,18 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     const { userData } = useContext(AuthContext);
 
     const [mostrarGuardado, setMostrarGuardado] = useState(false);
+    const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
+    const [isEmailRequired, setIsEmailRequired] = useState(false);
 
+    const handleIngresarClick = (e) => {
+        e.preventDefault();
+        setIsUserCreationModalVisible(true);
+    };
+    const handleUserCreationResponse = (createUser) => {
+        setIsEmailRequired(createUser);
+        setIsUserCreationModalVisible(false);
+        setIsModalVisible(true);
+    };
     const getInitialFormValues = () => {
         const datosGuardados = localStorage.getItem('datosFormularioPacienteColumnaToracica');
         if (datosGuardados) {
@@ -157,12 +168,19 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     }, []);
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
-        const camposAValidar = ['idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'email', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'];
+        let camposAValidar = [
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'
+        ];
+
+        if (isEmailRequired) {
+            camposAValidar.push('email');
+        }
+
         const fichaJsonValidado = {};
         let camposFaltantes = [];
 
         camposAValidar.forEach(campo => {
-            if(fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
+            if (fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
                 camposFaltantes.push(campo);
             } else {
                 fichaJsonValidado[campo] = fichaJsonOriginal[campo];
@@ -171,7 +189,6 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
 
         return { fichaJsonValidado, camposFaltantes };
     };
-
     useEffect(() => {
         if (resetBodyMap) {
             setSelectedBodyParts([]);
@@ -339,6 +356,15 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     }
     return (
         <>
+            {isUserCreationModalVisible && (
+                <StyledModal isOpen={isUserCreationModalVisible} onRequestClose={() => setIsUserCreationModalVisible(false)}>
+                    <h2>¿Desea crear un usuario al paciente?</h2>
+                    <div>
+                        <ButtonAceptar onClick={() => handleUserCreationResponse(true)}>Sí</ButtonAceptar>
+                        <ButtonCancelar onClick={() => handleUserCreationResponse(false)}>No</ButtonCancelar>
+                    </div>
+                </StyledModal>
+            )}
             <Form id="formulario" onSubmit={handleSubmit}>
 
                 {/* Nombre */}
@@ -1180,7 +1206,7 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
                 <BodyMapStyle>
                     <BodyMap key={"BodyMapColumnaToracica"}  onAreaSelected={handleBodyPartSelection}/>
                 </BodyMapStyle>
-                <Button type="submit" onClick={handleModalFisios}>Ingresar</Button>
+                <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>
             </Form>
             <StyledModal isOpen={isModalVisible}>
                 <h2>Seleccione un Fisioterapeuta</h2>
