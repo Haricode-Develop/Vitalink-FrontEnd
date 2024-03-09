@@ -15,7 +15,7 @@ import {
     TableCell,
     ChartContainer,
     ChartContainerTime,
-    BoxTitleMobile
+    BoxTitleMobile, Thead
 } from './DashboardStyle';
 import PdfViewer from "../../components/PdfViewer/PdfViewer";
 import SearchFileIndicator from "../../components/SearchFileIndicator/SearchFileIndicator";
@@ -281,11 +281,11 @@ const Dashboard = () => {
                         label: 'Cantidad de Pacientes',
                         data: data,
                         backgroundColor: [
-                            '#FF6384',
-                            '#FF9F40',
-                            '#FFCD56',
-                            '#4BC0C0',
-                            '#36A2EB',
+                            '#97FFE4',
+                            '#FF5C5C',
+                            '#0372FF',
+                            '#16205B',
+                            '#FFFFFF',
                         ],
                         borderColor: '#FFFFFF',
                         borderWidth: 2,
@@ -361,13 +361,13 @@ const Dashboard = () => {
                             data: data,
                             borderColor: 'rgba(31, 136, 162, 1)',
                             borderWidth: 2,
-                            fill: true, // Cambiado a true para habilitar el sombreado
-                            backgroundColor: 'rgba(31, 136, 162, 0.2)', // Color de fondo para el sombreado
-                            tension: 0.4, // Añade curvas suavizadas a la línea
-                            pointBackgroundColor: 'rgba(98, 200, 202, 1)', // Color de fondo de los puntos
-                            pointBorderColor: '#fff', // Color del borde de los puntos
-                            pointHoverBackgroundColor: '#fff', // Color de fondo de los puntos al pasar el mouse
-                            pointHoverBorderColor: 'rgba(98, 200, 202, 1)', // Color del borde de los puntos al pasar el mouse
+                            fill: true,
+                            backgroundColor: 'rgba(31, 136, 162, 0.2)',
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(98, 200, 202, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(98, 200, 202, 1)',
                         },
                     ],
                 },
@@ -562,13 +562,13 @@ const Dashboard = () => {
                     />
                     <TableContainer>
                         <Table>
-                            <thead>
+                            <Thead>
                             <tr>
                                 <th>Apellido</th>
                                 <th>Nombre</th>
                                 <th>Email</th>
                             </tr>
-                            </thead>
+                            </Thead>
                             <tbody>
                             {filteredFisioterapeutas.length > 0 ? (
                                 filteredFisioterapeutas.map(fisio => (
@@ -602,14 +602,14 @@ const Dashboard = () => {
                     <TableContainer>
 
                     <Table>
-                        <thead>
+                        <Thead>
                         <tr>
                             <th>Apellido</th>
                             <th>Nombre</th>
                             <th>Fecha de Ingreso</th>
                             <th>Fecha de Alta</th>
                         </tr>
-                        </thead>
+                        </Thead>
                         <tbody>
                         {pacientesAlta.length > 0 ? (
                             pacientesAlta.map(paciente => (
@@ -650,13 +650,13 @@ const Dashboard = () => {
                     <BoxTitle>ULTIMOS PACIENTES INGRESADOS</BoxTitle>
                     <TableContainer>
                         <Table>
-                            <thead>
+                            <Thead>
                             <tr>
                                 <th>Apellido</th>
                                 <th>Nombre</th>
                                 <th>Fecha de Ingreso</th>
                             </tr>
-                            </thead>
+                            </Thead>
                             <tbody>
                             {pacientesIngresados.length > 0 ? (
                                 pacientesIngresados.map(paciente => (
@@ -696,13 +696,13 @@ const Dashboard = () => {
                     <BoxTitle>ÁREAS AFECTADAS DE ULTIMOS PACIENTES</BoxTitle>
                     <TableContainer>
                         <Table>
-                            <thead>
+                            <Thead>
                             <tr>
                                 <th>Apellido</th>
                                 <th>Nombre</th>
                                 <th>Área Corporal</th>
                             </tr>
-                            </thead>
+                            </Thead>
                             <tbody>
                             {areasAfectadas.length > 0 ? (
                                 areasAfectadas.map((area, index) => (

@@ -186,8 +186,8 @@ export const MobileDropdownItem = styled.div`
   ${({ active }) =>
           active &&
           css`
-            background-color: var(--azul);
-            color: var(--blanco);
+            background-color: var(--limon);
+            color: var(--negro);
             font-weight: bold;
           `}
 `;

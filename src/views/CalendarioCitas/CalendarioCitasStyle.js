@@ -1,17 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 
 
-const colors = {
-    verdeClaro: 'var(--verde-claro)',
-    verdeMedio: 'var(--verde-medio)',
-    verdeOscuro: 'var(--verde-oscuro)',
-    azul: 'var(--azul)',
-    rojo: 'var(--rojo)',
-    blanco: 'var(--blanco)',
-    negro: 'var(--negro)',
-    gris: 'var(--gris)',
-    grisOscuro: 'var(--gris-oscuro)',
-};
 
 
 const slideOut = keyframes`
@@ -52,12 +41,12 @@ export const PatientList = styled.div`
 export const Patient = styled.div`
   padding: 20px;
   margin-bottom: 20px;
-  background: ${colors.blanco};
+  background: var(--blanco);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  border-left: 5px solid ${colors.verdeMedio}; // Añadir un borde izquierdo como indicador de estado
+  border-left: 5px solid ${props => props.color || 'var(--limon)'};
 
   &:hover {
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
@@ -66,13 +55,13 @@ export const Patient = styled.div`
 
   h3 {
     font-size: 1.2rem;
-    color: ${colors.azul};
+    color: var(--azul);
     margin: 0;
   }
 
   p {
     font-size: 0.9rem;
-    color: ${colors.grisOscuro};
+    color: var(--gris-oscuro);
     margin-top: 5px;
   }
 
@@ -80,7 +69,7 @@ export const Patient = styled.div`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: ${props => props.statusColor || colors.verdeMedio};
+    background-color: ${props => props.statusColor ||`var(--limon)`};
     display: inline-block;
     margin-right: 10px;
   }
@@ -150,7 +139,7 @@ export const CalendarContainer = styled.div`
       border: 1px solid var(--azul);
     }
     .fc-day-selected {
-      border: 2px solid var(--color-primario); // Borde para día seleccionado
+      border: 2px solid var(--color-primario);
     }
   }
 
@@ -212,6 +201,7 @@ export const StyledInput = styled.input`
     margin: 5px 0;
   }
 `;
+
 export const FixedSearchContainer = styled.div`
   position: sticky;
   top: 0;
@@ -249,13 +239,11 @@ export const StyledButton = styled.button`
   margin-top: 10px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--limon);
+  color: var(--negro);
   font-size: 16px;
   cursor: pointer;
-  &:hover {
-    background-color: #0056b3;
-  }
+
   @media (max-width: 768px) {
     width: 100%;
   }
@@ -310,21 +298,18 @@ export const StyledLabel = styled.label`
 
 
 export const FixedFilterButton = styled.button`
-  position: fixed;
+  position: absolute;
   top: 25px;
   left: 500px;
   z-index: 100;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--limon);
+  color: var(--negro);
   padding: 0.5rem 0.75rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    background-color: #0056b3;
-  }
+  
 
   display: flex;
   align-items: center;

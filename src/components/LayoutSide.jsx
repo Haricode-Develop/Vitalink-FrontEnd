@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useEffect, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
@@ -21,7 +21,9 @@ import {
 import profilePicture from '../assets/login/profile/user.png'; // Importa la imagen
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
+import animationData from '../assets/profile.json';
 import { FaBars, FaTimes, FaChevronUp } from 'react-icons/fa';
+import Lottie from 'react-lottie';
 
 export const LayoutContext = createContext({
   activeSubMenu: '',
@@ -36,6 +38,7 @@ const LayoutSide = ({ children }) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
 
   const toggleSidebar = () => {
     if (isMobile()) {
@@ -162,7 +165,24 @@ const LayoutSide = ({ children }) => {
     return userData?.roles.some(role => role.name.toLowerCase() === roleName.toLowerCase());
   }
   const showFisioterapeutaMenu = userHasRole('Gestor') || userHasRole('Administrador');
+  const defaultOptions = {
+    loop: false,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+  };
 
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimationKey(prevKey => prevKey + 1);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
   return (
       <LayoutContext.Provider value={{ activeSubMenu, setActiveSubMenu, handleNavigate }}>
     <div style={{ display: 'flex' }}>
@@ -180,8 +200,9 @@ const LayoutSide = ({ children }) => {
       overflowY: 'auto',
         transition: 'transform 0.3s ease-in-out'
     }}>
-        <ProfileImage image={profilePicture} />
         <UserInfo>
+          <Lottie options={defaultOptions} height={150} width={150} ref={animationRef}/>
+
           <div style={{ paddingTop: '10px' }}>{userData?.name} {userData?.lastName}</div>
           <div>{userData?.roles.map(role => role.name).join(', ')}</div>
 

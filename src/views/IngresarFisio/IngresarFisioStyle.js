@@ -113,7 +113,8 @@ export const ProfilePicture = styled.img`
 export const UploadButton = styled.button`
   background-color: var(--azul);
   color: var(--blanco);
-  padding: 10px;
+  padding: 20px;
+  font-weight: 700;
   border: none;
   cursor: pointer;
   margin-top: 10px;
@@ -139,8 +140,9 @@ export const ActionButtons = styled.div`
 export const DownloadLink = styled.a`
   text-align: center;
   padding: 10px 15px;
-  background-color: var(--azul);
-  color: var(--blanco);
+  background-color: var(--limon);
+  color: var(--negro);
+  font-weight: 700;
   border-radius: 4px;
   text-decoration: none;
   cursor: pointer;
@@ -169,6 +171,7 @@ export const Button = styled.button`
   cursor: pointer;
   background-color: var(--negro);
   color: var(--blanco);
+  font-weight: 700;
   border: none;
   &:hover {
     background-color: var(--gris-oscuro);

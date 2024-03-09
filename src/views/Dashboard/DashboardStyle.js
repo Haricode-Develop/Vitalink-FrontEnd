@@ -34,8 +34,8 @@ export const Sidebar = styled.div`
 
 
 export const ProfileImage = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   background-color: var(--gris-oscuro);
   background-image: url(${(props) => props.image});
   background-size: cover;
@@ -87,7 +87,6 @@ export const MenuItem = styled.div`
   text-transform: ${props => (props.bold ? 'uppercase' : 'none')};
   background-color: ${props => (props.active ? 'var(--verde-medio)' : 'transparent')};
   border-top: 1px solid var(--gris-oscuro);
-  border-bottom: 1px solid var(--gris-oscuro);
   transition: all 0.5s ease;
  
   &:hover, &:focus {
@@ -125,6 +124,10 @@ export const SubMenuItem = styled(MenuItem)`
   text-transform: uppercase;
   border-top: none;
   background-color: transparent;
+  border-top: 1px solid var(--gris-oscuro);
+
+  border-bottom: 1px solid var(--gris-oscuro);
+
   @media (max-width: 768px) {
     padding: 15px 20px;
     margin: 5px 0;
@@ -234,7 +237,7 @@ export const TableCell = styled.td`
   }
 `;
 export const BoxButton = styled.button`
-  background-color: var(--azul);
+  background-color: var(--celeste);
   color: var(--blanco);
   border: none;
   padding: 10px 20px;
@@ -282,11 +285,13 @@ export const Table = styled.table`
     text-align: center;
   }
 
-  th {
-    background-color: var(--gris);
-  }
+`;
 
-  tr:hover {
-    background-color: var(--gris);
+
+export const Thead = styled.thead`
+background:#0F0F0F!important;
+color:#fff;
+  td {
+    background-color: var(--negro);
   }
 `;

@@ -7,20 +7,25 @@
   --verde-medio: #62C8CA;
   --verde-oscuro: #1F88A2;
   --azul: #072B4A;
-  --rojo: #FF5465;
   --verde-claro-rgba: rgba(181, 234, 230);
   --verde-medio-rgba: rgba(98, 200, 202);
   --verde-oscuro-rgba: rgba(31, 136, 162);
   --azul-rgba: rgba(7, 43, 74);
-  --rojo-rgba: rgba(255, 84, 101);
-  --blanco: #FFFFFF;
+
+
   --negro: #000000;
+  --blanco: #FFFFFF;
+  --limon:#97FFE4;
+  --rojo: #FF5C5C;
+  --celeste: #0372FF;
+  --rojo-rgba: rgba(255, 92, 92);
+  --celeste-rgba: rgba(3, 114, 255);
+
+
   --gris: #ececec;
   --gris-oscuro: #c0c0c0;
   --celeste-rgba-65: rgba(3, 114, 255, 0.65);
-  --celeste-rgba: rgba(3, 114, 255);
 
-  /*Color RGBA*/
   --verde-oscuro-rgba-65: rgba(31, 136, 162, 0.65);
   --negro-rgba-03: rgba(0,0,0,0.3);
   --negro-rgba-01: rgba(0,0,0,0.1);
@@ -28,7 +33,7 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 .App-logo {
   height: 40vmin;

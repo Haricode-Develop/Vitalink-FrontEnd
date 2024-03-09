@@ -35,7 +35,7 @@ export const FooterText = styled.p`
 `;
 
 export const BrandName = styled.a`
-  color:  var(--celeste-rgba-65);
+  color:  var(--celeste);
   font-weight: bold;
   margin-left: 5px;
   text-decoration: none;
