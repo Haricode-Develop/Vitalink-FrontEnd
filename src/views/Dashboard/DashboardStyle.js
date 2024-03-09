@@ -130,6 +130,8 @@ export const SubMenuItem = styled(MenuItem)`
 
   @media (max-width: 768px) {
     padding: 15px 20px;
+    border-top: 0px solid var(--gris-oscuro);
+
     margin: 5px 0;
   }
 `;

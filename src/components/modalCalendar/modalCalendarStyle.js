@@ -34,7 +34,7 @@ export const CustomModal = styled(Modal)`
   outline: none;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 10000;
+  z-index: 1030;
   width: 50vw;
   max-width: 500px;
 
@@ -89,8 +89,9 @@ export const EventListItem = styled.li`
 export const Button = styled.button`
   padding: 10px 15px;
   border: none;
-  background: #007bff;
-  color: white;
+  background: var(--limon);
+  color: var(--negro);
+  font-weight: 700;
   border-radius: 4px;
   margin-right: 10px;
   cursor: pointer;
@@ -104,4 +105,59 @@ export const Button = styled.button`
     top: 10px;
     right: 10px;
   }
+`;
+
+export const Input = styled.input`
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  }
+`;
+
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+
+export const InputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;  
+`;
+export const StyledLabel = styled.label`
+  margin-right: 10px;
+  margin-bottom: 0.5rem;
+  min-width: 50px;
+`;
+
+export const StyledInput = styled.input`
+  padding: 10px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+  @media (max-width: 768px) {
+    margin: 5px 0;
+  }
+`;
+
+
+export const StyledSelect = styled.select`
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+  cursor: pointer;
+
 `;

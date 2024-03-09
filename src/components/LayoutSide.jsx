@@ -22,7 +22,7 @@ import profilePicture from '../assets/login/profile/user.png'; // Importa la ima
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
 import animationData from '../assets/profile.json';
-import { FaBars, FaTimes, FaChevronUp } from 'react-icons/fa';
+import { FaBars, FaTimes, FaChevronUp, FaHome, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine   } from 'react-icons/fa';
 import Lottie from 'react-lottie';
 
 export const LayoutContext = createContext({
@@ -210,12 +210,13 @@ const LayoutSide = ({ children }) => {
 
         <Menu>
           <MenuItem bold onClick={handleDashboardClick} className="dashboard">
-            Dashboard
+            <FaChartLine /> Dashboard
+            <div></div>
           </MenuItem>
           { userHasRole('Gestor') && (
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
-                Administrador
+                <FaUsersCog />Administrador
                 {activeSubMenu === 'Administrador' ? <FaChevronUp /> : <FaChevronUp />}
               </MenuItem>
               <SubMenu active={activeSubMenu === 'Administrador'}>
@@ -229,7 +230,7 @@ const LayoutSide = ({ children }) => {
           {showFisioterapeutaMenu && (
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Fisioterapeuta')} className={"fisioterapeuta"}>
-                Fisioterapeuta
+                <FaUserMd /> Fisioterapeuta
                 <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Fisioterapeuta'} />
               </MenuItem>
               <SubMenu active={activeSubMenu === 'Fisioterapeuta'}>
@@ -242,7 +243,7 @@ const LayoutSide = ({ children }) => {
           )}
 
           <MenuItem bold onClick={() => handleSubMenuClick('Pacientes')} className={"paciente"}>
-            Pacientes
+            <FaUserInjured />  Pacientes
             <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Pacientes'} />
           </MenuItem>
           <SubMenu active={activeSubMenu === 'Pacientes'}>

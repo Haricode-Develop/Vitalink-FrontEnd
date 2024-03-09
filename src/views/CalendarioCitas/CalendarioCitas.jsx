@@ -78,9 +78,14 @@ const AppointmentCalendar = () => {
     const [modalCalendarOpen, setModalCalendarOpen] = useState(false);
     const [selectedDayEvents, setSelectedDayEvents] = useState([]);
     const handlePatientClick = (patient) => {
+        const validDate = selectedDate instanceof Date && !isNaN(selectedDate);
+        if (!validDate) {
+            setSelectedDate(new Date());
+        }
         setSelectedPatient(patient);
         setModalIsOpen(true);
     };
+
     const findEstadoNameById = (id) => {
         const estado = estados.find(e => String(e.id) === String(id));
         return estado ? estado.nombre : 'Estado no encontrado';
@@ -122,19 +127,8 @@ const AppointmentCalendar = () => {
                 setSelectedDate(event.start);
                 setModalCalendarOpen(true);
             } else {
-                const patientList = pacientesConCitaFilter;
-                const patient = patientList.find(p => p.ID_USUARIO === event.extendedProps.idUsuario);
 
-                if (!patient) {
-                    toast.error('No se encontró el paciente seleccionado.', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 5000,
-                        hideProgressBar: true,
-                    });
-                    return;
-                }
 
-                setSelectedPatient(patient);
                 setSelectedEvent({
                     id: event.extendedProps.idCita,
                     date: event.start,
@@ -142,26 +136,52 @@ const AppointmentCalendar = () => {
                     hour: event.extendedProps.startTime.split(':')[0],
                     minute: event.extendedProps.startTime.split(':')[1],
                     idEstado: event.extendedProps.idEstado,
+                    nombreInvitado: event.extendedProps.nombreInvitado,
+                    contactoInvitado: event.extendedProps.contactoInvitado
                 });
+
+                if (!event.extendedProps.idUsuario) {
+                    setSelectedPatient({
+                        ID_USUARIO: null,
+                        NOMBRE: event.extendedProps.nombreInvitado,
+                        EMAIL: event.extendedProps.contactoInvitado
+                    });
+                } else {
+                    const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === event.extendedProps.idUsuario);
+                    if (!patient) {
+                        toast.error('No se encontró el paciente seleccionado.', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        });
+                        return;
+                    }
+                    setSelectedPatient(patient);
+                }
 
                 setEditModalOpen(true);
             }
         }
     };
     const handleSelectPatientFromCalendar = (cita) => {
-        const patientList = pacientesConCitaFilter;
-        const patient = patientList.find(p => p.ID_USUARIO === cita.extendedProps.idUsuario);
-
-        if (!patient) {
-            toast.error('No se encontró el paciente seleccionado.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
+        if (cita.extendedProps.idUsuario) {
+            const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === cita.extendedProps.idUsuario);
+            if (!patient) {
+                toast.error('No se encontró el paciente seleccionado.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+                return;
+            }
+            setSelectedPatient(patient);
+        } else {
+            setSelectedPatient({
+                ID_USUARIO: null,
+                NOMBRE: cita.extendedProps.nombreInvitado,
+                EMAIL: cita.extendedProps.contactoInvitado,
             });
-            return;
         }
-
-        setSelectedPatient(patient);
 
         setSelectedEvent({
             id: cita.extendedProps.idCita,
@@ -170,10 +190,12 @@ const AppointmentCalendar = () => {
             hour: cita.extendedProps.startTime.split(':')[0],
             minute: cita.extendedProps.startTime.split(':')[1],
             idEstado: cita.extendedProps.idEstado,
+            nombreInvitado: cita.extendedProps.nombreInvitado,
+            contactoInvitado: cita.extendedProps.contactoInvitado
         });
 
         setEditModalOpen(true);
-        setModalCalendarOpen(false);
+        setModalCalendarOpen(true);
     };
     const handleSearchChange = (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -181,15 +203,24 @@ const AppointmentCalendar = () => {
         if (!searchTerm) {
             setFilteredPacientes(pacientes);
         } else {
-            setFilteredPacientes(pacientes.filter(patient =>
-                patient.NOMBRE.toLowerCase().includes(searchTerm) ||
-                patient.APELLIDO.toLowerCase().includes(searchTerm) ||
-                patient.EMAIL.toLowerCase().includes(searchTerm)
-            ));
+            setFilteredPacientes(pacientes.filter(patient => {
+                const nameMatch = patient.NOMBRE.toLowerCase().includes(searchTerm) ||
+                    patient.APELLIDO.toLowerCase().includes(searchTerm);
+                const emailMatch = patient.EMAIL && patient.EMAIL.toLowerCase().includes(searchTerm);
+                return nameMatch || emailMatch;
+            }));
         }
     };
 
-
+    const addExternalAppointment = async (appointmentData) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/paciente/citas`, appointmentData);
+            toast.success('Cita externa agregada correctamente.');
+        } catch (error) {
+            console.error('Error al agregar la cita externa:', error);
+            toast.error('Error al agregar la cita externa.');
+        }
+    };
 
     const handleSearchChangeCalendar = (e) => {
         const searchTerm = e.target.value;
@@ -235,7 +266,7 @@ const AppointmentCalendar = () => {
 
 
     useEffect(() => {
-        const filtered = filterEvents(allEvents, FILTER_OPTIONS.CURRENT); // Usar el filtro 'CURRENT'
+        const filtered = filterEvents(allEvents, FILTER_OPTIONS.CURRENT);
         setCurrentEvents(filtered);
     }, [allEvents]);
     const handleFilterChange = (newFilter) => {
@@ -316,31 +347,16 @@ const AppointmentCalendar = () => {
     };
 
     const handleDateClick = (arg) => {
-        const dateEvents = allEvents.filter(event =>
-            new Date(event.start).toDateString() === new Date(arg.dateStr).toDateString() &&
-            !event.extendedProps.readOnly
-        );
 
-        if (dateEvents.length > 0) {
+
             setSelectedDate(arg.dateStr);
             setModalCalendarOpen(true);
-        }
 
-        const hasCurrentEvents = allEvents.some(event => {
-            const isSameDay = moment(event.start).isSame(arg.date, 'day');
-            return isSameDay && event.color === 'blue';
-        });
-
-        // Solo abrir modal si hay eventos actuales
-        if (hasCurrentEvents) {
-            setSelectedDate(arg.dateStr);
-            setModalCalendarOpen(true);
-        }
 
     };
 
     const handleUpdateCita = () => {
-        if (!selectedEvent || !selectedPatient) {
+        if (!selectedEvent) {
             toast.error('Información de la cita no disponible.', {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
@@ -383,7 +399,9 @@ const AppointmentCalendar = () => {
                 idUsuarioEdita: userData.id_usuario,
                 fechaCita: formattedDate,
                 horaCita: formattedTime,
-                idEstado: selectedEvent.idEstado
+                idEstado: selectedEvent.idEstado,
+                nombreInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.nombreInvitado,
+                contactoInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.contactoInvitado
             })
                 .then(async response => {
                     if (isDateChanged) {
@@ -400,6 +418,7 @@ const AppointmentCalendar = () => {
                 })
                 .catch(error => {
                     console.error('Error al actualizar la cita', error);
+
                 });
         } else {
             toast.error('Debe seleccionar un estado y asegurarse de que la hora y la fecha son correctas.', {
@@ -435,10 +454,12 @@ const AppointmentCalendar = () => {
                 const eventos = response.data.historialCitas.map(cita => {
                     const fechaCita = cita.FECHA_CITA.split('T')[0];
                     const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
-
+                    const title = cita.NOMBRE && cita.APELLIDO
+                        ? `${cita.NOMBRE} ${cita.APELLIDO}`
+                        : cita.NOMBRE_INVITADO;
                     return {
                         id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
-                        title: `${cita.NOMBRE} ${cita.APELLIDO}`,
+                        title: title,
                         start: new Date(fechaYHoraCita),
                         allDay: false,
                         color: 'red',
@@ -496,9 +517,13 @@ const AppointmentCalendar = () => {
                     const fechaCita = cita.FECHA_CITA.split('T')[0];
                     const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
 
+                    const title = cita.NOMBRE && cita.APELLIDO
+                        ? `${cita.NOMBRE} ${cita.APELLIDO}`
+                        : cita.NOMBRE_INVITADO;
+
                     return {
                         id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
-                        title: `${cita.NOMBRE} ${cita.APELLIDO}`,
+                        title: title,
                         start: new Date(fechaYHoraCita),
                         allDay: false,
                         color: 'blue',
@@ -749,6 +774,8 @@ const AppointmentCalendar = () => {
                 citas={currentEvents}
                 cargarCitas={cargarPacientesConCitaHistorial}
                 actualizarCita={handleUpdateCita}
+                estados={estados}
+                addExternalAppointment={addExternalAppointment}
             />
         </Container>
     );
