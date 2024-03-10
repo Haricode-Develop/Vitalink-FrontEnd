@@ -9,7 +9,7 @@ import {StyledModal} from "../../components/Modal";
 import { toast } from 'react-toastify';
 
 const Configuracion = () => {
-    const [activeTab, setActiveTab] = useState('usuarios');
+    const [activeTab, setActiveTab] = useState('citas');
     const [configuraciones, setConfiguraciones] = useState([]);
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const [qrCode, setQrCode] = useState('');
