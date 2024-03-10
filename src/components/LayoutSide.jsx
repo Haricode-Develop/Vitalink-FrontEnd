@@ -22,7 +22,7 @@ import profilePicture from '../assets/login/profile/user.png'; // Importa la ima
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
 import animationData from '../assets/profile.json';
-import { FaBars, FaTimes, FaChevronUp, FaHome, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine   } from 'react-icons/fa';
+import { FaBars, FaTimes, FaChevronUp, FaHome, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine, FaCog   } from 'react-icons/fa';
 import Lottie from 'react-lottie';
 
 export const LayoutContext = createContext({
@@ -87,6 +87,13 @@ const LayoutSide = ({ children }) => {
     }
     navigate('/dashboard');
   };
+
+  const handleConfiguracionClick = () =>{
+    if(isMobile()){
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/configuracion');
+  }
 
   const handleAgregarAdministradorClick = () => {
     if(isMobile()){
@@ -254,6 +261,11 @@ const LayoutSide = ({ children }) => {
             <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
             {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
           </SubMenu>
+
+          <MenuItem bold onClick={handleConfiguracionClick} className={"configuracion"}>
+            <FaCog />  Configuración
+            <div></div>
+          </MenuItem>
 
           <MenuItem onClick={handleLogoutClick}>
           &nbsp;Cerrar sesión

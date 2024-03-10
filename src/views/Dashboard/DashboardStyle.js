@@ -192,9 +192,11 @@ export const SidebarButton = styled.button`
 
   @media (max-width: 768px) {
     position: fixed;
-    top: 20px;
+    top: 85%;
     left: 0;
     z-index: 1050;
+    padding: 20px;
+
   }
 `;
 export const ChartContainer = styled.div`

@@ -21,6 +21,7 @@ import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
 import PlansPage from "./views/PlansPage/PlansPage";
 import useSessionVerification from "./Hook/sessionToken";
 import FichaEvolucion from "./views/FichaEvolucion/FichaEvolucion";
+import Configuracion from "./views/Configuración/Configuracion";
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 
 const MainRoutes = () => {
@@ -60,6 +61,7 @@ const MainRoutes = () => {
                         <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
                         <Route path="calendario-citas" element={<CalendarioCitas />} />
                         <Route path="ficha-evolucion" element={<FichaEvolucion />} />
+                        <Route path="configuracion" element={<Configuracion/>}/>
                     </Route>
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
