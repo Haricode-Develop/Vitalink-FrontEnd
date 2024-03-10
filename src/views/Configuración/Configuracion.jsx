@@ -17,6 +17,8 @@ const Configuracion = () => {
     const [showQRModal, setShowQRModal] = useState(false);
     const [modalImageKey, setModalImageKey] = useState(0);
     const tabsRef = useRef({ usuarios: null, citas: null });
+    const updateTimer = useRef(null);
+
     const isChecked = (value) => {
         return ['1', 'true', true].includes(value);
     };
@@ -104,13 +106,18 @@ const Configuracion = () => {
             return;
         }
 
-        try {
-           await axios.patch(`${API_BASE_URL}/configuraciones/configuracion/${idConfiguracion}`, {
-                valor: valorActualizado
-            });
-        } catch (error) {
-            console.error('Error al actualizar configuración:', error);
-        }
+        if (updateTimer.current) clearTimeout(updateTimer.current);
+
+
+        updateTimer.current = setTimeout(async () => {
+            try {
+                await axios.patch(`${API_BASE_URL}/configuraciones/configuracion/${idConfiguracion}`, {
+                    valor: valorActualizado
+                });
+            } catch (error) {
+                console.error('Error al actualizar configuración:', error);
+            }
+        }, 10000);
     };
 
     const verificarEstadoSesion = () => {
