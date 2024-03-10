@@ -139,7 +139,16 @@ const AppointmentCalendar = () => {
                     nombreInvitado: event.extendedProps.nombreInvitado,
                     contactoInvitado: event.extendedProps.contactoInvitado
                 });
-
+                console.log("ESTE ES EL EVENTO: ", {
+                    id: event.extendedProps.idCita,
+                    date: event.start,
+                    estado: event.extendedProps.estado,
+                    hour: event.extendedProps.startTime.split(':')[0],
+                    minute: event.extendedProps.startTime.split(':')[1],
+                    idEstado: event.extendedProps.idEstado,
+                    nombreInvitado: event.extendedProps.nombreInvitado,
+                    contactoInvitado: event.extendedProps.contactoInvitado
+                });
                 if (!event.extendedProps.idUsuario) {
                     setSelectedPatient({
                         ID_USUARIO: null,
@@ -392,6 +401,19 @@ const AppointmentCalendar = () => {
                 }
                 return event;
             });
+            console.log({
+                idCita: selectedEvent.id,
+                idPaciente: selectedPatient.ID_USUARIO,
+                idUsuarioEdita: userData.id_usuario,
+                fechaCita: formattedDate,
+                horaCita: formattedTime,
+                idEstado: selectedEvent.idEstado,
+                nombreInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.nombreInvitado,
+                contactoInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.contactoInvitado
+            });
+
+            console.log("ESTOS SON LOS SELECCIONADOS: ", selectedEvent.nombreInvitado);
+            console.log("ESTOS SON LOS SELECCIONADOS: ", selectedEvent.contactoInvitado);
 
             axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
                 idCita: selectedEvent.id,
@@ -468,6 +490,8 @@ const AppointmentCalendar = () => {
                             startTime: removeSeconds(cita.HORA_CITA),
                             idCita: cita.ID_CITA,
                             idUsuario: cita.ID_USUARIO,
+                            nombreInvitado: cita.NOMBRE_INVITADO,
+                            contactoInvitado: cita.CONTACTO_INVITADO,
                             readOnly: true,
                         }
                     };
@@ -531,7 +555,10 @@ const AppointmentCalendar = () => {
                             estado: findEstadoNameById(cita.ID_ESTADO),
                             startTime: removeSeconds(cita.HORA_CITA),
                             idCita: cita.ID_CITA,
-                            idUsuario: cita.ID_USUARIO
+                            idUsuario: cita.ID_USUARIO,
+                            nombreInvitado: cita.NOMBRE_INVITADO,
+                            contactoInvitado: cita.CONTACTO_INVITADO
+
                         }
                     };
                 });
