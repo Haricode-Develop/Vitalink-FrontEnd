@@ -192,10 +192,10 @@ export const SidebarButton = styled.button`
 
   @media (max-width: 768px) {
     position: fixed;
-    top: 85%;
+    top: 20px;
     left: 0;
     z-index: 1050;
-    padding: 20px;
+    padding: 10px;
 
   }
 `;
