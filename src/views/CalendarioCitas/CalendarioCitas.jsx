@@ -29,7 +29,11 @@ import {
     PatientList,
     PatientSearch,
     FilterGroup,
-    TimeInput
+    TimeInput,
+    LegendColor,
+    LegendContainer,
+    LegendItem,
+    LegendText
 } from './CalendarioCitasStyle';
 import axios from "axios";
 import { API_BASE_URL } from "../../utils/config";
@@ -77,6 +81,8 @@ const AppointmentCalendar = () => {
     const calendarRef = useRef(null);
     const [modalCalendarOpen, setModalCalendarOpen] = useState(false);
     const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+    const [estadosCargados, setEstadosCargados] = useState(false);
+
     const handlePatientClick = (patient) => {
         const validDate = selectedDate instanceof Date && !isNaN(selectedDate);
         if (!validDate) {
@@ -86,7 +92,7 @@ const AppointmentCalendar = () => {
         setModalIsOpen(true);
     };
 
-    const findEstadoNameById = (id) => {
+    const findEstadoNameById = (id) => {//
         const estado = estados.find(e => String(e.id) === String(id));
         return estado ? estado.nombre : 'Estado no encontrado';
     };
@@ -139,16 +145,7 @@ const AppointmentCalendar = () => {
                     nombreInvitado: event.extendedProps.nombreInvitado,
                     contactoInvitado: event.extendedProps.contactoInvitado
                 });
-                console.log("ESTE ES EL EVENTO: ", {
-                    id: event.extendedProps.idCita,
-                    date: event.start,
-                    estado: event.extendedProps.estado,
-                    hour: event.extendedProps.startTime.split(':')[0],
-                    minute: event.extendedProps.startTime.split(':')[1],
-                    idEstado: event.extendedProps.idEstado,
-                    nombreInvitado: event.extendedProps.nombreInvitado,
-                    contactoInvitado: event.extendedProps.contactoInvitado
-                });
+
                 if (!event.extendedProps.idUsuario) {
                     setSelectedPatient({
                         ID_USUARIO: null,
@@ -263,7 +260,9 @@ const AppointmentCalendar = () => {
 
     useEffect(() => {
         if (shouldFilterEvents) {
+
             setCurrentEvents(filterEvents(allEvents));
+
             setShouldFilterEvents(false);
         }
     }, [shouldFilterEvents, allEvents, filter]);
@@ -274,21 +273,27 @@ const AppointmentCalendar = () => {
     }, [pacientes]);
 
 
+
+
     useEffect(() => {
-        const filtered = filterEvents(allEvents, FILTER_OPTIONS.CURRENT);
-        setCurrentEvents(filtered);
-    }, [allEvents]);
+        const filteredData = async () => {
+            const filtered = await filterEvents(allEvents);
+            setCurrentEvents(filtered);
+        };
+        filteredData();
+
+    }, [allEvents, filter]);
     const handleFilterChange = (newFilter) => {
 
         setFilter(newFilter);
         setShouldFilterEvents(true);
     };
-    const filterEvents = (events) => {
+    const filterEvents = async (events) => {
         switch (filter) {
             case FILTER_OPTIONS.PAST:
                 return allEvents.filter(event => event.color === 'red');
             case FILTER_OPTIONS.CURRENT:
-                return allEvents.filter(event => event.color === 'blue');
+                return allEvents.filter(event => ['orange', 'blue', 'green'].includes(event.color));
             case FILTER_OPTIONS.ALL:
             default:
                 return allEvents;
@@ -304,9 +309,15 @@ const AppointmentCalendar = () => {
     };
     const handleDateSubmit = async () => {
         if (selectedPatient && selectedDate) {
-            const dateWithTime = new Date(selectedDate);
+            const dateWithTime = moment(selectedDate).set({
+                hour: parseInt(startTime.hour, 10),
+                minute: parseInt(startTime.minute, 10),
+                second: 0
+            }).toDate();
+
+
             dateWithTime.setHours(parseInt(startTime.hour, 10), parseInt(startTime.minute, 10));
-            const formattedDate = dateWithTime.toISOString().split('T')[0];
+            const formattedDate = moment(dateWithTime).format('YYYY-MM-DD');
             const formattedTime = `${startTime.hour.padStart(2, '0')}:${startTime.minute.padStart(2, '0')}:00`;
 
             const estadoName = findEstadoNameById(selectedEstado);
@@ -375,9 +386,17 @@ const AppointmentCalendar = () => {
         }
 
         if (selectedEvent && selectedEvent.id && selectedEvent.date && selectedEvent.hour && selectedEvent.minute) {
-            const dateWithTime = new Date(selectedEvent.date);
+
+            const dateWithTime = moment(selectedEvent.date)
+                .set({
+                    hour: parseInt(startTime.hour, 10),
+                    minute: parseInt(startTime.minute, 10),
+                    second: 0
+                })
+                .toDate();
+
             dateWithTime.setHours(parseInt(selectedEvent.hour, 10), parseInt(selectedEvent.minute, 10));
-            const formattedDate = dateWithTime.toISOString().split('T')[0];
+            const formattedDate = moment(dateWithTime).format('YYYY-MM-DD');
             const formattedTime = `${selectedEvent.hour.padStart(2, '0')}:${selectedEvent.minute.padStart(2, '0')}`;
 
             const estadoName = findEstadoNameById(selectedEvent.idEstado);
@@ -401,19 +420,9 @@ const AppointmentCalendar = () => {
                 }
                 return event;
             });
-            console.log({
-                idCita: selectedEvent.id,
-                idPaciente: selectedPatient.ID_USUARIO,
-                idUsuarioEdita: userData.id_usuario,
-                fechaCita: formattedDate,
-                horaCita: formattedTime,
-                idEstado: selectedEvent.idEstado,
-                nombreInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.nombreInvitado,
-                contactoInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.contactoInvitado
-            });
 
-            console.log("ESTOS SON LOS SELECCIONADOS: ", selectedEvent.nombreInvitado);
-            console.log("ESTOS SON LOS SELECCIONADOS: ", selectedEvent.contactoInvitado);
+
+
 
             axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
                 idCita: selectedEvent.id,
@@ -455,11 +464,13 @@ const AppointmentCalendar = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/paciente/estados`);
             setEstados(response.data);
+            setEstadosCargados(true);
         } catch (error) {
             console.error('Error cargando los estados:', error);
-
+            setEstadosCargados(true);
         }
     };
+
     function removeSeconds(timeString) {
         var timeParts = timeString.split(":");
 
@@ -472,6 +483,7 @@ const AppointmentCalendar = () => {
     const cargarPacientesConCitaHistorial = async () => {
         try{
             const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${userData.id_empresa}`);
+
             if (response.data && Array.isArray(response.data.historialCitas)) {
                 const eventos = response.data.historialCitas.map(cita => {
                     const fechaCita = cita.FECHA_CITA.split('T')[0];
@@ -516,13 +528,13 @@ const AppointmentCalendar = () => {
 
                     return [...eventosActualesUnicos, ...eventosUnicos];
                 });
-
                 setAllEvents(current => {
                     const eventosActualesUnicos = current.filter((currentEvent, index, self) =>
                             index === self.findIndex((e) => (
                                 e.extendedProps.idCita === currentEvent.extendedProps.idCita
                             ))
                     );
+
 
                     return [...eventosActualesUnicos, ...eventosUnicos];
                 });
@@ -544,13 +556,27 @@ const AppointmentCalendar = () => {
                     const title = cita.NOMBRE && cita.APELLIDO
                         ? `${cita.NOMBRE} ${cita.APELLIDO}`
                         : cita.NOMBRE_INVITADO;
-
+                    const estadoNombre = findEstadoNameById(cita.ID_ESTADO);
+                    let color;
+                    switch (estadoNombre) {
+                        case 'Completada':
+                            color = 'green';
+                            break;
+                        case 'Cancelada':
+                            color = 'orange';
+                            break;
+                        case 'Programada':
+                            color = 'blue';
+                            break;
+                        default:
+                            color = 'grey';
+                    }
                     return {
                         id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
                         title: title,
                         start: new Date(fechaYHoraCita),
                         allDay: false,
-                        color: 'blue',
+                        color: color,
                         extendedProps: {
                             estado: findEstadoNameById(cita.ID_ESTADO),
                             startTime: removeSeconds(cita.HORA_CITA),
@@ -568,8 +594,8 @@ const AppointmentCalendar = () => {
                 }));
 
                 setPacientesConCitaFilter(pacientesConCita);
-
                 setCurrentEvents(eventos);
+                console.log("DONDE SE LLAMA A LA PETICIÓN DE cargarPacientesConCita ", eventos);
                 setAllEvents(eventos);
             } else {
                 toast.error('No se recibieron datos de citas.', {
@@ -583,19 +609,21 @@ const AppointmentCalendar = () => {
 
         }
     };
-
-
-    useEffect(() => {
-        const loadData = async () => {
-            await cargarEstados();
-            await cargarPacientesConCita();
-            await cargarPacientesConCitaHistorial();
-
-        };
-
-
-        loadData();
+    useEffect( () => {
+        cargarEstados();
     }, []);
+
+        useEffect(() => {
+
+            const loadData = async () => {
+                await cargarPacientesConCita();
+                await cargarPacientesConCitaHistorial();
+
+            };
+            loadData();
+    }, [estados]);
+
+
 
     useEffect(() => {
         axios.get(`${API_BASE_URL}/paciente/todosLosPacientesSinCita/${userData.id_empresa}`)
@@ -772,6 +800,20 @@ const AppointmentCalendar = () => {
             </StyledModal>
             <ScrollablePatientList className={"listaDeEspera"}>
                 <FixedSearchContainer>
+                    <LegendContainer>
+                        <LegendItem color="#28a745">
+                            <LegendColor color="#28a745" />
+                            <LegendText>Completada</LegendText>
+                        </LegendItem>
+                        <LegendItem color="#007bff">
+                            <LegendColor color="#007bff" />
+                            <LegendText>Programada</LegendText>
+                        </LegendItem>
+                        <LegendItem color="#ffc107">
+                            <LegendColor color="#ffc107" />
+                            <LegendText>Cancelada</LegendText>
+                        </LegendItem>
+                    </LegendContainer>
                     <h1>Pacientes sin cita</h1>
                     <StyledInput
                         type="text"

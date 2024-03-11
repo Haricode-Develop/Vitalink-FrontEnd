@@ -158,7 +158,6 @@ export const ScrollablePatientList = styled(PatientList)`
   overflow-y: auto;
   
   max-height: 100vh;
-  padding-top: 70px;
   position: relative;
   margin-left: 0;
   @media (min-width: 768px) {
@@ -325,4 +324,36 @@ export const FixedFilterButton = styled.button`
     top: auto;
     width: 100%;
   }
+`;
+
+
+export const LegendContainer = styled.div`
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f8f8;
+`;
+
+export const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  margin-right: 16px;
+  border-radius: 16px;
+  margin: 10px;
+  background-color: ${props => `${props.color}20`};
+  font-size: 0.875rem;
+`;
+
+export const LegendColor = styled.span`
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: ${props => props.color};
+  margin-right: 8px;
+`;
+
+export const LegendText = styled.span`
+  color: ${props => props.color};
 `;

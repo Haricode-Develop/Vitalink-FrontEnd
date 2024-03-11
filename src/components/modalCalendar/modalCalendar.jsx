@@ -15,7 +15,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
         const fechaSeleccionada = moment(selectedDate).format('YYYY-MM-DD');
-        return fechaCita === fechaSeleccionada && cita.color === 'blue';
+        return fechaCita === fechaSeleccionada && (cita.color === 'blue' || cita.color === 'green' || cita.color === 'orange');
     });
 
     const [externalAppointment, setExternalAppointment] = useState({
