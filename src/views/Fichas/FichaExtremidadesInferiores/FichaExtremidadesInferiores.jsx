@@ -11,7 +11,7 @@ import {AuthContext} from "../../../context/AuthContext";
 import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import { StyledModal } from "../../../components/Modal";
-import moment from "moment/moment";
+import moment from "moment";
 
 const FichaExtremidadesInferiores = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
