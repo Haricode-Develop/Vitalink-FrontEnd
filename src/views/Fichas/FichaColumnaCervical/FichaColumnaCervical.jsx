@@ -11,6 +11,7 @@ import {AuthContext} from "../../../context/AuthContext";
 import { StyledModal } from "../../../components/Modal";
 import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
+import moment from "moment";
 const FichaColumnaCervical = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
@@ -292,17 +293,9 @@ const FichaColumnaCervical = () => {
     };
 
     const handleDateChange = (date) => {
-        // Formatear la fecha a YYYY-MM-DD
-        const formattedDate = [
-            date.getFullYear(),
-            (date.getMonth() + 1).toString().padStart(2, '0'),
-            date.getDate().toString().padStart(2, '0')
-        ].join('-');
-
-        // Actualiza el estado con la fecha formateada
+        const formattedDate = moment(date).format('YYYY-MM-DD');
         setFormValues({ ...formValues, fechaNac: formattedDate });
     };
-
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -352,7 +345,8 @@ const FichaColumnaCervical = () => {
                 localStorage.removeItem('datosFormularioPacienteColumnaCervical');
             })
             .catch(error => {
-                console.error('Error al cargar el PDF:', error);
+                console.error('Error al cargar el PDF:', error.response ? error.response.data : error);
+
                 toast.error('Error al cargar el PDF.', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,
@@ -435,7 +429,7 @@ const FichaColumnaCervical = () => {
                 <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
                 <DatePickerWrapper>
                     <DatePicker
-                        selected={formValues.fechaNac ? new Date(formValues.fechaNac) : new Date()}
+                        selected={moment(formValues.fechaNac).toDate()}
                         onChange={handleDateChange}
                         dateFormat="dd/MM/yyyy"
                         showYearDropdown

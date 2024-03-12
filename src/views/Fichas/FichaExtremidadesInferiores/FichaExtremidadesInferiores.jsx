@@ -11,6 +11,7 @@ import {AuthContext} from "../../../context/AuthContext";
 import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import { StyledModal } from "../../../components/Modal";
+import moment from "moment/moment";
 
 const FichaExtremidadesInferiores = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
@@ -295,14 +296,7 @@ const FichaExtremidadesInferiores = () => {
     };
 
     const handleDateChange = (date) => {
-        // Formatear la fecha a YYYY-MM-DD
-        const formattedDate = [
-            date.getFullYear(),
-            (date.getMonth() + 1).toString().padStart(2, '0'), // Meses son 0-indexed, +1 para compensar
-            date.getDate().toString().padStart(2, '0')
-        ].join('-');
-
-        // Actualiza el estado con la fecha formateada
+        const formattedDate = moment(date).format('YYYY-MM-DD');
         setFormValues({ ...formValues, fechaNac: formattedDate });
     };
 
@@ -428,7 +422,7 @@ const FichaExtremidadesInferiores = () => {
                 <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
                 <DatePickerWrapper>
                     <DatePicker
-                        selected={formValues.fechaNac ? new Date(formValues.fechaNac) : new Date()}
+                        selected={moment(formValues.fechaNac).toDate()}
                         onChange={handleDateChange}
                         dateFormat="dd/MM/yyyy"
                         showYearDropdown

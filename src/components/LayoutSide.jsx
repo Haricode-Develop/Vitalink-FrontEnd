@@ -224,7 +224,8 @@ const LayoutSide = ({ children }) => {
             <>
               <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
                 <FaUsersCog />Administrador
-                {activeSubMenu === 'Administrador' ? <FaChevronUp /> : <FaChevronUp />}
+                <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Administrador'} />
+
               </MenuItem>
               <SubMenu active={activeSubMenu === 'Administrador'}>
                 <SubMenuItem onClick={handleAgregarAdministradorClick} className={"administradorSeccionIngreso"}>Añadir</SubMenuItem>
