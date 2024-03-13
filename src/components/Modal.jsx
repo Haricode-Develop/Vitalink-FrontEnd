@@ -5,7 +5,7 @@ import {
 } from './ModalStyle';
 import { useSpring } from 'react-spring';
 
-export const StyledModal = ({ isOpen, onRequestClose, children, width, maxWidth, height, flexDirection }) => {
+export const StyledModal = ({ isOpen, onRequestClose, children, width, maxWidth, height, flexDirection, display }) => {
     const animation = useSpring({
         opacity: isOpen ? 1 : 0,
         transform: isOpen ? 'translateY(0)' : 'translateY(-100%)',
@@ -23,6 +23,7 @@ export const StyledModal = ({ isOpen, onRequestClose, children, width, maxWidth,
                 maxWidth={maxWidth}
                 height={height}
                 flexDirection={flexDirection}
+                display={display}
             >
                 {children}
             </ModalWrapper>

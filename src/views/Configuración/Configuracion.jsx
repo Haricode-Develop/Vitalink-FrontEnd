@@ -7,9 +7,9 @@ import {API_BASE_URL} from "../../utils/config";
 import {AuthContext} from "../../context/AuthContext";
 import {StyledModal} from "../../components/Modal";
 import { toast } from 'react-toastify';
-
+import GestionPacientes from "../../components/GestionPacientes/GestionPacientes";
 const Configuracion = () => {
-    const [activeTab, setActiveTab] = useState('citas');
+    const [activeTab, setActiveTab] = useState('gestionPacientes');
     const [configuraciones, setConfiguraciones] = useState([]);
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const [qrCode, setQrCode] = useState('');
@@ -137,13 +137,13 @@ const Configuracion = () => {
     return (
         <>
             <TabBar>
-                {/* <Tab
-                    ref={(el) => (tabsRef.current.usuarios = el)}
-                    active={activeTab === 'usuarios'}
-                    onClick={() => setActiveTab('usuarios')}
+                <Tab
+                    ref={(el) => (tabsRef.current.gestionPacientes = el)}
+                    active={activeTab === 'gestionPacientes'}
+                    onClick={() => setActiveTab('gestionPacientes')}
                 >
-                    Usuarios
-                </Tab>*/}
+                    Gestión de Pacientes
+                </Tab>
                 <Tab
                     ref={(el) => (tabsRef.current.citas = el)}
                     active={activeTab === 'citas'}
@@ -155,6 +155,8 @@ const Configuracion = () => {
             </TabBar>
 
             <TabContent>
+                {activeTab === 'gestionPacientes' && <GestionPacientes />}
+
                 <ConfigurationWrapper>
                     {configuraciones.map(({ ID_CONFIGURACION, CLAVE, VALOR, DESCRIPCION, TIPO, PATRON }) => (
                         <ConfigurationItem key={ID_CONFIGURACION}>

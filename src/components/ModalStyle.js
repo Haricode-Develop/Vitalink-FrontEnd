@@ -19,7 +19,7 @@ export const ModalWrapper = styled.div`
   background: white;
   padding: 20px;
   border-radius: 3px;
-  display: flex;
+  display: ${props => props.display || 'flex'};
   flex-direction: ${props => props.flexDirection || 'column'};
   align-items: center;
   width: ${props => props.width || '500px'};
