@@ -219,7 +219,7 @@ const GestionPacientes = () => {
             <StyledModal
                 isOpen={isModalOpen}
                 onRequestClose={() => setIsModalOpen(false)}
-                width="100%"
+                width="80%"
                 maxWidth="500px"
                 display="block"
             >
