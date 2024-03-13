@@ -34,6 +34,7 @@ export const PatientCard = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   ${props => props.noEmail && css`
     background-color: #ffdddd; // Fondo rojo claro para pacientes sin correo electrónico
   `}
@@ -150,6 +151,11 @@ export const AssignedDoctor = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+ 
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 `;
 
 export const DoctorInfo = styled.div`
@@ -174,14 +180,14 @@ export const ChangeDoctorButton = styled.button`
   background-color: #007bff;
   color: white;
   padding: 10px 15px;
-  margin-top: 10px;
   border-radius: 5px;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 5px;
-width: 100%;
+  width: auto; 
+  margin-top:10px; 
   &:hover {
     background-color: #0056b3;
   }
