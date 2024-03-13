@@ -6,6 +6,7 @@ import { MdSwapHoriz } from "react-icons/md";
 import { AuthContext } from "../../context/AuthContext";
 import { StyledModal } from "../Modal";
 import { toast } from 'react-toastify';
+import moment from 'moment';
 
 import {
     Container,
@@ -57,7 +58,6 @@ const GestionPacientes = () => {
             }));
 
         } catch (error) {
-            console.error('Error al obtener los fisioterapeutas:', error);
         }
     };
     useEffect(() => {
@@ -66,7 +66,6 @@ const GestionPacientes = () => {
                 const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientes/${userData.id_empresa}`);
                 setPatients(response.data.pacientes);
             } catch (error) {
-                console.error('Error al obtener los pacientes:', error);
             }
         };
 
@@ -93,11 +92,9 @@ const GestionPacientes = () => {
             const response = await axios.get(`${API_BASE_URL}/paciente/medicoPaciente/${idPaciente}`);
             setMedicoActual(response.data.medico);
             if (response.data.medico) {
-                console.log("ESTE ES EL MEDICO", response);
                 obtenerMedicosDisponibles(response.data.medico.ID_MEDICO);
             }
         } catch (error) {
-            console.error('Error al obtener el médico del paciente:', error);
         }
     };
 
@@ -109,8 +106,9 @@ const GestionPacientes = () => {
             apellido: patient.APELLIDO || '',
             email: patient.EMAIL || '',
             telefono: patient.TELEFONO || '',
-            fechaDeNacimiento: patient.FECHA_DE_NACIMIENTO || '',
+            fechaDeNacimiento: patient.FECHA_DE_NACIMIENTO ? moment(patient.FECHA_DE_NACIMIENTO).format('YYYY-MM-DD') : '', // Formatear la fecha de nacimiento
         });
+        console.log("INFORMACIÓN DEL PACIENTE: ", patient);
         obtenerMedicoPaciente(patient.ID_USUARIO);
         setIsModalOpen(true);
     };
@@ -123,8 +121,7 @@ const GestionPacientes = () => {
 
     const handleSelectChange = (event) => {
         const idNuevoMedico = event.target.value;
-        console.log("ESTE ES EL ID DEL MEDICO", idNuevoMedico);
-        setSelectedNewDoctorId(idNuevoMedico); // Guardamos el ID del médico seleccionado
+        setSelectedNewDoctorId(idNuevoMedico);
     };
 
     const getOptionsForSelect = () => {
@@ -139,15 +136,21 @@ const GestionPacientes = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Asegurarse de que el evento e se pasa correctamente
+        e.preventDefault();
         try {
             const response = await axios.put(`${API_BASE_URL}/paciente/actualizarPaciente/${currentPatient.ID_USUARIO}`, form);
             setIsModalOpen(false);
-            alert('Paciente actualizado correctamente.');
-            console.log(response.data);
+            toast.success('Paciente actualizado correctamente', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
         } catch (error) {
-            console.error('Error al actualizar el paciente:', error);
-            alert('Ocurrió un error al actualizar el paciente.');
+            toast.error('Ocurrió un error al actualizar el paciente', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
         }
     };
 
@@ -157,16 +160,15 @@ const GestionPacientes = () => {
             return;
         }
         try {
-            console.log("ID DEL PACIENTE", currentPatient.ID_USUARIO);
-            console.log("ESTE ES EL ID DEL DR", selectedNewDoctorId);
+
             await cambiarMedicoPaciente(currentPatient.ID_USUARIO, selectedNewDoctorId);
-            obtenerMedicoPaciente(currentPatient.ID_USUARIO); // Actualizamos la información del médico
+            obtenerMedicoPaciente(currentPatient.ID_USUARIO);
             toast.success('Cambio de medico realizado correctamente', {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
                 hideProgressBar: true,
             });
-            setIsModalOpen(false); // Opcional: cerrar el modal después de cambiar el médico
+            setIsModalOpen(false);
         } catch (error) {
             console.error('Error al cambiar el médico del paciente:', error);
             alert('Ocurrió un error al cambiar el médico.');
@@ -176,7 +178,7 @@ const GestionPacientes = () => {
     const cambiarMedicoPaciente = async (idPaciente, idNuevoMedico) => {
         try {
             await axios.post(`${API_BASE_URL}/paciente/cambiarMedico/${idPaciente}`, { idNuevoMedico });
-            obtenerMedicoPaciente(idPaciente); // Actualizamos la información del médico
+            obtenerMedicoPaciente(idPaciente);
         } catch (error) {
             console.error('Error al cambiar el médico del paciente:', error);
         }
@@ -217,7 +219,7 @@ const GestionPacientes = () => {
             <StyledModal
                 isOpen={isModalOpen}
                 onRequestClose={() => setIsModalOpen(false)}
-                width="50%"
+                width="100%"
                 maxWidth="500px"
                 display="block"
             >
