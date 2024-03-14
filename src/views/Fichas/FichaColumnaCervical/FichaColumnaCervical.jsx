@@ -312,11 +312,11 @@ const FichaColumnaCervical = () => {
         const formulario = document.getElementById('formulario');
 
         const isMobile = window.innerWidth < 768;
-        const scale = isMobile ? 2 : 1;
+        const scale = isMobile ? 1 : 1; // Reducir la escala en móviles si es posible
 
         const canvas = await html2canvas(formulario, {
             scale: scale,
-            useCORS: true, // para manejar contenido CORS
+            useCORS: true,
             windowWidth: formulario.scrollWidth,
             windowHeight: formulario.scrollHeight,
             scrollX: -window.scrollX,
@@ -326,20 +326,20 @@ const FichaColumnaCervical = () => {
             }
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const imgQuality = isMobile ? 0.75 : 1; // Reducir la calidad en móviles
+        const imgData = canvas.toDataURL('image/jpeg', imgQuality);
 
-        // Ajusta el tamaño del PDF basado en la escala
         const pdfWidth = isMobile ? 595.28 : canvas.width / scale;
         const pdfHeight = (canvas.height / scale) * (pdfWidth / canvas.width);
 
-        // Inicia jsPDF
+        const pdfScale = isMobile ? 0.5 : 1; // Usar una escala más baja para móviles
         const pdf = new jsPDF({
             orientation: 'p',
             unit: 'px',
-            format: [pdfWidth, pdfHeight]
+            format: [pdfWidth * pdfScale, pdfHeight * pdfScale]
         });
 
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth * pdfScale, pdfHeight * pdfScale);
         const pdfBlob = pdf.output('blob');
 
         const formData = new FormData();
@@ -366,6 +366,7 @@ const FichaColumnaCervical = () => {
             });
         }
     };
+
 
     return (
         <>
