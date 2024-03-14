@@ -10,13 +10,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 export const StyledModal = ({ isOpen, onRequestClose, pdfUrl, title }) => {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
-    const [scale, setScale] = useState(0.45);
+    const [scale, setScale] = useState(1.0);
+    const mobileScale = 0.6;
     const minScale = 0.3;
     const maxScale = 2.0;
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
         setTimeout(() => {
-            setScale(0.45);
+            setScale(1);
         }, 100);
     }
 
@@ -73,7 +74,22 @@ export const StyledModal = ({ isOpen, onRequestClose, pdfUrl, title }) => {
             })
             .catch(() => alert('No se pudo descargar el archivo'));
     };
+    useEffect(() => {
+        const handleResize = () => {
+            const isMobile = window.innerWidth < 768;
+            setScale(isMobile ? mobileScale : 1.0);
+        };
 
+        if (isOpen) {
+            handleResize();
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [isOpen]);
     return isOpen ? (
         <ModalBackdrop onClick={onRequestClose}>
             <ModalWrapper style={animation} onClick={e => e.stopPropagation()}>

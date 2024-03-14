@@ -17,6 +17,7 @@ import {
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import BodyMap from "../../../components/BodyMap/BodyMap";
+import '../globalStylesFichas.css';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import axios from "axios";
@@ -331,16 +332,30 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
         }
     };
     const exportPDF = async (nombre) => {
-        const formulario = document.getElementById("formulario");
+        const formulario = document.getElementById('formulario');
+
+        const isMobile = window.innerWidth < 768;
+        const scale = isMobile ? 2 : 1;
+
         const canvas = await html2canvas(formulario, {
-            scale: 2,
-            useCORS: true
+            scale: scale,
+            useCORS: true, // para manejar contenido CORS
+            windowWidth: formulario.scrollWidth,
+            windowHeight: formulario.scrollHeight,
+            scrollX: -window.scrollX,
+            scrollY: -window.scrollY,
+            ignoreElements: (element) => {
+                return false;
+            }
         });
+
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-        const pdfWidth = canvas.width / 2;
-        const pdfHeight = canvas.height / 2;
+        // Ajusta el tamaño del PDF basado en la escala
+        const pdfWidth = isMobile ? 595.28 : canvas.width / scale;
+        const pdfHeight = (canvas.height / scale) * (pdfWidth / canvas.width);
 
+        // Inicia jsPDF
         const pdf = new jsPDF({
             orientation: 'p',
             unit: 'px',
@@ -353,30 +368,28 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
         const formData = new FormData();
         formData.append('pdf', pdfBlob, nombre);
 
-        axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-            .then(response => {
-                toast.success('PDF cargado con éxito.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
-                localStorage.removeItem('datosFormularioPaciente')
-
-
-            })
-            .catch(error => {
-                console.error('Error al cargar el PDF:', error);
-                toast.error('Error al cargar el PDF.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+        try {
+            const response = await axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-    }
+            toast.success('PDF cargado con éxito.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            localStorage.removeItem('datosFormularioPacienteColumnaCervical');
+        } catch (error) {
+            console.error('Error al cargar el PDF:', error.response ? error.response.data : error);
+            toast.error('Error al cargar el PDF.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
     return (
         <>
             {isUserCreationModalVisible && (

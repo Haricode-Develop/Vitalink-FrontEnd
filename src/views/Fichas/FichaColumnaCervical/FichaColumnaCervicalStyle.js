@@ -1,5 +1,7 @@
 import styled, {keyframes} from 'styled-components';
 
+
+
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -10,6 +12,7 @@ export const Form = styled.form`
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   background: var(--blanco);
+
 `;
 
 export const BodyMapStyle = styled.div`
