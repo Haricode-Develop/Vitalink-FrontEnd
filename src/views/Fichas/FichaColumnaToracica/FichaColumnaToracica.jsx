@@ -122,11 +122,9 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             setIsModalVisible(true);
         }
         else{
-            console.log("ESTE ES EL FISIO DEL USER.ROL: ");
-            console.log(userData.id_rol);
+
             setSelectedFisio(userData.id_rol);
-            console.log("ESTE ES EL FISIO SELECCIONADO: ");
-            console.log(selectedFisio);
+
             setFormValues(prevFormValues => ({
                 ...prevFormValues,
                 idMedico: userData.id_rol
@@ -170,8 +168,9 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
         ];
+
 
         if (isEmailRequired) {
             camposAValidar.push('email');
@@ -329,7 +328,6 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             }
         })
             .then(response => {
-                console.log('PDF cargado con éxito:', response.data);
                 toast.success('PDF cargado con éxito.', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,

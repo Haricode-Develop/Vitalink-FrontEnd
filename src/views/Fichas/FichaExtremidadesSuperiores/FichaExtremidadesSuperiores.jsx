@@ -167,11 +167,9 @@ const FichaExtremidadesSuperiores = () => {
             setIsModalVisible(true);
         }
         else{
-            console.log("SE SELECCIONA A UN FISIO: ");
-            console.log(userData.id_rol);
+
             setSelectedFisio(userData.id_rol);
-            console.log("ESTE ES EL SEELCTED: ");
-            console.log(selectedFisio);
+
             setFormValues(prevFormValues => ({
                 ...prevFormValues,
                 idMedico: userData.id_rol
@@ -183,8 +181,9 @@ const FichaExtremidadesSuperiores = () => {
     };
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
         ];
+
 
         if (isEmailRequired) {
             camposAValidar.push('email');

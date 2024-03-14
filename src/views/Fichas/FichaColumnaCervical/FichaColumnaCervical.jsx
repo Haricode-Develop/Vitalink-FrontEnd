@@ -169,7 +169,6 @@ const FichaColumnaCervical = () => {
             setIsModalVisible(true);
         }
         else{
-            console.log("ESTE ES EL ROL ");
             setSelectedFisio(userData.id_rol);
             setFormValues(prevFormValues => ({
                 ...prevFormValues,
@@ -183,8 +182,9 @@ const FichaColumnaCervical = () => {
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
         ];
+
 
         if (isEmailRequired) {
             camposAValidar.push('email');
