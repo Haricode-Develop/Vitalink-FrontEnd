@@ -313,63 +313,43 @@ const FichaExtremidadesInferiores = () => {
         }
     };
     const exportPDF = async (nombre) => {
-        const formulario = document.getElementById('formulario');
+        const formulario = document.getElementById("formulario");
+        const canvas = await html2canvas(formulario);
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-        const isMobile = window.innerWidth < 768;
-        const scale = isMobile ? 1 : 1; // Reducir la escala en móviles si es posible
-
-        const canvas = await html2canvas(formulario, {
-            scale: scale,
-            useCORS: true,
-            windowWidth: formulario.scrollWidth,
-            windowHeight: formulario.scrollHeight,
-            scrollX: -window.scrollX,
-            scrollY: -window.scrollY,
-            ignoreElements: (element) => {
-                return false;
-            }
-        });
-
-        const imgQuality = isMobile ? 0.75 : 1; // Reducir la calidad en móviles
-        const imgData = canvas.toDataURL('image/jpeg', imgQuality);
-
-        const pdfWidth = isMobile ? 595.28 : canvas.width / scale;
-        const pdfHeight = (canvas.height / scale) * (pdfWidth / canvas.width);
-
-        const pdfScale = isMobile ? 0.5 : 1; // Usar una escala más baja para móviles
         const pdf = new jsPDF({
             orientation: 'p',
             unit: 'px',
-            format: [pdfWidth * pdfScale, pdfHeight * pdfScale]
+            format: [canvas.width, canvas.height]
         });
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth * pdfScale, pdfHeight * pdfScale);
+        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
         const pdfBlob = pdf.output('blob');
-
         const formData = new FormData();
         formData.append('pdf', pdfBlob, nombre);
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+        axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                toast.success('PDF cargado con éxito.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+                localStorage.removeItem('datosFormularioPacienteExtremidadesInferiores');
+
+            })
+            .catch(error => {
+                console.error('Error al cargar el PDF:', error);
+                toast.error('Error al cargar el PDF.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
             });
-            toast.success('PDF cargado con éxito.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
-            localStorage.removeItem('datosFormularioPacienteColumnaCervical');
-        } catch (error) {
-            console.error('Error al cargar el PDF:', error.response ? error.response.data : error);
-            toast.error('Error al cargar el PDF.', {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
-        }
-    };
+    }
     return (
         <>
             {isUserCreationModalVisible && (
