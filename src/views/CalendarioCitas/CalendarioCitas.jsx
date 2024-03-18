@@ -43,6 +43,8 @@ import { FaFilter, FaSave, FaSearch, FaTimes, FaUndo } from 'react-icons/fa';
 import ModalCalendar from "../../components/modalCalendar/modalCalendar";
 import moment from 'moment';
 import 'moment/locale/es';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 
 moment.locale('es');
 const FILTER_OPTIONS = {
@@ -373,6 +375,24 @@ const AppointmentCalendar = () => {
             setModalCalendarOpen(true);
 
 
+    };
+    const handleDeleteCita = async (idCita) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/paciente/eliminarCita/${idCita}`);
+            toast.success('Cita eliminada con éxito.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+
+        } catch (error) {
+            console.error('Error al eliminar la cita:', error);
+            toast.error('Error al eliminar la cita.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
     };
 
     const handleUpdateCita = () => {
@@ -721,7 +741,13 @@ const AppointmentCalendar = () => {
                 isOpen={editModalOpen}
                 onRequestClose={() => setEditModalOpen(false)}
             >
-                <ModalContent>
+                <Tabs>
+                    <TabList>
+                        <Tab>Actualizar Cita</Tab>
+                        <Tab>Eliminar Cita</Tab>
+                    </TabList>
+                    <TabPanel>
+                        <ModalContent>
                     <h2>Actualizar Cita</h2>
                     <InputGroup>
                         <StyledLabel>Fecha:</StyledLabel>
@@ -764,6 +790,17 @@ const AppointmentCalendar = () => {
                     </InputGroup>
                     <StyledButton onClick={handleUpdateCita}>Actualizar</StyledButton>
                 </ModalContent>
+                    </TabPanel>
+                    <TabPanel>
+                        <ModalContent>
+                            <h2>¿Estás seguro de que deseas eliminar esta cita?</h2>
+                            <p>Esta acción no se puede deshacer.</p>
+                            <StyledButton onClick={() => handleDeleteCita(selectedEvent.id)}>Eliminar Cita</StyledButton>
+                        </ModalContent>
+                    </TabPanel>
+                </Tabs>
+
+
             </StyledModal>
             <StyledModal isOpen={filterModalOpen} onRequestClose={() => setFilterModalOpen(false)}>
                 <ModalContent>
