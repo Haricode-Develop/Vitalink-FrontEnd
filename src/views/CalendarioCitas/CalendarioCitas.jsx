@@ -190,13 +190,14 @@ const AppointmentCalendar = () => {
                 EMAIL: cita.extendedProps.contactoInvitado,
             });
         }
+        const startTime = cita.extendedProps.startTime ? cita.extendedProps.startTime.split(':') : ['00', '00'];
 
         setSelectedEvent({
             id: cita.extendedProps.idCita,
             date: cita.start,
             estado: cita.extendedProps.estado,
-            hour: cita.extendedProps.startTime.split(':')[0],
-            minute: cita.extendedProps.startTime.split(':')[1],
+            hour: startTime[0],
+            minute: startTime[1],
             idEstado: cita.extendedProps.idEstado,
             nombreInvitado: cita.extendedProps.nombreInvitado,
             contactoInvitado: cita.extendedProps.contactoInvitado
@@ -227,7 +228,7 @@ const AppointmentCalendar = () => {
              console.log("APOINTMENT: ",appointmentData);
             const newEvent = {
                 id: response.data.id,
-                title: `${appointmentData.nombreInvitado} ${appointmentData.contactoInvitado}`,
+                title: `${appointmentData.nombreInvitado}`,
                 start: `${appointmentData.fechaCita}T${appointmentData.horaCita}`,
                 allDay: false,
                 color: 'blue',
