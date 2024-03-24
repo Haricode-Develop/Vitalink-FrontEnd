@@ -5,9 +5,12 @@ import { TabBar, Tab, TabContent, ActiveIndicator, ConfigurationWrapper, Configu
 import axios from 'axios';
 import {API_BASE_URL} from "../../utils/config";
 import {AuthContext} from "../../context/AuthContext";
+import { useWebSocket } from '../../context/WebSocketContext';
 import {StyledModal} from "../../components/Modal";
 import { toast } from 'react-toastify';
 import GestionPacientes from "../../components/GestionPacientes/GestionPacientes";
+import Loader from "../../components/Loader/Loader";
+
 const Configuracion = () => {
     const [activeTab, setActiveTab] = useState('gestionPacientes');
     const [configuraciones, setConfiguraciones] = useState([]);
@@ -18,6 +21,7 @@ const Configuracion = () => {
     const [modalImageKey, setModalImageKey] = useState(0);
     const tabsRef = useRef({ usuarios: null, citas: null });
     const updateTimer = useRef(null);
+    const { ws } = useWebSocket();
 
     const isChecked = (value) => {
         return ['1', 'true', true].includes(value);
@@ -61,7 +65,6 @@ const Configuracion = () => {
 
 
     const handleInputChange = async (idConfiguracion, clave, nuevoValor, tipo, patron) => {
-        console.log("VALOR DE CHECKBOX", nuevoValor, patron);
         if (tipo !== 'boolean' && !validarValorConRegex(nuevoValor, patron)) {
             toast.error('El valor ingresado no cumple con el formato requerido.');
             return;
@@ -77,13 +80,12 @@ const Configuracion = () => {
         if (clave === 'whatsapp_activado' && nuevoValor) {
             setLoadingQR(true);
             try {
-                const response = await axios.post(`${API_BASE_URL}/configuraciones/activar-whatsapp/${userData.id_empresa}`);
+                const response = await axios.post(`${API_BASE_URL}/configuraciones/activar-whatsapp/${userData.id_empresa}/${userData.id_usuario}`);
                 setLoadingQR(false);
                 if (response.data.success) {
                     setQrCode(response.data.qrCode);
                     setModalImageKey(prevKey => prevKey + 1);
                     setShowQRModal(true);
-                    verificarEstadoSesion();
 
                 } else {
                     console.error('Error al activar WhatsApp:', response.data.error);
@@ -120,22 +122,30 @@ const Configuracion = () => {
         }, 10000);
     };
 
-    const verificarEstadoSesion = () => {
-        const intervalId = setInterval(async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/configuraciones/estado-sesion/${userData.id_empresa}`);
-                if (data.estado === 'ACTIVA') {
-                    clearInterval(intervalId);
-                    setShowQRModal(false); // Cierra el modal del QR
-                    toast.success('Sesión de WhatsApp iniciada correctamente');
-                }
-            } catch (error) {
-                console.error('Error al verificar el estado de la sesión:', error);
+    // Dentro de tu componente Configuracion
+
+    useEffect(() => {
+        if (!ws) return;
+
+        const handleMessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'WHATSAPP_SESSION_STARTED') {
+                setShowQRModal(false);
+                toast.success('Sesión de WhatsApp iniciada correctamente');
             }
-        }, 3000);
-    };
+        };
+
+        ws.addEventListener('message', handleMessage);
+
+        return () => {
+            ws.removeEventListener('message', handleMessage);
+        };
+    }, [ws]);
+
+
     return (
         <>
+            {loadingQR && <Loader />}
             <TabBar>
                 <Tab
                     ref={(el) => (tabsRef.current.gestionPacientes = el)}

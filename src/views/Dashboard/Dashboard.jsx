@@ -22,6 +22,7 @@ import SearchFileIndicator from "../../components/SearchFileIndicator/SearchFile
 import {API_BASE_URL} from "../../utils/config";
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import moment from 'moment';
 
 import ReactTooltip from 'react-tooltip';
 import Chart from 'chart.js/auto';
@@ -47,8 +48,11 @@ const Dashboard = () => {
     const [selectedFileUrl, setSelectedFileUrl] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
+    const [citasSemanales, setCitasSemanales] = useState(null);
+    const [horasCitas, setHorasCitas] = useState([]);
+    const histogramaRef = useRef(null);
 
-  
+
     const filteredFisioterapeutas = fisioterapeutas.filter(fisio =>
         fisio.NOMBRE.toLowerCase().includes(searchTerm.toLowerCase()) ||
         fisio.APELLIDO.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,7 +66,6 @@ const Dashboard = () => {
         fetchFisioterapeutas(userData.id_empresa);
         fetchPacientesAlta(userData.id_empresa);
         fetchPacientesIngresados(userData.id_empresa);
-        fetchAreasAfectadas(userData.id_empresa);
         fetchPacientesAsignados(userData.id_empresa);
 
     }, [userData]);
@@ -98,14 +101,7 @@ const Dashboard = () => {
 
     };
 
-    const fetchPromedioTiempoTratamientoPorMes = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/promedioTiempoTratamientoPorMes`);
-            setPromedioTiempoTratamientoPorMes(response.data.promedioTiempoTratamientoPorMes);
-        } catch (error) {
-            console.error("Error al obtener el promedio de tiempo de tratamiento por mes:", error);
-        }
-    };
+
     const fetchFisioterapeutas = async (id_empresa) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/dashboard/fisioterapeutasPorInstitucion/${id_empresa}`);
@@ -249,7 +245,14 @@ const Dashboard = () => {
             saveAs(blob, `${nombreArchivoBase}_${formattedDateTime}.xlsx`);
         });
     };
-
+    const fetchCitasSemanales = async (id_empresa) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/dashboard/promedioPacientesDia/${id_empresa}`);
+            setCitasSemanales(response.data.citasSemanales);
+        } catch (error) {
+            console.error("Error al obtener las citas semanales:", error);
+        }
+    };
 
     function convertToNormalDateOnly(isoDate) {
         const date = new Date(isoDate);
@@ -342,32 +345,29 @@ const Dashboard = () => {
 
     // ESTA ES LA PETICIÓN  PARA GRÁFICA POR TIEMPO DE PACIENTeE
     const createChartTime = () => {
-        if (chartRefTime.current && promedioTiempoTratamientoPorMes) {
+        if (chartRefTime.current && citasSemanales) {
             const ctx = chartRefTime.current.getContext('2d');
             if (chartInstanceTime.current) {
                 chartInstanceTime.current.destroy();
             }
 
-            const labels = promedioTiempoTratamientoPorMes.map((item) => `${item.Mes}/${item.Año}`);
-            const data = promedioTiempoTratamientoPorMes.map((item) => item.Duracion_Promedio_Atencion_Dias);
+            const labels = citasSemanales.map((item) =>
+                moment(item.Dia).format('dddd, MMMM Do'));
+
+            const data = citasSemanales.map((item) => item.Cantidad_Pacientes_Atendidos);
 
             chartInstanceTime.current = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Promedio de Duración de Atención en Días',
+                            label: 'Cantidad de Pacientes Atendidos por Día',
                             data: data,
                             borderColor: 'rgba(31, 136, 162, 1)',
                             borderWidth: 2,
                             fill: true,
                             backgroundColor: 'rgba(31, 136, 162, 0.2)',
-                            tension: 0.4,
-                            pointBackgroundColor: 'rgba(98, 200, 202, 1)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgba(98, 200, 202, 1)',
                         },
                     ],
                 },
@@ -376,19 +376,9 @@ const Dashboard = () => {
                         x: {
                             type: 'category',
                             position: 'bottom',
-                            labels: labels,
                         },
                         y: {
                             beginAtZero: true,
-                        },
-                    },
-                    elements: {
-                        line: {
-                            tension: 0.4,
-                        },
-                        point: {
-                            radius: 5,
-                            hoverRadius: 7,
                         },
                     },
                     plugins: {
@@ -402,7 +392,7 @@ const Dashboard = () => {
                             intersect: false,
                         },
                     },
-                    responsive: true, 
+                    responsive: true,
                     maintainAspectRatio: false,
                 },
             });
@@ -413,8 +403,14 @@ const Dashboard = () => {
     }, [promedioTiempoTratamientoPorMes]);
 
     useEffect(() => {
-        fetchPromedioTiempoTratamientoPorMes();
+        fetchCitasSemanales(userData.id_empresa);
+        fetchHistogramaDeHoras(userData.id_empresa);
     }, []);
+
+    useEffect(() => {
+        createChartTime();
+    }, [citasSemanales]);
+
 
     useEffect(() => {
         createChartTime();
@@ -450,14 +446,6 @@ const Dashboard = () => {
         }
     };
 
-    const fetchAreasAfectadas = async (id_empresa) => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/areasAfectadasUltimosPacientes/${id_empresa}`);
-            setAreasAfectadas(response.data.areasAfectadas);
-        } catch (error) {
-            console.error("Error al obtener áreas afectadas:", error);
-        }
-    };
 
     const fetchPacientesAsignados = async(id_empresa) => {
         try{
@@ -468,9 +456,44 @@ const Dashboard = () => {
 
         }
     }
-    const handleSearch = (searchTerm) => {
-        // Implementa la lógica de búsqueda aquí, como llamar a una API
+
+    const fetchHistogramaDeHoras = async (id_empresa) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionHorasCitas/${id_empresa}`);
+            setHorasCitas(response.data);
+        } catch (error) {
+            console.error("Error al obtener datos para el histograma:", error);
+        }
     };
+
+    useEffect(() => {
+        const ctx = histogramaRef.current.getContext('2d');
+        if (ctx && horasCitas && Array.isArray(horasCitas.detalleMedico)) {
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: horasCitas.detalleMedico.map(dato => `${dato.HoraDelDia} hs`),
+                    datasets: [{
+                        label: 'Cantidad de Citas',
+                        data: horasCitas.detalleMedico.map(dato => dato.CantidadDeCitas),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            return () => chart.destroy();
+        }
+    }, [horasCitas]);
+
 
     const promptChangePassword = () => {
         const formContent = `
@@ -597,51 +620,9 @@ const Dashboard = () => {
 
                 </Box>
 
-                <Box className={"dashboardUltimosPacientesAlta"}>
-                    <BoxTitle>ULTIMOS PACIENTES DE ALTA</BoxTitle>
-                    <TableContainer>
-
-                    <Table>
-                        <Thead>
-                        <tr>
-                            <th>Apellido</th>
-                            <th>Nombre</th>
-                            <th>Fecha de Ingreso</th>
-                            <th>Fecha de Alta</th>
-                        </tr>
-                        </Thead>
-                        <tbody>
-                        {pacientesAlta.length > 0 ? (
-                            pacientesAlta.map(paciente => (
-                                <tr key={paciente.ID_USUARIO}>
-                                    <TableCell data-tip={paciente.APELLIDO}>{paciente.APELLIDO}</TableCell>
-                                    <TableCell data-tip={paciente.NOMBRE}>{paciente.NOMBRE}</TableCell>
-                                    <TableCell data-tip={convertToNormalDateOnly(paciente.FECHA_INGRESO)}>{convertToNormalDateOnly(paciente.FECHA_INGRESO)}</TableCell>
-                                    <TableCell data-tip={convertToNormalDateOnly(paciente.FECHA_DE_ALTA)}>{convertToNormalDateOnly(paciente.FECHA_DE_ALTA)}</TableCell>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3">No hay pacientes de alta.</td>
-                            </tr>
-                        )}
-                        </tbody>
-                    </Table>
-                    </TableContainer>
-
-                    <BoxButton onClick={() => downloadExcel(pacientesAlta,[
-                        { headerName: 'Apellido', accessor: 'APELLIDO' },
-                        { headerName: 'Nombre', accessor: 'NOMBRE' },
-                        { headerName: 'Fecha ingreso', accessor: 'FECHA_INGRESO', isDate: true  },
-                        { headerName: 'Fecha de Alta', accessor: 'FECHA_DE_ALTA', isDate: true  },
-                        { headerName: 'Descripción patología', accessor: 'DESCRIPCION_PATOLOGIA' },
-                    ], 'ULTIMOS PACIENTES DE ALTA', 'UltimosPacientesDeAlta')}>
-                        Descargar resumen
-                    </BoxButton>
-                </Box>
 
                 <Box className="chart-container dashboardPromedioDuracionAtencion">
-                    <BoxTitle>Promedio Duración Atención</BoxTitle>
+                    <BoxTitle>Cantidad Pacientes por día</BoxTitle>
                     <ChartContainerTime>
                         <canvas ref={chartRefTime} style={{ width: '100%'}}></canvas>
                     </ChartContainerTime>
@@ -692,44 +673,54 @@ const Dashboard = () => {
 
 
                 </Box>
-                <Box className={"dashboardAreasAfectadasUltimosPacientes"}>
-                    <BoxTitle>ÁREAS AFECTADAS DE ULTIMOS PACIENTES</BoxTitle>
+
+                <Box className={"dashboardUltimosPacientesAlta"}>
+                    <BoxTitle>ULTIMOS PACIENTES DE ALTA</BoxTitle>
                     <TableContainer>
+
                         <Table>
                             <Thead>
-                            <tr>
-                                <th>Apellido</th>
-                                <th>Nombre</th>
-                                <th>Área Corporal</th>
-                            </tr>
+                                <tr>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha de Ingreso</th>
+                                    <th>Fecha de Alta</th>
+                                </tr>
                             </Thead>
                             <tbody>
-                            {areasAfectadas.length > 0 ? (
-                                areasAfectadas.map((area, index) => (
-                                    <tr key={`area-${index}-${area.ID_AREA_AFECTADA}`}>
-                                        <TableCell>{area.APELLIDO}</TableCell>
-                                        <TableCell>{area.NOMBRE}</TableCell>
-                                        <TableCell>{area.AREA_CORPORAL}</TableCell>
+                            {pacientesAlta.length > 0 ? (
+                                pacientesAlta.map(paciente => (
+                                    <tr key={paciente.ID_USUARIO}>
+                                        <TableCell data-tip={paciente.APELLIDO}>{paciente.APELLIDO}</TableCell>
+                                        <TableCell data-tip={paciente.NOMBRE}>{paciente.NOMBRE}</TableCell>
+                                        <TableCell data-tip={convertToNormalDateOnly(paciente.FECHA_INGRESO)}>{convertToNormalDateOnly(paciente.FECHA_INGRESO)}</TableCell>
+                                        <TableCell data-tip={convertToNormalDateOnly(paciente.FECHA_DE_ALTA)}>{convertToNormalDateOnly(paciente.FECHA_DE_ALTA)}</TableCell>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5">No hay áreas afectadas para mostrar.</td>
+                                    <td colSpan="3">No hay pacientes de alta.</td>
                                 </tr>
                             )}
                             </tbody>
                         </Table>
                     </TableContainer>
-                    <BoxButton onClick={() =>  downloadExcel(areasAfectadas, [
+
+                    <BoxButton onClick={() => downloadExcel(pacientesAlta,[
                         { headerName: 'Apellido', accessor: 'APELLIDO' },
                         { headerName: 'Nombre', accessor: 'NOMBRE' },
-                        { headerName: 'Area corporal', accessor: 'AREA_CORPORAL' },
-                        { headerName: 'Fecha afectado', accessor: 'FECHA_AFECTADO', isDate: true  }
-                    ],'ÁREAS AFECTADAS DE ULTIMOS PACIENTES', 'AreasAfectadasDeUltimosPacientes')}>
+                        { headerName: 'Fecha ingreso', accessor: 'FECHA_INGRESO', isDate: true  },
+                        { headerName: 'Fecha de Alta', accessor: 'FECHA_DE_ALTA', isDate: true  },
+                        { headerName: 'Descripción patología', accessor: 'DESCRIPCION_PATOLOGIA' },
+                    ], 'ULTIMOS PACIENTES DE ALTA', 'UltimosPacientesDeAlta')}>
                         Descargar resumen
                     </BoxButton>
                 </Box>
 
+                <Box className="graficaHistogramaHorasCitas">
+                    <BoxTitleMobile>Horas más ocupadas</BoxTitleMobile>
+                    <canvas ref={histogramaRef}></canvas>
+                </Box>
 
             </Content>
         </div>

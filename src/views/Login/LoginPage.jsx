@@ -67,7 +67,6 @@ const LoginPage = () => {
     if (Object.keys(validationErrors).length === 0) {
       axios.post(`${API_BASE_URL}/auth/login`, { email, password })
           .then((response) => {
-            console.log("MI RESPUESTA DEL ENDPOINT", response);
             if (response.data.success) {
               // Establecer los datos del usuario y actualizar el estado de autenticación
               setSessionToken(response.data.sessionToken);

@@ -1,10 +1,9 @@
-// Loader.jsx
 import React, { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
-import { loaderStyle, overlayStyle } from './LoaderStyle';
-import HeartLoaderData from './HeartLoader.json';
+import { loaderStyle } from './LoaderPagesStyle';
+import LoaderPage from './LoaderPages.json';
 
-const Loader = () => {
+const LoaderPages = () => {
     const animationContainer = useRef(null);
 
     useEffect(() => {
@@ -13,17 +12,17 @@ const Loader = () => {
             renderer: 'svg',
             loop: true,
             autoplay: true,
-            animationData: HeartLoaderData,
+            animationData: LoaderPage,
         });
 
         return () => anim.destroy();
     }, []);
 
     return (
-        <div style={overlayStyle}>
-            <div style={loaderStyle.container} ref={animationContainer} />
+        <div style={loaderStyle.container}>
+            <div ref={animationContainer} />
         </div>
     );
 };
 
-export default Loader;
+export default LoaderPages;

@@ -3,6 +3,8 @@ import React, { useState, useContext, createContext, useEffect, useRef } from 'r
 import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useWebSocket } from "../context/WebSocketContext";
+
 import {
   Sidebar,
   ProfileImage,
@@ -39,6 +41,7 @@ const LayoutSide = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+  const wsContext = useWebSocket(); // Uso correcto del hook
 
   const toggleSidebar = () => {
     if (isMobile()) {
@@ -119,6 +122,9 @@ const LayoutSide = ({ children }) => {
   const handleLogoutClick = () => {
     logout();
     navigate('/');
+    if (wsContext.closeWebSocket) {
+      wsContext.closeWebSocket();
+    }
   };
   const handleAsignarPacienteClick = () => {
     if(isMobile()){

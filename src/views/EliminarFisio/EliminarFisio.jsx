@@ -48,7 +48,6 @@ const EliminarFisio = () => {
                 if(response.data && Array.isArray(response.data.fisios)){
                     setFisios(response.data.fisios);
                     setFilteredFisios(response.data.fisios);
-                    console.log("FILTERED FISIOS: ", filteredFisios);
                 }else{
                     toast.error('No se recibieron datos de fisioterapeutas.', {
                         position: toast.POSITION.TOP_RIGHT,

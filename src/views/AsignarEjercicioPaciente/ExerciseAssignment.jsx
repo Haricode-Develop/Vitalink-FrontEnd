@@ -35,7 +35,6 @@ const ExerciseAssignment = () => {
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Asignación exitosa', data);
                     })
                     .catch(error => {
                         console.error('Error en la asignación:', error);

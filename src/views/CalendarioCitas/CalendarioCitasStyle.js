@@ -203,7 +203,7 @@ export const StyledInput = styled.input`
 
 export const FixedSearchContainer = styled.div`
   position: sticky;
-  top: 0;
+  top: -20px;
   background-color: white;
   padding: 20px;
   z-index: 10;

@@ -224,6 +224,23 @@ const AppointmentCalendar = () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/paciente/citas`, appointmentData);
             toast.success('Cita externa agregada correctamente.');
+             console.log("APOINTMENT: ",appointmentData);
+            const newEvent = {
+                id: response.data.id,
+                title: `${appointmentData.nombreInvitado} ${appointmentData.contactoInvitado}`,
+                start: `${appointmentData.fechaCita}T${appointmentData.horaCita}`,
+                allDay: false,
+                color: 'blue',
+                extendedProps: {
+                    estado: appointmentData.estado,
+                },
+            };
+
+            setAllEvents(prevEvents => [...prevEvents, newEvent]);
+            setCurrentEvents(prevEvents => [...prevEvents, newEvent]);
+            setModalCalendarOpen(false);
+
+            calendarRef.current.getApi().refetchEvents();
         } catch (error) {
             console.error('Error al agregar la cita externa:', error);
             toast.error('Error al agregar la cita externa.');
@@ -615,7 +632,6 @@ const AppointmentCalendar = () => {
 
                 setPacientesConCitaFilter(pacientesConCita);
                 setCurrentEvents(eventos);
-                console.log("DONDE SE LLAMA A LA PETICIÓN DE cargarPacientesConCita ", eventos);
                 setAllEvents(eventos);
             } else {
                 toast.error('No se recibieron datos de citas.', {

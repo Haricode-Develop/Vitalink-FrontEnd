@@ -330,7 +330,6 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             }
         })
             .then(response => {
-                console.log('PDF cargado con éxito:', response.data);
                 toast.success('PDF cargado con éxito.', {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,

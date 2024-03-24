@@ -1,15 +1,27 @@
 export const loaderStyle = {
     container: {
-        position: 'fixed',
-        top: '45%',
-        left: '47%',
+        width: '200px',
+        height: '200px',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '40%',
-        height: '40%',
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
     },
+};
+
+export const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
 };

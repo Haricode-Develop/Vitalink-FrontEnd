@@ -1,40 +1,47 @@
-import { useEffect } from 'react';
-import axios from "axios";
-import { API_BASE_URL } from "../utils/config";
+import { useEffect, useContext } from 'react';
+import { useWebSocket } from "../context/WebSocketContext";
 import { toast } from 'react-toastify';
 
 const useSessionVerification = (isAuthenticated, userData, logout) => {
+    const { ws } = useWebSocket();
+
     useEffect(() => {
-        if (!isAuthenticated || !userData) {
+        if (!isAuthenticated || !userData || !ws) {
             return;
         }
 
-        const intervalId = setInterval(() => {
-            const sessionToken = localStorage.getItem('sessionToken');
-            const userId = userData.id_usuario;
-
-            axios.get(`${API_BASE_URL}/auth/verifySessionToken`, { params: { sessionToken, userId } })
-                .then(response => {
-                    if (!response.data.isValid) {
-                        logout();
-                        toast.warn("Tu sesión ha sido cerrada porque se inició sesión en otro lugar.", {
-                            position: "top-right",
-                            autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al verificar la sesión:', error);
+        const handleMessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'DISCONNECT') {
+                logout();
+                toast.warn("Tu sesión ha sido cerrada porque se inició sesión en otro lugar.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
                 });
-        }, 5000);
+            }
+        };
 
-        return () => clearInterval(intervalId);
-    }, [isAuthenticated, userData, logout]);
+        ws.addEventListener('message', handleMessage);
+
+        const verifySession = () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                const sessionToken = localStorage.getItem('sessionToken');
+                const userId = userData.id_usuario;
+                ws.send(JSON.stringify({ type: 'VERIFY_SESSION', payload: { userId, sessionToken } }));
+            }
+        };
+
+        verifySession();
+
+        return () => {
+            ws.removeEventListener('message', handleMessage);
+        };
+    }, [isAuthenticated, userData, logout, ws]);
 };
 
 export default useSessionVerification;

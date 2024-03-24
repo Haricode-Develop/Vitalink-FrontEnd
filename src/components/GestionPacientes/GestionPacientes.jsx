@@ -52,8 +52,6 @@ const GestionPacientes = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`);
             setMedicos(response.data.fisios.filter(fisio => {
-                console.log("ID del fisio actual:", fisio.ID_USUARIO);
-                console.log("ID del paciente excluido:", idPacienteExcluido);
                 return fisio.ID_USUARIO !== idPacienteExcluido;
             }));
 
@@ -108,7 +106,6 @@ const GestionPacientes = () => {
             telefono: patient.TELEFONO || '',
             fechaDeNacimiento: patient.FECHA_DE_NACIMIENTO ? moment(patient.FECHA_DE_NACIMIENTO).format('YYYY-MM-DD') : '', // Formatear la fecha de nacimiento
         });
-        console.log("INFORMACIÓN DEL PACIENTE: ", patient);
         obtenerMedicoPaciente(patient.ID_USUARIO);
         setIsModalOpen(true);
     };
