@@ -14,6 +14,7 @@ import { StyledModal } from "../../../components/Modal";
 import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import moment from "moment/moment";
+import {useSede} from "../../../context/SedeContext";
 const FichaColumnaToracica = ({ resetBodyMap } ) => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const [fisios, setFisios] = useState([]);
@@ -22,11 +23,12 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
     const [selectedFisio, setSelectedFisio] = useState(null);
 
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
 
     const [mostrarGuardado, setMostrarGuardado] = useState(false);
     const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
     const [isEmailRequired, setIsEmailRequired] = useState(false);
-
+    const [modalOpen, setModalOpen] = useState(false);
     const handleIngresarClick = (e) => {
         e.preventDefault();
         setIsUserCreationModalVisible(true);
@@ -96,10 +98,11 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_empresa,
+                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 1,
+                idSede: idSedeActual,
                 tipoCarga: 0,
                 idMedico: 0
 
@@ -145,7 +148,7 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             }
             setFormValues(parsedData);
         }
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
             .then((response) => {
 
                 if(response.data && Array.isArray(response.data.fisios)){
@@ -166,11 +169,18 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
             });
 
 
-    }, []);
+    }, [idSedeActual]);
+
+    useEffect(() => {
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            idSede: idSedeActual,
+        }));
+    }, [idSedeActual]);
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
         ];
 
 
@@ -1202,7 +1212,8 @@ const FichaColumnaToracica = ({ resetBodyMap } ) => {
                 </BodyMapStyle>
                 <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>
             </Form>
-            <StyledModal isOpen={isModalVisible}>
+            <StyledModal isOpen={isModalVisible}
+            onRequestClose={() => setModalOpen(false)}>
                 <h2>Seleccione un Fisioterapeuta</h2>
                 <ul>
                     {fisios.map((fisio) => (

@@ -32,6 +32,7 @@ import {useTransition, animated} from "react-spring";
 import {AuthContext} from "../../context/AuthContext";
 import {DatePickerWrapper, EmailInput} from "../ActualizarAdministrador/ActualizarAdministradorStyle";
 import DatePicker from "react-datepicker";
+import {useSede} from "../../context/SedeContext";
 
 const ActualizarFisio = () => {
     const [nombre, setNombre] = useState('');
@@ -49,25 +50,29 @@ const ActualizarFisio = () => {
     const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
     const [motivo, setMotivo] = useState('');
     const {userData} = useContext(AuthContext);
+    const { idSedeActual } = useSede();
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
-            .then((response) => {
-                if(response.data && Array.isArray(response.data.fisios)){
-                    setFisios(response.data.fisios);
-                    setFilteredFisios(response.data.fisios);
-                }else{
-                    toast.error('No se recibieron datos de fisioterapeutas.', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 5000,
-                        hideProgressBar: true,
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Error obteniendo fisioterapeutas:', error);
-            });
-    }, []);
+        if (idSedeActual) {
+            axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
+                .then((response) => {
+                    if(response.data && Array.isArray(response.data.fisios)){
+                        setFisios(response.data.fisios);
+                        setFilteredFisios(response.data.fisios);
+                    }else{
+                        toast.error('No se recibieron datos de fisioterapeutas.', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error obteniendo fisioterapeutas:', error);
+                });
+        }
+
+    }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
 
     useEffect(() => {
         const filtered = fisios.filter(fisio =>
@@ -108,7 +113,7 @@ const ActualizarFisio = () => {
         keys: item => item.ID_USUARIO
     });
    const handleUpdate = () => {
-       if(!nombre || !apellido || !fechaNacimiento || !email){
+       if(!nombre || !apellido || !fechaNacimiento){
            toast.warn('Todos los campos son obligatorios', {
                position: toast.POSITION.TOP_RIGHT,
                autoClose: 5000,
@@ -188,7 +193,7 @@ const ActualizarFisio = () => {
                     </FisioList>
 
                 </FormColumn>
-                <ActivityFeed idRol={'4, 3'} idAccion={2} idInstitucion={userData.id_empresa} idEntidadAfectada={2} className={"FeedActividades"}/>
+                <ActivityFeed idRol={'4, 2'} idAccion={2} idInstitucion={userData.id_institucion} idEntidadAfectada={2} className={"FeedActividades"}/>
             </Content>
             <StyledModal isOpen={isModalOpen} onRequestClose={handleModalClose}>
                 <ModalContent>

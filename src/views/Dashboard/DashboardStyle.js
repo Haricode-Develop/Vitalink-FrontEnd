@@ -293,9 +293,17 @@ export const Table = styled.table`
 
 
 export const Thead = styled.thead`
-background:#0F0F0F!important;
-color:#fff;
-  td {
+  background: #0F0F0F !important;
+  color: #fff;
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     background-color: var(--negro);
   }
+`;
+
+
+export const Sede = styled.div`
+font-weight: 700;
 `;

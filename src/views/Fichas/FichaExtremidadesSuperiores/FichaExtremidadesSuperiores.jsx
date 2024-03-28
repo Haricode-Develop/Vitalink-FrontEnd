@@ -13,10 +13,13 @@ import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import { StyledModal } from "../../../components/Modal";
 import moment from "moment";
+import {useSede} from "../../../context/SedeContext";
 
 const FichaExtremidadesSuperiores = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fisioterapeutas, setFisioterapeutas] = useState([]);
     const [fisios, setFisios] = useState([]);
@@ -26,6 +29,7 @@ const FichaExtremidadesSuperiores = () => {
     const [selectedFisio, setSelectedFisio] = useState(null);
     const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
     const [isEmailRequired, setIsEmailRequired] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const handleIngresarClick = (e) => {
         e.preventDefault();
@@ -111,10 +115,11 @@ const FichaExtremidadesSuperiores = () => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_empresa,
+                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 1,
+                idSede: idSedeActual,
                 tipoCarga: 0,
                 idMedico: 0,
 
@@ -141,7 +146,7 @@ const FichaExtremidadesSuperiores = () => {
             }
             setFormValues(parsedData);
         }
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
             .then((response) => {
 
                 if(response.data && Array.isArray(response.data.fisios)){
@@ -160,7 +165,7 @@ const FichaExtremidadesSuperiores = () => {
                 console.error('Error obteniendo los fisios:', error);
 
             });
-    }, []);
+    }, [idSedeActual]);
 
     const handleModalFisios = (e) => {
         if(userData.id_rol !== 2){
@@ -180,9 +185,16 @@ const FichaExtremidadesSuperiores = () => {
         }
 
     };
+    useEffect(() => {
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            idSede: idSedeActual,
+        }));
+    }, [idSedeActual]);
+
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
         ];
 
 
@@ -254,15 +266,12 @@ const FichaExtremidadesSuperiores = () => {
     const handleCheckboxChange = (e) => {
         const { name, value, checked } = e.target;
 
-        // Actualizar el estado basado en si el checkbox está seleccionado o no
         if (checked) {
-            // Añadir el valor del checkbox al array en el estado
             setFormValues(prevState => ({
                 ...prevState,
                 [name]: [...prevState[name], value]
             }));
         } else {
-            // Remover el valor del checkbox del array en el estado
             setFormValues(prevState => ({
                 ...prevState,
                 [name]: prevState[name].filter(item => item !== value)
@@ -1528,7 +1537,7 @@ const FichaExtremidadesSuperiores = () => {
                 </BodyMapStyle>
                 <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>
             </Form>
-            <StyledModal isOpen={isModalVisible}>
+            <StyledModal isOpen={isModalVisible} onRequestClose={() => setModalOpen(false)}>
                 <h2>Seleccione un Fisioterapeuta</h2>
                 <ul>
                     {fisios.map((fisio) => (

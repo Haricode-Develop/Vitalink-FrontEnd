@@ -6,11 +6,13 @@ import { CustomModal, Button, EventList, EventListItem, Input, Form, StyledInput
 import moment from 'moment';
 import 'moment/locale/es';
 import {AuthContext} from "../../context/AuthContext";
+import {useSede} from "../../context/SedeContext";
 
 moment.locale('es');
 
 const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, citas, estados, addExternalAppointment }) => {
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
@@ -33,7 +35,6 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         event.preventDefault();
         const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
         const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
-
         addExternalAppointment({
             idPaciente: null,
             idUsuarioEdita: userData.id_usuario,
@@ -41,7 +42,8 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             horaCita: formattedTime,
             idEstado: externalAppointment.estado,
             nombreInvitado: externalAppointment.nombreInvitado,
-            contactoInvitado: externalAppointment.contactoInvitado
+            contactoInvitado: externalAppointment.contactoInvitado,
+            idSede: idSedeActual
         });
     };
 
@@ -72,7 +74,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                     <EventList>
                         {citasDelDia.map((cita, index) => (
                             <EventListItem key={index} onClick={() => onPatientSelect(cita)}>
-                                <span>{cita.title}</span>
+                                <span>{cita.title + " "}</span>
                                 <span>{moment(cita.start).format('h:mm a')}</span>
                             </EventListItem>
                         ))}

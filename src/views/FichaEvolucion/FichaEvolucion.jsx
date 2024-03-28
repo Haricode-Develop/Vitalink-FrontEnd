@@ -27,6 +27,7 @@ import { API_BASE_URL } from "../../utils/config";
 import { AuthContext } from "../../context/AuthContext";
 import { ToastContainer, toast } from 'react-toastify';
 import { StyledModal } from "../../components/Modal";
+import {useSede} from "../../context/SedeContext";
 
 const FichaEvolucion = () => {
     const { userData } = useContext(AuthContext);
@@ -41,10 +42,11 @@ const FichaEvolucion = () => {
     const [activeTab, setActiveTab] = useState('ingresarFicha');
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
+    const { idSedeActual } = useSede();
 
     const loadPatients = (search = '') => {
         const searchParam = search ? `?busqueda=${search}` : '';
-        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesFichaEvolucion/${userData.id_empresa}${searchParam}`)
+        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesFichaEvolucion/${idSedeActual}${searchParam}`)
             .then(response => {
                 setPatients(response.data.pacientes);
             })
@@ -55,11 +57,11 @@ const FichaEvolucion = () => {
 
     useEffect(() => {
         loadPatients();
-    }, []);
+    }, [idSedeActual]);
 
     useEffect(() => {
         loadPatients(searchTerm);
-    }, [searchTerm]);
+    }, [idSedeActual,searchTerm]);
 
     const handleSelectPatient = (patient) => {
         setSelectedPatient(patient);
@@ -162,7 +164,6 @@ const FichaEvolucion = () => {
             <StyledModal isOpen={modalOpen} onRequestClose={() => setModalOpen(false)} >
                 <ModalHeader>
                     <ModalTitle>{selectedPatient ? `${selectedPatient.nombre} - Ficha de Evolución` : ''}</ModalTitle>
-                    <CloseButton onClick={() => setModalOpen(false)}>✕</CloseButton>
                 </ModalHeader>
                 <ModalBody>
                     <TabList>

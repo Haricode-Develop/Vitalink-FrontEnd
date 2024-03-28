@@ -20,6 +20,7 @@ import {
 import PdfViewer from "../../components/PdfViewer/PdfViewer";
 import SearchFileIndicator from "../../components/SearchFileIndicator/SearchFileIndicator";
 import {API_BASE_URL} from "../../utils/config";
+import { useSede } from '../../context/SedeContext'
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
@@ -33,6 +34,8 @@ import swal from 'sweetalert';
 const Dashboard = () => {
 
     const {userData, logout} = useContext(AuthContext);
+    const { idSedeActual, isSedeInfoLoaded } = useSede();
+
     const navigate = useNavigate();
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
@@ -62,13 +65,20 @@ const Dashboard = () => {
         if (userData.estado_contrasena === 1) {
             promptChangePassword();
         }
-
-        fetchFisioterapeutas(userData.id_empresa);
-        fetchPacientesAlta(userData.id_empresa);
-        fetchPacientesIngresados(userData.id_empresa);
-        fetchPacientesAsignados(userData.id_empresa);
-
     }, [userData]);
+
+    useEffect(() =>{
+        if(isSedeInfoLoaded){
+            fetchFisioterapeutas(idSedeActual);
+            fetchPacientesAlta(idSedeActual);
+            fetchPacientesIngresados(idSedeActual);
+            fetchPacientesAsignados(idSedeActual);
+            fetchCitasSemanales(idSedeActual);
+            fetchHistogramaDeHoras(idSedeActual);
+        }
+
+    }, [idSedeActual,isSedeInfoLoaded]);
+
     const centerDoughnutPlugin = {
         id: 'centerText',
         beforeDraw: (chart) => {
@@ -102,9 +112,9 @@ const Dashboard = () => {
     };
 
 
-    const fetchFisioterapeutas = async (id_empresa) => {
+    const fetchFisioterapeutas = async (idSedeActual) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/fisioterapeutasPorInstitucion/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/fisioterapeutasPorSede/${idSedeActual}`);
             setFisioterapeutas(response.data.fisioterapeutas);
         } catch (error) {
             console.error("Error al obtener fisioterapeutas:", error);
@@ -130,7 +140,7 @@ const Dashboard = () => {
     };
     const onMedicoClick = async (medico) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/pacientesAsignadosLista/${medico.IdMedico}/${medico.IdEmpresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/pacientesAsignadosLista/${medico.IdMedico}/${medico.IdSede}`);
             const listaPacientes = response.data.listaPacientes.map(paciente => `
             <div style="background-color: #f9f9f9; border: 1px solid #e1e1e1; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
                 <p><strong>Nombre:</strong> ${paciente.NombrePaciente}</p>
@@ -245,9 +255,9 @@ const Dashboard = () => {
             saveAs(blob, `${nombreArchivoBase}_${formattedDateTime}.xlsx`);
         });
     };
-    const fetchCitasSemanales = async (id_empresa) => {
+    const fetchCitasSemanales = async (idSedeActual) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/promedioPacientesDia/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/promedioPacientesDia/${idSedeActual}`);
             setCitasSemanales(response.data.citasSemanales);
         } catch (error) {
             console.error("Error al obtener las citas semanales:", error);
@@ -402,10 +412,6 @@ const Dashboard = () => {
         createChartTime();
     }, [promedioTiempoTratamientoPorMes]);
 
-    useEffect(() => {
-        fetchCitasSemanales(userData.id_empresa);
-        fetchHistogramaDeHoras(userData.id_empresa);
-    }, []);
 
     useEffect(() => {
         createChartTime();
@@ -426,9 +432,9 @@ const Dashboard = () => {
 
 
 
-    const fetchPacientesAlta = async (id_empresa) => {
+    const fetchPacientesAlta = async (idSedeActual) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/ultimosPacientesAlta/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/ultimosPacientesAltaPorSede/${idSedeActual}`);
 
             setPacientesAlta(response.data.pacientes);
 
@@ -437,9 +443,9 @@ const Dashboard = () => {
         }
     };
 
-    const fetchPacientesIngresados = async (id_empresa) => {
+    const fetchPacientesIngresados = async (idSedeActual) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/ultimosPacientesIngresados/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/ultimosPacientesIngresadosPorSede/${idSedeActual}`);
             setPacientesIngresados(response.data.pacientes);
         } catch (error) {
             console.error("Error al obtener pacientes ingresados:", error);
@@ -447,9 +453,9 @@ const Dashboard = () => {
     };
 
 
-    const fetchPacientesAsignados = async(id_empresa) => {
+    const fetchPacientesAsignados = async(idSedeActual) => {
         try{
-            const response = await axios.get(`${API_BASE_URL}/dashboard/pacientesAsignados/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/pacientesAsignados/${idSedeActual}`);
             setPacientesPorMedico(response.data.detalleMedico);
         }catch(error){
             console.error("Error al obtener pacientes asignados:", error);
@@ -457,9 +463,9 @@ const Dashboard = () => {
         }
     }
 
-    const fetchHistogramaDeHoras = async (id_empresa) => {
+    const fetchHistogramaDeHoras = async (idSedeActual) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionHorasCitas/${id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionHorasCitas/${idSedeActual}`);
             setHorasCitas(response.data);
         } catch (error) {
             console.error("Error al obtener datos para el histograma:", error);
@@ -468,14 +474,14 @@ const Dashboard = () => {
 
     useEffect(() => {
         const ctx = histogramaRef.current.getContext('2d');
-        if (ctx && horasCitas && Array.isArray(horasCitas.detalleMedico)) {
+        if (ctx && horasCitas && Array.isArray(horasCitas.distribucionHorasCitas)) {
             const chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: horasCitas.detalleMedico.map(dato => `${dato.HoraDelDia} hs`),
+                    labels: horasCitas.distribucionHorasCitas.map(dato => `${dato.HoraDelDia} hs`),
                     datasets: [{
                         label: 'Cantidad de Citas',
-                        data: horasCitas.detalleMedico.map(dato => dato.CantidadDeCitas),
+                        data: horasCitas.distribucionHorasCitas.map(dato => dato.CantidadDeCitas),
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1

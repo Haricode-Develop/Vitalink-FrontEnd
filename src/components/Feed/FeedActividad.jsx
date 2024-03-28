@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import {
     ActivityFeedContainer,
     ActivityTitle,
@@ -11,24 +11,44 @@ import {
 import axios from 'axios';
 import { API_BASE_URL } from "../../utils/config";
 import { FaEdit, FaPlus, FaTrash, FaRedo } from 'react-icons/fa'; // Importamos el icono FaRedo
+import {SedeContext} from "../../context/SedeContext";
+import { useWebSocket } from '../../context/WebSocketContext';
 
 const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => {
     const [activities, setActivities] = useState([]);
+    const { idSedeActual } = useContext(SedeContext);
+    const { ws } = useWebSocket();
+
 
     useEffect(() => {
-        const fetchActivities = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/admin/historialAccionesAdministrador/${idRol}/${idAccion}/${idInstitucion}/${idEntidadAfectada}`);
-                setActivities(response.data.historial);
-            } catch (error) {
-                console.error('Error al obtener actividades:', error);
+        if (ws && idSedeActual) {
+            ws.send(JSON.stringify({
+                type: 'GET_ACTION_HISTORY',
+                payload: { idRol, idAccion, idSede: idSedeActual, idEntidadAfectada }
+            }));
+        }
+
+        const handleActivityUpdate = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'ACTION_HISTORY_RESPONSE') {
+                setActivities(data.historial);
+            } else if (data.type === 'ACTION_HISTORY_UPDATED') {
+                setActivities(prevActivities => [data.payload, ...prevActivities]);
             }
         };
 
-        fetchActivities();
-        const interval = setInterval(fetchActivities, 5000);
-        return () => clearInterval(interval);
-    }, [idRol, idAccion]);
+        if (ws) {
+            ws.addEventListener('message', handleActivityUpdate);
+        }
+
+        return () => {
+            if (ws) {
+                ws.removeEventListener('message', handleActivityUpdate);
+            }
+        };
+    }, [ws, idRol, idAccion, idSedeActual, idEntidadAfectada]);
+
+
 
     const getIcon = (action) => {
         switch (action) {

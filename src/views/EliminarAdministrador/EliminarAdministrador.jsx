@@ -27,6 +27,7 @@ import {
 import {API_BASE_URL} from "../../utils/config";
 import ActivityFeed from "../../components/Feed/FeedActividad";
 import { StyledModal } from "../../components/Modal"
+import {useSede} from "../../context/SedeContext";
 const EliminarAdministrador = () => {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
@@ -35,6 +36,7 @@ const EliminarAdministrador = () => {
     const [filteredAdministradores, setFilteredAdministradores] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const [motivo, setMotivo] = useState('');
+    const { idSedeActual } = useSede();
     const {userData} = useContext(AuthContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,11 +45,8 @@ const EliminarAdministrador = () => {
         setIsModalOpen(true);
     };
     const transitions = useTransition(filteredAdministradores, {
-        from: { opacity: 1, transform: 'translate3d(0,0px,0)' },
-        enter: item => async (next) => {
-            await next({ opacity: 1, transform: 'translate3d(0,0px,0)' });
-        },
-        leave: { opacity: 0, transform: 'translate3d(0,-40px,0)' },
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
         keys: item => item.ID_USUARIO
     });
     const handleModalClose = () => {
@@ -55,33 +54,32 @@ const EliminarAdministrador = () => {
         setMotivo('');
     };
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/admin/todosLosAdministradores/${userData.id_empresa}`)
-            .then((response) => {
-                // Asegúrate de que la respuesta contiene los administradores y de que no hay errores.
-                if (response.data && Array.isArray(response.data.administradores)) {
-                    setAdministradores(response.data.administradores);
-                    setFilteredAdministradores(response.data.administradores);
-                } else {
-                    // Manejar el caso en el que no se devuelvan datos como se espera
-                    toast.error('No se recibieron datos de administradores.', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 5000,
-                        hideProgressBar: true,
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Error obteniendo administradores:', error);
-            });
-    }, []);
-
+        if (idSedeActual) {
+            axios.get(`${API_BASE_URL}/admin/todosLosAdministradoresPorSede/${idSedeActual}`)
+                .then((response) => {
+                    if (response.data && Array.isArray(response.data.administradores)) {
+                        setAdministradores(response.data.administradores);
+                        setFilteredAdministradores(response.data.administradores);
+                    } else {
+                        toast.error('No se recibieron datos de administradores.', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error obteniendo administradores:', error);
+                });
+        }
+    }, [idSedeActual]);
 
     useEffect(() => {
         const filtered = administradores.filter(adm =>
-            adm && adm.EMAIL &&
-            (nombre === '' || adm.NOMBRE.toLowerCase().includes(nombre.toLowerCase())) &&
-            (apellido === '' || adm.APELLIDO.toLowerCase().includes(apellido.toLowerCase())) &&
-            (email === '' || adm.EMAIL.toLowerCase().includes(email.toLowerCase()))
+            adm && adm.email &&
+            (nombre === '' || adm.nombre.toLowerCase().includes(nombre.toLowerCase())) &&
+            (apellido === '' || adm.apellido.toLowerCase().includes(apellido.toLowerCase())) &&
+            (email === '' || adm.email.toLowerCase().includes(email.toLowerCase()))
         );
         setFilteredAdministradores(filtered);
     }, [nombre, apellido, email, administradores]);
@@ -116,11 +114,9 @@ const EliminarAdministrador = () => {
                         autoClose: 5000,
                         hideProgressBar: true,
                     });
-                    // Aquí se utiliza selectedId para referirse al ID del administrador que se eliminará de la lista
                     setFilteredAdministradores(prev =>
                         prev.filter(admin => admin.ID_USUARIO !== selectedId)
                     );
-                    // Opcionalmente podrías querer actualizar el estado de administradores también
                     setAdministradores(prev =>
                         prev.filter(admin => admin.ID_USUARIO !== selectedId)
                     );
@@ -170,12 +166,12 @@ const EliminarAdministrador = () => {
                     <AdminList>
                         {transitions((styles, item) => (
                             item && (
-                                <animated.div style={styles}>
-                                    <ListItem key={item.ID_USUARIO}>
+                                <animated.div style={styles} key={item.idUsuario}>
+                                    <ListItem>
                                         <AdminInfo>
-                                            {item.NOMBRE} {item.APELLIDO} ({item.EMAIL})
+                                            {item.nombre} {item.apellido} ({item.email})
                                         </AdminInfo>
-                                        <SelectButton onClick={() => handleModalOpen(item.ID_USUARIO)}>Seleccionar</SelectButton>
+                                        <SelectButton onClick={() => handleModalOpen(item.idUsuario)}>Seleccionar</SelectButton>
                                     </ListItem>
                                 </animated.div>
                             )
@@ -185,7 +181,7 @@ const EliminarAdministrador = () => {
                         <Button onClick={handleDelete}>Eliminar Administrador</Button>
                     </ActionButtons>
                 </FormColumn>
-                <ActivityFeed idRol={'4'} idAccion={3} idInstitucion={userData.id_empresa} idEntidadAfectada={3}/>
+                <ActivityFeed idRol={'4'} idAccion={3} idInstitucion={userData.id_institucion} idEntidadAfectada={3}/>
             </Content>
             <StyledModal isOpen={isModalOpen} onRequestClose={handleModalClose}>
                 <ModalContent>

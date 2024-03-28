@@ -13,9 +13,12 @@ import '../globalStylesFichas.css';
 import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import moment from "moment";
+import {useSede} from "../../../context/SedeContext";
 const FichaColumnaCervical = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fisioterapeutas, setFisioterapeutas] = useState([]);
     const [fisios, setFisios] = useState([]);
@@ -105,7 +108,8 @@ const FichaColumnaCervical = () => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_empresa,
+                idSede: idSedeActual,
+                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 1,
@@ -134,6 +138,14 @@ const FichaColumnaCervical = () => {
 
 
     useEffect(() => {
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            idSede: idSedeActual,
+        }));
+    }, [idSedeActual]);
+
+
+    useEffect(() => {
         const datosGuardados = localStorage.getItem('datosFormularioPacienteColumnaCervical');
         if (datosGuardados) {
             const parsedData = JSON.parse(datosGuardados);
@@ -142,7 +154,7 @@ const FichaColumnaCervical = () => {
             }
             setFormValues(parsedData);
         }
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
             .then((response) => {
 
                 if(response.data && Array.isArray(response.data.fisios)){
@@ -162,7 +174,7 @@ const FichaColumnaCervical = () => {
 
             });
 
-    }, []);
+    }, [idSedeActual]);
 
     const handleModalFisios = (e) => {
         if(userData.id_rol !== 2){
@@ -183,7 +195,7 @@ const FichaColumnaCervical = () => {
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
         ];
 
 

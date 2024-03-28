@@ -7,16 +7,19 @@ import 'typeface-roboto';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {WebSocketProvider} from "./context/WebSocketContext";
+import {SedeProvider} from "./context/SedeContext";
 
 const App = () => {
     return (
         <AuthProvider>
             <WebSocketProvider>
-                <div className='app'>
-                    <Router>
-                        <MainRoutes />
-                    </Router>
-                </div>
+                <SedeProvider>
+                    <div className='app'>
+                        <Router>
+                            <MainRoutes />
+                        </Router>
+                    </div>
+                </SedeProvider>
                 <ToastContainer />
             </WebSocketProvider>
         </AuthProvider>

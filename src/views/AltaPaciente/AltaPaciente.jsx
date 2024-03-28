@@ -36,6 +36,7 @@ import {StyledModal} from "../../components/Modal";
 import {useTransition, animated} from "react-spring";
 import {AuthContext} from "../../context/AuthContext";
 import Pagination from "../../components/Pagination/Pagination";
+import {useSede} from "../../context/SedeContext";
 const AltaPaciente = () => {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
@@ -46,6 +47,8 @@ const AltaPaciente = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [motivo, setMotivo] = useState('');
     const {userData} = useContext(AuthContext);
+    const { idSedeActual } = useSede();
+
     const [currentPage, setCurrentPage] = useState(1);
     const [patientsPerPage] = useState(10); // Aquí puedes definir cuántos pacientes por página quieres mostrar
     const [selectedPatients, setSelectedPatients] = useState([]);
@@ -111,25 +114,28 @@ const AltaPaciente = () => {
 
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/paciente/todosLosPacientes/${userData.id_empresa}`)
-            .then((response) => {
-
-                if(response.data && Array.isArray(response.data.pacientes)){
+        axios.get(`${API_BASE_URL}/paciente/todosLosPacientes/${idSedeActual}`)
+            .then(response => {
+                if (response.data && Array.isArray(response.data.pacientes)) {
                     setPacientes(response.data.pacientes);
                     setFilteredPacientes(response.data.pacientes);
-                }else{
-                    toast.error('No se recibieron datos de pacientes.', {
+                } else {
+                    setPacientes([]);
+                    setFilteredPacientes([]);
+                    toast.error('No se encontraron pacientes.', {
                         position: toast.POSITION.TOP_RIGHT,
                         autoClose: 5000,
                         hideProgressBar: true,
                     });
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error obteniendo pacientes:', error);
-
+                setPacientes([]);
+                setFilteredPacientes([]);
+                // Manejar el error
             });
-    }, []);
+    }, [idSedeActual]);
 
 
     useEffect(() => {
@@ -243,6 +249,7 @@ const AltaPaciente = () => {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                     />
+                    {currentPatients.length > 0 ? (
                     <FisioList>
                         {currentPatients.map(item => (
                             <ListItem key={item.ID_USUARIO}>
@@ -255,6 +262,9 @@ const AltaPaciente = () => {
                             </ListItem>
                         ))}
                     </FisioList>
+                    ) : (
+                        <div>No se encontraron pacientes.</div>
+                    )}
                     <Pagination
                         patientsPerPage={patientsPerPage}
                         totalPatients={filteredPacientes.length}
@@ -264,7 +274,7 @@ const AltaPaciente = () => {
                         <Button onClick={handleConfirmOpen}>Dar de alta</Button>
                     </ActionButtons>
                 </FormColumn>
-                <ActivityFeed idRol={'4, 3, 2'} idAccion={3} idInstitucion={userData.id_empresa} idEntidadAfectada={1} className={"FeedActividades"}/>
+                <ActivityFeed idRol={'4, 3, 2'} idAccion={3} idInstitucion={userData.id_institucion} idEntidadAfectada={1} className={"FeedActividades"}/>
             </Content>
             <StyledModal isOpen={isConfirmModalOpen} onRequestClose={handleConfirmClose}>
                 <ModalContent>

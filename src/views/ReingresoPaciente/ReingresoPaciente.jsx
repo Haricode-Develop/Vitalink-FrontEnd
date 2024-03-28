@@ -28,6 +28,7 @@ import {AuthContext} from "../../context/AuthContext";
 import {DatePickerWrapper, EmailInput} from "../ActualizarAdministrador/ActualizarAdministradorStyle";
 import DatePicker from "react-datepicker";
 import Swal from 'sweetalert2';
+import {useSede} from "../../context/SedeContext";
 
 const ReingresoPaciente = () => {
     const [nombre, setNombre] = useState('');
@@ -45,25 +46,32 @@ const ReingresoPaciente = () => {
 
     const [motivo, setMotivo] = useState('');
     const [pacientesDisponibles, setPacientesDisponibles] = useState(true);
+    const { idSedeActual } = useSede();
 
     const {userData} = useContext(AuthContext);
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesRetirados/${userData.id_empresa}`)
-            .then((response) => {
-
-                if(response.data && Array.isArray(response.data.pacientes)){
-                    setPacientes(response.data.pacientes);
-                    setFilteredPacientes(response.data.pacientes);
-                    setPacientesDisponibles(true);
-                }else{
-                    setPacientesDisponibles(false);
+        const cargarPacientesRetirados = async () => {
+            try {
+                if (idSedeActual) {
+                    const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesRetirados/${idSedeActual}`);
+                    if (response.data && Array.isArray(response.data.pacientes)) {
+                        setPacientes(response.data.pacientes);
+                        setFilteredPacientes(response.data.pacientes);
+                        setPacientesDisponibles(true);
+                    } else {
+                        setPacientesDisponibles(false);
+                    }
                 }
-            })
-            .catch((error) => {
 
-            });
-    }, []);
+            } catch (error) {
+
+                setPacientesDisponibles(false);
+            }
+        };
+
+        cargarPacientesRetirados();
+    }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
 
     useEffect(() => {
         const filtered = pacientes.filter(paciente =>
@@ -208,7 +216,7 @@ const ReingresoPaciente = () => {
                     </PacienteList>
 
                 </FormColumn>
-                <ActivityFeed idRol={'4, 3'} idAccion={4} idInstitucion={userData.id_empresa} idEntidadAfectada={1} className={"FeedActividades"}/>
+                <ActivityFeed idRol={'4, 3'} idAccion={4} idInstitucion={userData.id_institucion} idEntidadAfectada={1} className={"FeedActividades"}/>
             </Content>
 
         </Container>

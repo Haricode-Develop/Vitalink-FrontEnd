@@ -21,6 +21,7 @@ import {
     TextArea,
     Label
 } from './ReingresoFisioStyle';
+import {useSede} from "../../context/SedeContext";
 
 
 
@@ -50,26 +51,31 @@ import Swal from 'sweetalert2';
 
     const [motivo, setMotivo] = useState('');
     const {userData} = useContext(AuthContext);
+    const { idSedeActual } = useSede();
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisiosRetirados/${userData.id_empresa}`)
-            .then((response) => {
-                if(response.data && Array.isArray(response.data.fisios)){
-                    setFisios(response.data.fisios);
-                    setFilteredFisios(response.data.fisios);
-                }else{
-                    toast.error('No se recibieron datos de fisioterapeutas.', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 5000,
-                        hideProgressBar: true,
-                    });
-                }
+        if (idSedeActual) {
+            axios.get(`${API_BASE_URL}/fisio/todosLosFisiosRetirados/${idSedeActual}`)
+                .then((response) => {
+                    if(response.data && Array.isArray(response.data.fisios)){
+                        setFisios(response.data.fisios);
+                        setFilteredFisios(response.data.fisios);
+                    }else{
+                        toast.error('No se recibieron datos de fisioterapeutas.', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        });
+                    }
 
-            })
-            .catch((error) => {
-                console.error('Error obteniendo administradores:', error);
-            });
-    }, []);
+                })
+                .catch((error) => {
+                    console.error('Error obteniendo administradores:', error);
+                });
+        }
+
+
+    }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
 
     useEffect(() => {
         const filtered = fisios.filter(fisio =>
@@ -208,7 +214,7 @@ import Swal from 'sweetalert2';
                     </FisioList>
 
                 </FormColumn>
-                <ActivityFeed idRol={'4, 3'} idAccion={4} idInstitucion={userData.id_empresa} idEntidadAfectada={2} className={"FeedActividades"}/>
+                <ActivityFeed idRol={'4, 3'} idAccion={4} idInstitucion={userData.id_institucion} idEntidadAfectada={2} className={"FeedActividades"}/>
             </Content>
 
         </Container>

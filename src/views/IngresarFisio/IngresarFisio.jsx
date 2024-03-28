@@ -26,8 +26,9 @@ import plantilla from '../IngresarFisio/templates/plantilla.xlsx';
 
 import * as XLSX from "xlsx";
 import ActivityFeed from "../../components/Feed/FeedActividad";
-import {Label} from "../IngresarAdmin/IngresarAdminStyle";
+import {Label, SedeItem, SedesListTitle} from "../IngresarAdmin/IngresarAdminStyle";
 import DatePicker from "react-datepicker";
+import {StyledModal} from "../../components/Modal";
 
 const IngresarFisioterapeuta = () => {
   const [fileData, setFileData] = useState([]);
@@ -42,6 +43,9 @@ const IngresarFisioterapeuta = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [isFileReady, setIsFileReady] = useState(false);
   const [mostrarGuardado, setMostrarGuardado] = useState(false);
+  const [isSedesModalOpen, setIsSedesModalOpen] = useState(false);
+  const [sedes, setSedes] = useState([]);
+  const [selectedSede, setSelectedSede] = useState(null);
 
   let tipoCarga = 2;
 
@@ -117,7 +121,7 @@ const IngresarFisioterapeuta = () => {
       // No hay datos para insertar
       return;
     }
-    axios.post(`${API_BASE_URL}/masivo/insertarFisioterapeutaMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_empresa, idUsuarioEditor: userData.id_usuario,tipoCarga})
+    axios.post(`${API_BASE_URL}/masivo/insertarFisioterapeutaMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_institucion, idUsuarioEditor: userData.id_usuario,tipoCarga})
         .then((response) => {
           console.log(response);
         })
@@ -125,11 +129,7 @@ const IngresarFisioterapeuta = () => {
           console.log(error);
         });
   }
-  const handleInsert = () => {
-    if (!nombre || !apellido || !startDate || !email || !selectedEspecialidad) {
-      alert('Todos los campos son obligatorios');
-      return;
-    }
+  const procederConInsercion = (sedeId) => {
     tipoCarga = 0;
     const fisioterapeutaData = {
       nombre,
@@ -137,14 +137,19 @@ const IngresarFisioterapeuta = () => {
       fechaNacimiento: startDate,
       email,
       id_rol: 2,
-      id_institucion: userData.id_empresa,
+      id_institucion: userData.id_institucion,
       id_usuario_editor: userData.id_usuario,
       tipo_carga: tipoCarga,
-      id_especialidad: selectedEspecialidad
+      id_especialidad: selectedEspecialidad,
+      id_sede: sedeId
     };
+    insertarAdministrador(fisioterapeutaData);
 
+  }
+
+  const insertarAdministrador = (fisioData)  => {
     axios
-        .post(`${API_BASE_URL}/fisio/insertarFisioterapeuta`, fisioterapeutaData)
+        .post(`${API_BASE_URL}/fisio/insertarFisioterapeuta`, fisioData)
         .then((response) => {
           if (response.data.success !== false && response.data.error !== 'registrado') {
             toast.success("Se ha añadido exitosamente", {
@@ -163,7 +168,31 @@ const IngresarFisioterapeuta = () => {
         .catch((error) => {
           console.error('Error insertando fisioterapeuta:', error);
         });
+  }
+  const handleSedeSelected = (sedeId) => {
+    setIsSedesModalOpen(false);
+    setSelectedSede(sedeId);
+    procederConInsercion(sedeId);
   };
+
+  const handleInsert = () => {
+    if (!nombre || !apellido || !startDate || !email || !selectedEspecialidad) {
+      toast.warn("Todos los campos son obligatorios", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 5000,
+        hideProgressBar: true,
+      });
+      return;
+    }if (userData.sedes && userData.sedes.length > 1) {
+      setIsSedesModalOpen(true);
+    } else {
+      procederConInsercion(selectedSede);
+    }
+  };
+
+  useEffect(() => {
+    setSedes(userData.sedes || []);
+  }, [userData.sedes]);
 
   return (
       <Container>
@@ -200,19 +229,22 @@ const IngresarFisioterapeuta = () => {
             </Select>
             <ActionButtons>
               <Button onClick={handleInsert}>Ingresar Fisioterapeuta</Button>
-              <input
+
+              {/*
+               <input
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                   id="file-upload"
               />
-              <UploadButton onClick={() => document.getElementById('file-upload').click()}>
+               <UploadButton onClick={() => document.getElementById('file-upload').click()}>
                 {isFileReady ? "Archivo Listo - Cambiar" : "Cargar Archivo"}
               </UploadButton>
               <Button onClick={handleMasiveInsert} disabled={!isFileReady}>
                 Realizar Carga Masiva
               </Button>
+              */}
             </ActionButtons>
             <DownloadLink href={plantilla} download>
               Descargar plantilla.xlsx
@@ -221,8 +253,16 @@ const IngresarFisioterapeuta = () => {
           <IndicadorGuardado mostrar={mostrarGuardado}>
             <FaSave /> Progreso guardado
           </IndicadorGuardado>
-          <ActivityFeed idRol={'4, 3'} idAccion={1} idInstitucion={userData.id_empresa} idEntidadAfectada={2} className={"FeedActividades"}/>
+          <ActivityFeed idRol={'4, 3'} idAccion={1} idInstitucion={userData.id_institucion} idEntidadAfectada={2} className={"FeedActividades"}/>
         </Content>
+        <StyledModal isOpen={isSedesModalOpen} onRequestClose={() => setIsSedesModalOpen(false)}>
+          <SedesListTitle>Sedes</SedesListTitle>
+          {sedes.map((sede) => (
+              <SedeItem key={sede.ID_SEDE} onClick={() => handleSedeSelected(sede.ID_SEDE)}>
+                {sede.NOMBRE}
+              </SedeItem>
+          ))}
+        </StyledModal>
       </Container>
   );
 };

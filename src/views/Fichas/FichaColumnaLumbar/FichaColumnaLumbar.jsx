@@ -28,10 +28,13 @@ import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import { StyledModal } from "../../../components/Modal";
 import moment from 'moment';
+import {useSede} from "../../../context/SedeContext";
 
 const FichaColumnaLumbar = ({ resetBodyMap }) => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fisioterapeutas, setFisioterapeutas] = useState([]);
     const [fisios, setFisios] = useState([]);
@@ -120,10 +123,11 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_empresa,
+                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 1,
+                idSede: idSedeActual,
                 tipoCarga: 0,
                 idMedico: 0,
 
@@ -135,7 +139,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
 
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
         ];
 
         if (isEmailRequired) {
@@ -170,6 +174,13 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
     }, [resetBodyMap]);
 
     useEffect(() => {
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            idSede: idSedeActual,
+        }));
+    }, [idSedeActual]);
+
+    useEffect(() => {
         const datosGuardados = localStorage.getItem('datosFormularioPaciente');
         if (datosGuardados) {
             const parsedData = JSON.parse(datosGuardados);
@@ -178,7 +189,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             }
             setFormValues(parsedData);
         }
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
             .then((response) => {
 
                 if(response.data && Array.isArray(response.data.fisios)){
@@ -199,7 +210,7 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             });
 
 
-    }, []);
+    }, [idSedeActual]);
 
     const handleBodyPartSelection = (selectedPart) => {
         setSelectedBodyParts([...selectedBodyParts, selectedPart]);

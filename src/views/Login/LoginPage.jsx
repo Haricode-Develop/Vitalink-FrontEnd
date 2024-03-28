@@ -63,12 +63,10 @@ const LoginPage = () => {
 
     setErrors(validationErrors);
 
-    // Si no hay errores de validación, proceder con la solicitud de inicio de sesión
     if (Object.keys(validationErrors).length === 0) {
       axios.post(`${API_BASE_URL}/auth/login`, { email, password })
           .then((response) => {
             if (response.data.success) {
-              // Establecer los datos del usuario y actualizar el estado de autenticación
               setSessionToken(response.data.sessionToken);
               if (response.data.id_rol === 1) {
                 toast.warn("Lo sentimos, como usuario paciente no tienes acceso a este apartado. Por favor, visita la versión móvil de Vitalink.");
@@ -78,7 +76,8 @@ const LoginPage = () => {
                 name: response.data.name,
                 lastName: response.data.lastName,
                 roles: response.data.roles,
-                id_empresa: response.data.id_empresa,
+                id_institucion: response.data.id_institucion,
+                sedes: response.data.sedes,
                 estado_contrasena: response.data.estado_contrasena,
                 id_usuario: response.data.id_usuario
               });

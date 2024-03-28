@@ -204,3 +204,11 @@ export const Select = styled.select`
   border-radius: 5px;
   border: 1px solid #ccc;
 `;
+
+export const NoPatientsMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+`;

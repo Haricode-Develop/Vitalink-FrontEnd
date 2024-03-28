@@ -21,17 +21,19 @@ import {
     UploadButton,
     Label,
     DatePickerWrapper,
-    IndicadorGuardado,
-    ContenedorBotones
+    IndicadorGuardado, SedeItem, SedesListTitle
 } from '../IngresarAdmin/IngresarAdminStyle';
 import {API_BASE_URL} from "../../utils/config";
 import ActivityFeed from '../../components/Feed/FeedActividad';
 import {PictureColumn, ProfilePicture} from "../ActualizarAdministrador/ActualizarAdministradorStyle";
 import {FaSave} from "react-icons/fa";
+import { StyledModal } from '../../components/Modal';
+
 
 const IngresarAdministrador = () => {
     const [fileData, setFileData] = useState([]);
   const { userData } = useContext(AuthContext);
+
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
@@ -40,66 +42,99 @@ const IngresarAdministrador = () => {
   const [isFileReady, setIsFileReady] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [mostrarGuardado, setMostrarGuardado] = useState(false);
+  const [isSedesModalOpen, setIsSedesModalOpen] = useState(false);
+    const [sedes, setSedes] = useState([]);
+    const [selectedSede, setSelectedSede] = useState(null);
 
   let tipoCarga = 2;
 
-  const handleInsert = () => {
-
-    if (!nombre || !apellido || !startDate || !email || !userData.id_usuario) {
-        toast.warn("Todos los campos son obligatorios", {
-            position: toast.POSITION.TOP_RIGHT, 
-            autoClose: 5000, 
-            hideProgressBar: true, 
-          });
-        
-      return;
-    }
-
-    if (contrasena !== confirmarContrasena) {
-        toast.warn("Las contraseñas no coinciden", {
-            position: toast.POSITION.TOP_RIGHT, 
-            autoClose: 5000, 
-            hideProgressBar: true, 
-          });
-      
-        
-      return;
-    }
-      tipoCarga = 0;
-    const administradorData = {
-      nombre,
-      apellido,
-        fechaNacimiento: startDate,
-      email,
-      id_rol: 3,
-      id_institucion: userData.id_empresa,
-        id_usuario_editor: userData.id_usuario,
-        tipo_carga:tipoCarga
+    const obtenerSedes = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/masivo/sedes`, {
+                params: { id_institucion: userData.id_institucion }
+            });
+            if (response.data.success) {
+                setSedes(response.data.sedes);
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error al obtener las sedes:', error);
+        }
     };
 
-    axios
-      .post(`${API_BASE_URL}/admin/insertarAdministrador`, administradorData)
-      .then((response) => {
-   
-        if(response.data.error !== 'registrado' && response.data.success){
-            toast.success("El administrador fue añadido exitosamente", {
-                position: toast.POSITION.TOP_RIGHT, 
-                autoClose: 5000, 
-                hideProgressBar: true, 
-              });
-        }else{
-            toast.warn("El correo electrónico ya existe", {
-                position: toast.POSITION.TOP_RIGHT, 
-                autoClose: 5000, 
-                hideProgressBar: true, 
-              });
-            
+    const insertarAdministrador = (administradorData) => {
+        axios
+            .post(`${API_BASE_URL}/admin/insertarAdministrador`, administradorData)
+            .then((response) => {
+                if(response.data.success){
+                    toast.success("El administrador fue añadido exitosamente", {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                }else{
+                    toast.warn("El correo electrónico ya existe", {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Error insertando administrador:', error);
+            });
+    };
+
+    const handleInsert = () => {
+        if (!nombre || !apellido || !startDate || !email || !userData.id_usuario) {
+            toast.warn("Todos los campos son obligatorios", {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
         }
-      })
-      .catch((error) => {
-        console.error('Error insertando administrador:', error);
-      });
-  };
+
+        if (contrasena !== confirmarContrasena) {
+            toast.warn("Las contraseñas no coinciden", {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+        if (userData.sedes && userData.sedes.length > 1) {
+            setIsSedesModalOpen(true);
+        } else {
+            procederConInsercion(selectedSede);
+        }
+    };
+
+
+    const procederConInsercion = (sedeId) => {
+        let tipoCarga = 0;
+        const administradorData = {
+            nombre,
+            apellido,
+            fechaNacimiento: startDate,
+            email,
+            id_rol: 3,
+            id_institucion: userData.id_institucion,
+            id_usuario_editor: userData.id_usuario,
+            tipo_carga: tipoCarga,
+            id_sede: sedeId
+        };
+        insertarAdministrador(administradorData);
+    };
+
+    const handleSedeSelected = (sedeId) => {
+        setIsSedesModalOpen(false);
+        setSelectedSede(sedeId);
+        procederConInsercion(sedeId);
+    };
+
+
     const handleMasiveInsert = () => {
         if (!isFileReady) {
             toast.warn("Por favor, carga un archivo antes de realizar la carga masiva.", {
@@ -111,10 +146,9 @@ const IngresarAdministrador = () => {
         }
         tipoCarga = 1;
         if (fileData.length === 0) {
-            // No hay datos para insertar
             return;
         }
-        axios.post(`${API_BASE_URL}/masivo/insertarAdministradorMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_empresa, idUsuarioEditor: userData.id_usuario,tipoCarga })
+        axios.post(`${API_BASE_URL}/masivo/insertarAdministradorMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_institucion, idUsuarioEditor: userData.id_usuario,tipoCarga })
             .then((response) => {
             })
             .catch((error) => {
@@ -169,6 +203,11 @@ const IngresarAdministrador = () => {
 
     };
 
+    useEffect(() => {
+        setSedes(userData.sedes || []);
+    }, [userData.sedes]);
+
+
     return (
     <Container>
       <Content>
@@ -196,19 +235,19 @@ const IngresarAdministrador = () => {
 
           <ActionButtons>
             <Button onClick={handleInsert}>Ingresar Administrador</Button>
-              <input
+              {/*  <input
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileUpload}
-                  style={{ display: 'none' }} // Ocultamos el input original
-                  id="file-upload" // Añadimos un ID para poder referenciarlo
+                  style={{ display: 'none' }}
+                  id="file-upload"
               />
               <UploadButton onClick={() => document.getElementById('file-upload').click()}>
                   {isFileReady ? "Archivo Listo - Cambiar" : "Cargar Archivo"}
               </UploadButton>
               <Button onClick={handleMasiveInsert} disabled={!isFileReady}>
                   Realizar Carga Masiva
-              </Button>
+              </Button>*/}
           </ActionButtons>
             <DownloadLink href={plantilla} download>
                 Descargar plantilla.xlsx
@@ -217,8 +256,16 @@ const IngresarAdministrador = () => {
           <IndicadorGuardado mostrar={mostrarGuardado}>
               <FaSave /> Progreso guardado
           </IndicadorGuardado>
-          <ActivityFeed idRol={'4'} idAccion={1} idInstitucion={userData.id_empresa} idEntidadAfectada={3}/>
+          <ActivityFeed idRol={'4'} idAccion={1} idInstitucion={userData.id_institucion} idEntidadAfectada={3}/>
       </Content>
+        <StyledModal isOpen={isSedesModalOpen} onRequestClose={() => setIsSedesModalOpen(false)}>
+            <SedesListTitle>Sedes</SedesListTitle>
+            {sedes.map((sede) => (
+                <SedeItem key={sede.ID_SEDE} onClick={() => handleSedeSelected(sede.ID_SEDE)}>
+                    {sede.NOMBRE}
+                </SedeItem>
+            ))}
+        </StyledModal>
     </Container>
   );
 };

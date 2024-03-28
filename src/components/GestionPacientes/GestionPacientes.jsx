@@ -27,9 +27,10 @@ import {
     ModalHeader,
     ChangeDoctorButton,
     AssignedDoctor,
-    DoctorName, DoctorEmail, DoctorInfo, Select
+    DoctorName, DoctorEmail, DoctorInfo, Select, NoPatientsMessage
 } from "./GestionPacientesStyle";
 import { API_BASE_URL } from "../../utils/config";
+import {useSede} from "../../context/SedeContext";
 
 const GestionPacientes = () => {
     const { userData } = useContext(AuthContext);
@@ -39,6 +40,7 @@ const GestionPacientes = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [medicoActual, setMedicoActual] = useState(null);
     const [medicos, setMedicos] = useState([]);
+    const { idSedeActual } = useSede();
     const [form, setForm] = useState({
         nombre: '',
         apellido: '',
@@ -50,7 +52,7 @@ const GestionPacientes = () => {
 
     const obtenerMedicosDisponibles = async (idPacienteExcluido) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`);
             setMedicos(response.data.fisios.filter(fisio => {
                 return fisio.ID_USUARIO !== idPacienteExcluido;
             }));
@@ -58,17 +60,22 @@ const GestionPacientes = () => {
         } catch (error) {
         }
     };
+
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientes/${userData.id_empresa}`);
+                const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientes/${idSedeActual}`);
                 setPatients(response.data.pacientes);
             } catch (error) {
+
+                setPatients([]);
             }
         };
 
-        fetchPatients();
-    }, [userData.id_empresa]);
+        if (idSedeActual) {
+            fetchPatients();
+        }
+    }, [idSedeActual]);
 
     const optionsForSelect = medicos.map(medico => ({
         value: medico.ID_USUARIO,
@@ -93,6 +100,7 @@ const GestionPacientes = () => {
                 obtenerMedicosDisponibles(response.data.medico.ID_MEDICO);
             }
         } catch (error) {
+
         }
     };
 
@@ -113,7 +121,7 @@ const GestionPacientes = () => {
         if (isModalOpen && currentPatient) {
             obtenerMedicoPaciente(currentPatient.ID_USUARIO);
         }
-    }, [currentPatient, isModalOpen, userData.id_empresa]);
+    }, [currentPatient, isModalOpen]);
 
 
     const handleSelectChange = (event) => {
@@ -135,7 +143,7 @@ const GestionPacientes = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.put(`${API_BASE_URL}/paciente/actualizarPaciente/${currentPatient.ID_USUARIO}`, form);
+            await axios.put(`${API_BASE_URL}/paciente/actualizarPaciente/${currentPatient.ID_USUARIO}`, form);
             setIsModalOpen(false);
             toast.success('Paciente actualizado correctamente', {
                 position: toast.POSITION.TOP_RIGHT,
@@ -153,7 +161,7 @@ const GestionPacientes = () => {
 
     const handleDoctorChange = async () => {
         if (!selectedNewDoctorId) {
-            alert('Por favor, seleccione un médico antes de cambiar.');
+            toast.warn('Por favor, seleccione un médico antes de cambiar.');
             return;
         }
         try {
@@ -195,23 +203,30 @@ const GestionPacientes = () => {
                 placeholder="Buscar pacientes..."
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <CardsContainer>
-                {filteredPatients.map(patient => (
-                    <PatientCard key={patient.ID_USUARIO}>
-                        <PatientInfo>
-                            <PatientName>{patient.NOMBRE} {patient.APELLIDO}</PatientName>
-                            {patient.EMAIL ? (
-                                <PatientEmail>{patient.EMAIL}</PatientEmail>
-                            ) : (
-                                <NoEmailIndicator>
-                                    <FaExclamationTriangle color="yellow" /> No disponible
-                                </NoEmailIndicator>
-                            )}
-                            <EditButton onClick={() => handleEditClick(patient)}>Editar</EditButton>
-                        </PatientInfo>
-                    </PatientCard>
-                ))}
-            </CardsContainer>
+
+            {filteredPatients.length > 0 ? (
+                <CardsContainer>
+                    {filteredPatients.map(patient => (
+                        <PatientCard key={patient.ID_USUARIO}>
+                            <PatientInfo>
+                                <PatientName>{patient.NOMBRE} {patient.APELLIDO}</PatientName>
+                                {patient.EMAIL ? (
+                                    <PatientEmail>{patient.EMAIL}</PatientEmail>
+                                ) : (
+                                    <NoEmailIndicator>
+                                        <FaExclamationTriangle color="yellow" /> No disponible
+                                    </NoEmailIndicator>
+                                )}
+                                <EditButton onClick={() => handleEditClick(patient)}>Editar</EditButton>
+                            </PatientInfo>
+                        </PatientCard>
+                    ))}
+                </CardsContainer>
+            ) : (
+                <NoPatientsMessage>
+                    No hay pacientes disponibles para la sede actual.
+                </NoPatientsMessage>
+            )}
 
             <StyledModal
                 isOpen={isModalOpen}

@@ -5,19 +5,21 @@ import { SearchContainer, SearchInput, FileList, FileItem } from './SearchFileIn
 import { StyledModal } from "../../components/ModalPdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import {useSede} from "../../context/SedeContext";
 
 const SearchFileIndicator = () => {
     const [files, setFiles] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedPatientName, setSelectedPatientName] = useState(null);
+    const { idSedeActual } = useSede();
 
     useEffect(() => {
         const fetchFiles = async () => {
             try {
                 const endpoint = searchTerm
                     ? `${API_BASE_URL}/dashboard/search-patient-files?searchTerm=${encodeURIComponent(searchTerm)}`
-                    : `${API_BASE_URL}/dashboard/list-pdfs`;
+                    : `${API_BASE_URL}/dashboard/list-pdfs/${idSedeActual}`;
                 const { data } = await axios.get(endpoint);
                 setFiles(data);
             } catch (error) {
@@ -30,7 +32,7 @@ const SearchFileIndicator = () => {
         }, 300);
 
         return () => clearTimeout(delayDebounce);
-    }, [searchTerm]);
+    }, [idSedeActual,searchTerm]);
 
     const handleFileClick = (file) => {
         setSelectedFile(file.url);

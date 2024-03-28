@@ -124,7 +124,6 @@ export const UploadButton = styled.button`
 export const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-left: 30px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -147,7 +146,6 @@ export const DownloadLink = styled.a`
   text-decoration: none;
   cursor: pointer;
   margin-top: 20px;
-  margin-left: 30px;
 
   @media (max-width: ${breakpoints.tablet}) {
     padding-right: 0px;
@@ -160,10 +158,7 @@ export const DownloadLink = styled.a`
     margin-left: 0px;
 
   }
-
-  &:hover {
-    background-color: var(--azul);
-  }
+  
 `;
 export const Button = styled.button`
   padding: 10px 20px;
@@ -173,6 +168,7 @@ export const Button = styled.button`
   color: var(--blanco);
   font-weight: 700;
   border: none;
+  width: 100%;
   &:hover {
     background-color: var(--gris-oscuro);
   }
@@ -238,4 +234,21 @@ export const IndicadorGuardado = styled.div`
   border-radius: 5px;
   display: ${props => props.mostrar ? 'block' : 'none'};
   animation: ${fade} 2s linear;
+`;
+
+
+export const SedeItem = styled.div`
+  padding: 10px;
+  margin: 5px;
+  background: #f3f3f3;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background: #e2e2e2;
+  }
+`;
+
+export const SedesListTitle = styled.h3`
+  text-align: center;
+  margin-top: 0;
 `;

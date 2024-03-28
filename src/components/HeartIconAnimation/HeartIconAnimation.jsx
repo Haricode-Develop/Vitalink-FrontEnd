@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import { FaArrowLeft, FaBuilding, FaAngleDown } from 'react-icons/fa';
 import {
     PopupWindow,
     MessagePopup,
@@ -9,13 +9,14 @@ import {
     TextArea,
     Button,
     BackButton,
-    ModalBackdrop, IconContainer
+    ModalBackdrop, IconContainer, StyledDropdown, StyledDropdownContainer, FloatingButton, StyledIcon, StyledOption
 } from './HeartIconAnimationStyle';
 import Tutorial from "../Tutorial/Tutorial";
 import {API_BASE_URL} from "../../utils/config";
 import {toast, ToastContainer } from "react-toastify";
 import Vita from "./img/vita.png"
-
+import {AuthContext} from "../../context/AuthContext";
+import { useSede } from '../../context/SedeContext';
 const messages = [
     "Bienvenido!", // Español
     "Soy Vita, tu asistente de bienestar. ¿Cómo puedo asistirte hoy?",
@@ -32,10 +33,16 @@ const messages = [
 ];
 
 const HeartIconAnimation = ({ animationData }) => {
+    const { userData } = useContext(AuthContext);
+    const { idSedeActual, changeSede } = useSede();
+
     const [showPopup, setShowPopup] = useState(false);
     const [messageQueue, setMessageQueue] = useState([]);
     const [showContactForm, setShowContactForm] = useState(false);
     const animationContainer = useRef(null);
+    const [selectedSede, setSelectedSede] = useState(idSedeActual);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
     const [formData, setFormData] = useState({
         nombreCompleto: '',
         email: '',
@@ -130,6 +137,34 @@ const HeartIconAnimation = ({ animationData }) => {
     const closeTutorial = () => {
         setIsTutorialActive(false);
     };
+    const handleSedeChange = (e) => {
+        const newSedeId = e.target.value;
+        setSelectedSede(newSedeId);
+        changeSede(newSedeId);
+    };
+
+
+    useEffect(() => {
+        if (userData?.sedes?.length > 0) {
+            setSelectedSede(userData.sedes[0].ID_SEDE);
+        }
+    }, [userData]);
+
+    useEffect(() => {
+        setSelectedSede(idSedeActual);
+    }, [idSedeActual]);
+
+    useEffect(() => {
+        if (!idSedeActual && userData?.sedes?.length > 0) {
+            changeSede(userData.sedes[0].ID_SEDE);
+        }
+    }, [userData, idSedeActual, changeSede]);
+
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
 
     return (
         <>
@@ -137,6 +172,20 @@ const HeartIconAnimation = ({ animationData }) => {
             <IconContainer onClick={togglePopup} size={iconSize}>
                 <img src={Vita} alt="Vita" width={iconSize} height={iconSize} />
             </IconContainer>
+            {userData?.sedes?.length > 1 && (
+                <FloatingButton onClick={toggleDropdown}>
+                    <FaBuilding />
+                    <StyledDropdownContainer>
+                        <StyledDropdown value={selectedSede} onChange={handleSedeChange}>
+                            {userData.sedes.map((sede) => (
+                                <StyledOption key={sede.ID_SEDE} value={sede.ID_SEDE}>
+                                    {sede.NOMBRE}
+                                </StyledOption>
+                            ))}
+                        </StyledDropdown>
+                    </StyledDropdownContainer>
+                </FloatingButton>
+            )}
             {showPopup && (
                 <PopupWindow>
                     {!showContactForm && (

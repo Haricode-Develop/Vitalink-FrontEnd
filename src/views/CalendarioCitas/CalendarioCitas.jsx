@@ -45,6 +45,7 @@ import moment from 'moment';
 import 'moment/locale/es';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import {useSede} from "../../context/SedeContext";
 
 moment.locale('es');
 const FILTER_OPTIONS = {
@@ -58,6 +59,8 @@ const FILTER_OPTIONS = {
 const AppointmentCalendar = () => {
     const [currentEvents, setCurrentEvents] = useState([]);
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
+
     const [pacientes, setPacientes] = useState([]);
     const [filteredPacientes, setFilteredPacientes] = useState([]);
     const [filterdPacientesCalendario, setFilterdPacientesCalendario] = useState([]);
@@ -150,12 +153,12 @@ const AppointmentCalendar = () => {
 
                 if (!event.extendedProps.idUsuario) {
                     setSelectedPatient({
-                        ID_USUARIO: null,
-                        NOMBRE: event.extendedProps.nombreInvitado,
-                        EMAIL: event.extendedProps.contactoInvitado
+                        idUsuario: null,
+                        nombre: event.extendedProps.nombreInvitado,
+                        email: event.extendedProps.contactoInvitado
                     });
                 } else {
-                    const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === event.extendedProps.idUsuario);
+                    const patient = pacientesConCitaFilter.find(p => p.idUsuario === event.extendedProps.idUsuario);
                     if (!patient) {
                         toast.error('No se encontró el paciente seleccionado.', {
                             position: toast.POSITION.TOP_RIGHT,
@@ -173,7 +176,7 @@ const AppointmentCalendar = () => {
     };
     const handleSelectPatientFromCalendar = (cita) => {
         if (cita.extendedProps.idUsuario) {
-            const patient = pacientesConCitaFilter.find(p => p.ID_USUARIO === cita.extendedProps.idUsuario);
+            const patient = pacientesConCitaFilter.find(p => p.idUsuario === cita.extendedProps.idUsuario);
             if (!patient) {
                 toast.error('No se encontró el paciente seleccionado.', {
                     position: toast.POSITION.TOP_RIGHT,
@@ -185,13 +188,12 @@ const AppointmentCalendar = () => {
             setSelectedPatient(patient);
         } else {
             setSelectedPatient({
-                ID_USUARIO: null,
-                NOMBRE: cita.extendedProps.nombreInvitado,
-                EMAIL: cita.extendedProps.contactoInvitado,
+                idUsuario: null,
+                nombre: cita.extendedProps.nombreInvitado,
+                email: cita.extendedProps.contactoInvitado,
             });
         }
         const startTime = cita.extendedProps.startTime ? cita.extendedProps.startTime.split(':') : ['00', '00'];
-
         setSelectedEvent({
             id: cita.extendedProps.idCita,
             date: cita.start,
@@ -213,9 +215,9 @@ const AppointmentCalendar = () => {
             setFilteredPacientes(pacientes);
         } else {
             setFilteredPacientes(pacientes.filter(patient => {
-                const nameMatch = patient.NOMBRE.toLowerCase().includes(searchTerm) ||
-                    patient.APELLIDO.toLowerCase().includes(searchTerm);
-                const emailMatch = patient.EMAIL && patient.EMAIL.toLowerCase().includes(searchTerm);
+                const nameMatch = patient.nombre.toLowerCase().includes(searchTerm) ||
+                    patient.apellido.toLowerCase().includes(searchTerm);
+                const emailMatch = patient.email && patient.email.toLowerCase().includes(searchTerm);
                 return nameMatch || emailMatch;
             }));
         }
@@ -225,7 +227,8 @@ const AppointmentCalendar = () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/paciente/citas`, appointmentData);
             toast.success('Cita externa agregada correctamente.');
-             console.log("APOINTMENT: ",appointmentData);
+            const citaId = response.data.citaId;
+
             const newEvent = {
                 id: response.data.id,
                 title: `${appointmentData.nombreInvitado}`,
@@ -234,6 +237,10 @@ const AppointmentCalendar = () => {
                 color: 'blue',
                 extendedProps: {
                     estado: appointmentData.estado,
+                    idEstado: appointmentData.idEstado,
+                    idCita: citaId,
+                    nombreInvitado: appointmentData.nombreInvitado,
+                    contactoInvitado: appointmentData.contactoInvitado
                 },
             };
 
@@ -255,11 +262,13 @@ const AppointmentCalendar = () => {
         if (!searchTermLower) {
             setFilterdPacientesCalendario(pacientes);
         } else {
-            setFilterdPacientesCalendario(pacientes.filter(patient =>
-                patient.NOMBRE.toLowerCase().includes(searchTermLower) ||
-                patient.APELLIDO.toLowerCase().includes(searchTermLower) ||
-                patient.EMAIL.toLowerCase().includes(searchTermLower)
-            ));
+            setFilterdPacientesCalendario(pacientes.filter(patient => {
+                const nombre = patient.nombre ? patient.nombre.toLowerCase().includes(searchTermLower) : false;
+                const apellido = patient.apellido ? patient.apellido.toLowerCase().includes(searchTermLower) : false;
+                const email = patient.email ? patient.email.toLowerCase().includes(searchTermLower) : false;
+
+                return nombre || apellido || email;
+            }));
         }
     };
 
@@ -267,13 +276,13 @@ const AppointmentCalendar = () => {
     const createEventObject = (selectedPatient, dateWithTime, estadoName, startTime, idUsuario) => {
         return {
             id: `event-${idUsuario}-${Date.now()}`,
-            title: `${selectedPatient.NOMBRE} ${selectedPatient.APELLIDO}`,
+            title: `${selectedPatient.nombre} ${selectedPatient.apellido}`,
             start: dateWithTime,
             allDay: false,
             extendedProps: {
                 estado: estadoName,
                 startTime: startTime,
-                idUsuario: idUsuario
+                idUsuario: idUsuario,
             }
         };
     };
@@ -304,7 +313,6 @@ const AppointmentCalendar = () => {
 
     }, [allEvents, filter]);
     const handleFilterChange = (newFilter) => {
-
         setFilter(newFilter);
         setShouldFilterEvents(true);
     };
@@ -342,40 +350,56 @@ const AppointmentCalendar = () => {
 
             const estadoName = findEstadoNameById(selectedEstado);
 
-            const newEvent = createEventObject(selectedPatient, dateWithTime, estadoName, `${startTime.hour}:${startTime.minute}`, selectedPatient.ID_USUARIO);
-
+            const newEvent = createEventObject(selectedPatient, dateWithTime, estadoName, `${startTime.hour}:${startTime.minute}`, selectedPatient.idUsuario);
 
             axios.post(`${API_BASE_URL}/paciente/citas`, {
-                idPaciente: selectedPatient.ID_USUARIO,
+                idPaciente: selectedPatient.idUsuario,
                 idUsuarioEdita: userData.id_usuario,
                 fechaCita: formattedDate,
                 horaCita: formattedTime,
                 estado: estadoName,
-                idEstado: selectedEstado
+                idEstado: selectedEstado,
+                idSede: idSedeActual,
             })
-                .then(response => {
-                    const addedEvent = createEventObject(selectedPatient, dateWithTime, estadoName, formattedTime, response.data.citaId);
-                    setAllEvents(prevEvents => [...prevEvents, addedEvent]);
-                    setCurrentEvents(prevEvents => [...prevEvents, addedEvent]);
-                })
-                .catch(error => {
-                    console.error('Error al crear la cita', error);
+                .then(async response => {
+                    const addedEvent = {
+                        id: response.data.citaId,
+                        title: `${selectedPatient.nombre} ${selectedPatient.apellido}`,
+                        start: dateWithTime,
+                        allDay: false,
+                        color: 'blue',
+                        extendedProps: {
+                            estado: estadoName,
+                            idEstado: selectedEstado,
+                            startTime: formattedTime,
+                            idUsuario: selectedPatient.idUsuario
+                        }
+                    };
+
+                    setAllEvents((prevEvents) => [...prevEvents, addedEvent]);
+                    setCurrentEvents((prevEvents) => [...prevEvents, addedEvent]);
+                    const newPacientes = pacientes.filter(p => p.idUsuario !== selectedPatient.idUsuario);
+                    setPacientes(newPacientes);
+                    setFilteredPacientes(newPacientes);
+                    setSelectedEstado('');
+                    setModalIsOpen(false);
+                    await cargarPacientesConCita();
+                    await cargarPacientesConCitaHistorial();
+
+                    setTimeout(() => {
+                        calendarRef.current.getApi().refetchEvents();
+                    }, 100);
+
+                }).catch(error => {
+                console.error('Error al crear la cita', error);
+                toast.error('Error al crear la cita.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
                 });
+            });
 
-            setRemovingPatients(oldRemoving => [...oldRemoving, selectedPatient.ID_USUARIO]);
-
-
-            setAllEvents(prevEvents => [...prevEvents, newEvent]);
-            setCurrentEvents(prevEvents => [...prevEvents, newEvent]);
-            calendarRef.current.getApi().refetchEvents();
-
-            const newPacientes = pacientes.filter(p => p.ID_USUARIO !== selectedPatient.ID_USUARIO);
-            setPacientes(newPacientes);
-            setFilteredPacientes(newPacientes);
-            setSelectedEstado('');
-            setModalIsOpen(false);
-            await cargarPacientesConCita();
-            await cargarPacientesConCitaHistorial();
+            setRemovingPatients((oldRemoving) => [...oldRemoving, selectedPatient.idUsuario]);
 
         } else {
             toast.error('Debe seleccionar un paciente y una fecha.', {
@@ -403,6 +427,12 @@ const AppointmentCalendar = () => {
                 hideProgressBar: true,
             });
 
+            const updatedEvents = allEvents.filter(event => event.extendedProps.idCita !== idCita);
+            setAllEvents(updatedEvents);
+            setCurrentEvents(updatedEvents);
+
+            setEditModalOpen(false);
+            setModalCalendarOpen(false)
         } catch (error) {
             console.error('Error al eliminar la cita:', error);
             toast.error('Error al eliminar la cita.', {
@@ -412,7 +442,6 @@ const AppointmentCalendar = () => {
             });
         }
     };
-
     const handleUpdateCita = () => {
         if (!selectedEvent) {
             toast.error('Información de la cita no disponible.', {
@@ -446,7 +475,7 @@ const AppointmentCalendar = () => {
                     isDateChanged = isDateChanged || eventDate.getTime() !== dateWithTime.getTime();
                     return {
                         ...event,
-                        title: `${selectedPatient.NOMBRE} ${selectedPatient.APELLIDO} - ${estadoName}`,
+                        title: `${selectedPatient.nombre} ${selectedPatient.apellido} - ${estadoName}`,
                         start: dateWithTime,
                         extendedProps: {
                             ...event.extendedProps,
@@ -464,13 +493,13 @@ const AppointmentCalendar = () => {
 
             axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
                 idCita: selectedEvent.id,
-                idPaciente: selectedPatient.ID_USUARIO,
+                idPaciente: selectedPatient.idUsuario,
                 idUsuarioEdita: userData.id_usuario,
                 fechaCita: formattedDate,
                 horaCita: formattedTime,
                 idEstado: selectedEvent.idEstado,
-                nombreInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.nombreInvitado,
-                contactoInvitado: selectedPatient.ID_USUARIO ? null : selectedEvent.contactoInvitado
+                nombreInvitado: selectedPatient.idUsuario ? null : selectedEvent.nombreInvitado,
+                contactoInvitado: selectedPatient.idUsuario ? null : selectedEvent.contactoInvitado
             })
                 .then(async response => {
                     if (isDateChanged) {
@@ -520,28 +549,28 @@ const AppointmentCalendar = () => {
     }
     const cargarPacientesConCitaHistorial = async () => {
         try{
-            const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${userData.id_empresa}`);
-
+            const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${idSedeActual}`);
             if (response.data && Array.isArray(response.data.historialCitas)) {
                 const eventos = response.data.historialCitas.map(cita => {
-                    const fechaCita = cita.FECHA_CITA.split('T')[0];
-                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
-                    const title = cita.NOMBRE && cita.APELLIDO
-                        ? `${cita.NOMBRE} ${cita.APELLIDO}`
-                        : cita.NOMBRE_INVITADO;
+                    const fechaCita = cita.fechaCita.split('T')[0];
+                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.horaCita)}`;
+                    const title = cita.nombre && cita.apellido
+                        ? `${cita.nombre} ${cita.apellido}`
+                        : cita.nombre;
                     return {
-                        id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
+                        id: `event-${cita.idUsuario}-${cita.idCita}`,
                         title: title,
                         start: new Date(fechaYHoraCita),
                         allDay: false,
                         color: 'red',
                         extendedProps: {
-                            estado: findEstadoNameById(cita.ID_ESTADO),
-                            startTime: removeSeconds(cita.HORA_CITA),
-                            idCita: cita.ID_CITA,
-                            idUsuario: cita.ID_USUARIO,
-                            nombreInvitado: cita.NOMBRE_INVITADO,
-                            contactoInvitado: cita.CONTACTO_INVITADO,
+                            estado: findEstadoNameById(cita.idEstado),
+                            startTime: removeSeconds(cita.horaCita),
+                            idCita: cita.idCita,
+                            idUsuario: cita.idUsuario,
+                            nombreInvitado: cita.nombreInvitado,
+                            contactoInvitado: cita.contactoInvitado,
+                            idEstado: cita.idEstado,
                             readOnly: true,
                         }
                     };
@@ -553,7 +582,7 @@ const AppointmentCalendar = () => {
                 );
                 const pacientesConCita = response.data.historialCitas.map((paciente, index) => ({
                     ...paciente,
-                    ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                    idUsuario: paciente.idUsuario || `generated-id-${index}`,
                 }));
 
                 setPacientesConCitaHistorialFilter(pacientesConCita);
@@ -585,16 +614,16 @@ const AppointmentCalendar = () => {
     }
     const cargarPacientesConCita = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${userData.id_empresa}`);
+            const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${idSedeActual}`);
             if (response.data && Array.isArray(response.data.pacientesConCita)) {
                 const eventos = response.data.pacientesConCita.map(cita => {
-                    const fechaCita = cita.FECHA_CITA.split('T')[0];
-                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.HORA_CITA)}`;
+                    const fechaCita = cita.fechaCita.split('T')[0];
+                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.horaCita)}`;
 
-                    const title = cita.NOMBRE && cita.APELLIDO
-                        ? `${cita.NOMBRE} ${cita.APELLIDO}`
-                        : cita.NOMBRE_INVITADO;
-                    const estadoNombre = findEstadoNameById(cita.ID_ESTADO);
+                    const title = cita.nombre && cita.apellido
+                        ? `${cita.nombre} ${cita.apellido}`
+                        : cita.nombreInvitado;
+                    const estadoNombre = findEstadoNameById(cita.idEstado);
                     let color;
                     switch (estadoNombre) {
                         case 'Completada':
@@ -610,25 +639,26 @@ const AppointmentCalendar = () => {
                             color = 'grey';
                     }
                     return {
-                        id: `event-${cita.ID_USUARIO}-${cita.ID_CITA}`,
+                        id: `event-${cita.idUsuario}-${cita.idCita}`,
                         title: title,
                         start: new Date(fechaYHoraCita),
                         allDay: false,
                         color: color,
                         extendedProps: {
-                            estado: findEstadoNameById(cita.ID_ESTADO),
-                            startTime: removeSeconds(cita.HORA_CITA),
-                            idCita: cita.ID_CITA,
-                            idUsuario: cita.ID_USUARIO,
-                            nombreInvitado: cita.NOMBRE_INVITADO,
-                            contactoInvitado: cita.CONTACTO_INVITADO
+                            estado: findEstadoNameById(cita.idEstado),
+                            startTime: removeSeconds(cita.horaCita),
+                            idCita: cita.idCita,
+                            idUsuario: cita.idUsuario,
+                            nombreInvitado: cita.nombreInvitado,
+                            contactoInvitado: cita.contactoInvitado,
+                            idEstado: cita.idEstado
 
                         }
                     };
                 });
                 const pacientesConCita = response.data.pacientesConCita.map((paciente, index) => ({
                     ...paciente,
-                    ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                    idUsuario: paciente.idUsuario || `generated-id-${index}`,
                 }));
 
                 setPacientesConCitaFilter(pacientesConCita);
@@ -658,17 +688,17 @@ const AppointmentCalendar = () => {
 
             };
             loadData();
-    }, [estados]);
+    }, [idSedeActual,estados]);
 
 
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesSinCita/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/paciente/todosLosPacientesSinCita/${idSedeActual}`)
             .then((response) => {
                 if(response.data && Array.isArray(response.data.pacientes)){
                     const pacientesConIds = response.data.pacientes.map((paciente, index) => ({
                         ...paciente,
-                        ID_USUARIO: paciente.ID_USUARIO || `generated-id-${index}`,
+                        idUsuario: paciente.idUsuario || `generated-id-${index}`,
                     }));
                     setPacientes(pacientesConIds);
                     setFilteredPacientes(pacientesConIds);
@@ -684,7 +714,7 @@ const AppointmentCalendar = () => {
                 console.error('Error obteniendo pacientes:', error);
 
             });
-    }, [userData.id_empresa]);
+    }, [userData.id_institucion]);
 
     return (
         <Container>
@@ -836,7 +866,7 @@ const AppointmentCalendar = () => {
                     </InputGroup>
 
                     <FilterGroup>
-                        <StyledLabel>Filtrar por:</StyledLabel>
+                        {/* <StyledLabel>Filtrar por:</StyledLabel>
                         <StyledSelect
                             value={filter}
                             onChange={(e) => handleFilterChange(e.target.value)}
@@ -844,7 +874,7 @@ const AppointmentCalendar = () => {
                             <option value={FILTER_OPTIONS.ALL}>Todos</option>
                             <option value={FILTER_OPTIONS.PAST}>Pasadas</option>
                             <option value={FILTER_OPTIONS.CURRENT}>Actuales</option>
-                        </StyledSelect>
+                        </StyledSelect>*/}
                     </FilterGroup>
 
                     <CloseButton onClick={() => setFilterModalOpen(false)}>
@@ -879,12 +909,12 @@ const AppointmentCalendar = () => {
                 </FixedSearchContainer>
                 {filteredPacientes.map((patient) => (
                     <Patient
-                        key={patient.ID_USUARIO.toString()}
+                        key={patient.idUsuario.toString()}
                         onClick={() => handlePatientClick(patient)}
-                        className={removingPatients.includes(patient.ID_USUARIO) ? 'removing' : ''}
+                        className={removingPatients.includes(patient.idUsuario) ? 'removing' : ''}
                     >
-                        <div style={{ fontWeight: 'bold' }}>{patient.NOMBRE} {patient.APELLIDO}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.EMAIL}</div>
+                        <div style={{ fontWeight: 'bold' }}>{patient.nombre} {patient.apellido}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.email}</div>
                     </Patient>
                 ))}
 

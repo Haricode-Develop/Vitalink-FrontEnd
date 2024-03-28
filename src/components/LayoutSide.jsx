@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useWebSocket } from "../context/WebSocketContext";
+import { useSede } from '../context/SedeContext';
 
 import {
   Sidebar,
@@ -18,7 +19,7 @@ import {
   Box,
   BoxTitle,
   BoxButton,
-  SidebarButton
+  SidebarButton, Sede
 } from '../views/Dashboard/DashboardStyle';
 import profilePicture from '../assets/login/profile/user.png'; // Importa la imagen
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
@@ -36,12 +37,13 @@ export const LayoutContext = createContext({
 
 const LayoutSide = ({ children }) => {
   const { userData, logout } = useContext(AuthContext);
+  const { nombreSedeActual, isSedeInfoLoaded } = useSede();
   const [activeSubMenu, setActiveSubMenu] = useState('');
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-  const wsContext = useWebSocket(); // Uso correcto del hook
+  const wsContext = useWebSocket();
 
   const toggleSidebar = () => {
     if (isMobile()) {
@@ -187,6 +189,7 @@ const LayoutSide = ({ children }) => {
     }
   };
 
+
   const animationRef = useRef(null);
 
   useEffect(() => {
@@ -196,99 +199,103 @@ const LayoutSide = ({ children }) => {
 
     return () => clearInterval(interval);
   }, []);
+
+
+  useEffect(() => {
+  }, [nombreSedeActual]);
   return (
       <LayoutContext.Provider value={{ activeSubMenu, setActiveSubMenu, handleNavigate }}>
-    <div style={{ display: 'flex' }}>
-      <SidebarButton onClick={toggleSidebar}>
-        {isMobile() ? (isMenuOpen ? <FaTimes /> : <FaBars />) : (isSidebarOpen ? <FaTimes /> : <FaBars />)}
-      </SidebarButton>
-      <Sidebar
-          open={isSidebarOpen} menuOpen={isMenuOpen} style={{
-        transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      height: '100vh',
-      width: '250px',
-      overflowY: 'auto',
-        transition: 'transform 0.3s ease-in-out'
-    }}>
-        <UserInfo>
-          <Lottie options={defaultOptions} height={150} width={150} ref={animationRef}/>
+        <div style={{ display: 'flex' }}>
+          <SidebarButton onClick={toggleSidebar}>
+            {isMobile() ? (isMenuOpen ? <FaTimes /> : <FaBars />) : (isSidebarOpen ? <FaTimes /> : <FaBars />)}
+          </SidebarButton>
+          <Sidebar
+              open={isSidebarOpen} menuOpen={isMenuOpen} style={{
+            transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            width: '250px',
+            overflowY: 'auto',
+            transition: 'transform 0.3s ease-in-out'
+          }}>
+            <UserInfo>
+              <Lottie options={defaultOptions} height={150} width={150} ref={animationRef}/>
 
-          <div style={{ paddingTop: '10px' }}>{userData?.name} {userData?.lastName}</div>
-          <div>{userData?.roles.map(role => role.name).join(', ')}</div>
+              <div style={{ paddingTop: '10px' }}>{userData?.name} {userData?.lastName}</div>
+              <div>{userData?.roles.map(role => role.name).join(', ')}</div>
+              <Sede>Sede Actual: {nombreSedeActual}</Sede>
+            </UserInfo>
 
-        </UserInfo>
-
-        <Menu>
-          <MenuItem bold onClick={handleDashboardClick} className="dashboard">
-            <FaChartLine /> Dashboard
-            <div></div>
-          </MenuItem>
-          { userHasRole('Gestor') && (
-            <>
-              <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
-                <FaUsersCog />Administrador
-                <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Administrador'} />
-
+            <Menu>
+              <MenuItem bold onClick={handleDashboardClick} className="dashboard">
+                <FaChartLine /> Dashboard
+                <div></div>
               </MenuItem>
-              <SubMenu active={activeSubMenu === 'Administrador'}>
-                <SubMenuItem onClick={handleAgregarAdministradorClick} className={"administradorSeccionIngreso"}>Añadir</SubMenuItem>
-                <SubMenuItem onClick={handleEliminarAdministradorClick} className={"administradorSeccionEliminar"}>Eliminar</SubMenuItem>
-                <SubMenuItem onClick={handleActualizarAdministradorClick} className={"administradorSeccionActualizar"}>Actualizar</SubMenuItem>
-              </SubMenu>
-            </>
-          )}
+              { userHasRole('Gestor') && (
+                  <>
+                    <MenuItem bold onClick={() => handleSubMenuClick('Administrador')} className={"administrador"}>
+                      <FaUsersCog />Administrador
+                      <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Administrador'} />
 
-          {showFisioterapeutaMenu && (
-            <>
-              <MenuItem bold onClick={() => handleSubMenuClick('Fisioterapeuta')} className={"fisioterapeuta"}>
-                <FaUserMd /> Fisioterapeuta
-                <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Fisioterapeuta'} />
+                    </MenuItem>
+                    <SubMenu active={activeSubMenu === 'Administrador'}>
+                      <SubMenuItem onClick={handleAgregarAdministradorClick} className={"administradorSeccionIngreso"}>Añadir</SubMenuItem>
+                      <SubMenuItem onClick={handleEliminarAdministradorClick} className={"administradorSeccionEliminar"}>Eliminar</SubMenuItem>
+                      <SubMenuItem onClick={handleActualizarAdministradorClick} className={"administradorSeccionActualizar"}>Actualizar</SubMenuItem>
+                    </SubMenu>
+                  </>
+              )}
+
+              {showFisioterapeutaMenu && (
+                  <>
+                    <MenuItem bold onClick={() => handleSubMenuClick('Fisioterapeuta')} className={"fisioterapeuta"}>
+                      <FaUserMd /> Fisioterapeuta
+                      <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Fisioterapeuta'} />
+                    </MenuItem>
+                    <SubMenu active={activeSubMenu === 'Fisioterapeuta'}>
+                      <SubMenuItem onClick={handleIngresarFisioterapeutaClick} className={"fisioterapeutaSeccionIngreso"}>Añadir</SubMenuItem>
+                      <SubMenuItem onClick={handleEliminarFisioterapeutaClick} className={"fisioterapeutaSeccionEliminar"}>Eliminar</SubMenuItem>
+                      <SubMenuItem onClick={handleActualizarFisioterapeutaClick} className={"fisioterapeutaSeccionActualizar"}>Actualizar</SubMenuItem>
+                      <SubMenuItem onClick={handleReingresoFisioterapeutaClick} className={"fisioterapeutaSeccionReingreso"}>ReIngresar</SubMenuItem>
+                    </SubMenu>
+                  </>
+              )}
+
+              <MenuItem bold onClick={() => handleSubMenuClick('Pacientes')} className={"paciente"}>
+                <FaUserInjured />  Pacientes
+                <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Pacientes'} />
               </MenuItem>
-              <SubMenu active={activeSubMenu === 'Fisioterapeuta'}>
-                <SubMenuItem onClick={handleIngresarFisioterapeutaClick} className={"fisioterapeutaSeccionIngreso"}>Añadir</SubMenuItem>
-                <SubMenuItem onClick={handleEliminarFisioterapeutaClick} className={"fisioterapeutaSeccionEliminar"}>Eliminar</SubMenuItem>
-                <SubMenuItem onClick={handleActualizarFisioterapeutaClick} className={"fisioterapeutaSeccionActualizar"}>Actualizar</SubMenuItem>
-                <SubMenuItem onClick={handleReingresoFisioterapeutaClick} className={"fisioterapeutaSeccionReingreso"}>ReIngresar</SubMenuItem>
+              <SubMenu active={activeSubMenu === 'Pacientes'}>
+                <SubMenuItem onClick={handleIngresarPacienteClick} className={"pacienteSeccionIngreso"}>Ingresar</SubMenuItem>
+                <SubMenuItem onClick={handleDarAltaPacienteClick} className={"pacienteSeccionEliminar"}>Dar de alta</SubMenuItem>
+                <SubMenuItem onClick={handleReingresarPacienteClick} className={"pacienteSeccionReingreso"}>Reingreso</SubMenuItem>
+                <SubMenuItem onClick={handleCalendarioCitasClick} className={"calendarioCitasPaciente"}>Calendario de citas</SubMenuItem>
+                <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
+                {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
               </SubMenu>
-            </>
-          )}
 
-          <MenuItem bold onClick={() => handleSubMenuClick('Pacientes')} className={"paciente"}>
-            <FaUserInjured />  Pacientes
-            <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'Pacientes'} />
-          </MenuItem>
-          <SubMenu active={activeSubMenu === 'Pacientes'}>
-            <SubMenuItem onClick={handleIngresarPacienteClick} className={"pacienteSeccionIngreso"}>Ingresar</SubMenuItem>
-            <SubMenuItem onClick={handleDarAltaPacienteClick} className={"pacienteSeccionEliminar"}>Dar de alta</SubMenuItem>
-            <SubMenuItem onClick={handleReingresarPacienteClick} className={"pacienteSeccionReingreso"}>Reingreso</SubMenuItem>
-            <SubMenuItem onClick={handleCalendarioCitasClick} className={"calendarioCitasPaciente"}>Calendario de citas</SubMenuItem>
-            <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
-            {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
-          </SubMenu>
+              <MenuItem bold onClick={handleConfiguracionClick} className={"configuracion"}>
+                <FaCog />  Configuración
+                <div></div>
+              </MenuItem>
 
-          <MenuItem bold onClick={handleConfiguracionClick} className={"configuracion"}>
-            <FaCog />  Configuración
-            <div></div>
-          </MenuItem>
+              <MenuItem onClick={handleLogoutClick}>
+                &nbsp;Cerrar sesión
+                <ChevronIcon className="fa fa-sign-out" rotate={activeSubMenu === 'CerrarSesion'} />
+              </MenuItem>
+            </Menu>
+          </Sidebar>
+          <HeartIconAnimation animationData={heartAnimationData} />
 
-          <MenuItem onClick={handleLogoutClick}>
-          &nbsp;Cerrar sesión
-            <ChevronIcon className="fa fa-sign-out" rotate={activeSubMenu === 'CerrarSesion'} />
-          </MenuItem>
-        </Menu>
-      </Sidebar>
-      <HeartIconAnimation animationData={heartAnimationData} />
-
-      <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
-        <Outlet />
-      <div>
-        {children}
+          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
+            <Outlet />
+            <div>
+              {children}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
       </LayoutContext.Provider>
   );
 };

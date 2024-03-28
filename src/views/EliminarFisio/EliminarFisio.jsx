@@ -30,6 +30,7 @@ import {StyledModal} from "../../components/Modal";
 
 import {useTransition, animated} from "react-spring";
 import {AuthContext} from "../../context/AuthContext";
+import {useSede} from "../../context/SedeContext";
 
 const EliminarFisio = () => {
     const [nombre, setNombre] = useState('');
@@ -39,38 +40,46 @@ const EliminarFisio = () => {
     const [filteredFisios, setFilteredFisios] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [motivo, setMotivo] = useState('');
+    const [motivo, setMotivo] = useState('')
+    const { idSedeActual } = useSede();
     const {userData} = useContext(AuthContext);
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
-            .then((response) => {
-                if(response.data && Array.isArray(response.data.fisios)){
-                    setFisios(response.data.fisios);
-                    setFilteredFisios(response.data.fisios);
-                }else{
-                    toast.error('No se recibieron datos de fisioterapeutas.', {
+        if (idSedeActual) {
+            axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
+                .then((response) => {
+                    if(response.data && Array.isArray(response.data.fisios)){
+                        setFisios(response.data.fisios);
+                        setFilteredFisios(response.data.fisios);
+                    } else {
+                        toast.error('No se recibieron datos de fisioterapeutas.', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error obteniendo fisioterapeutas:', error);
+                    toast.error('Error al obtener los fisioterapeutas', {
                         position: toast.POSITION.TOP_RIGHT,
                         autoClose: 5000,
                         hideProgressBar: true,
                     });
-                }
-
-            })
-            .catch((error) => {
-                console.error('Error obteniendo fisioterapeutas:', error);
-            });
-    }, []);
+                });
+        }
+    }, [idSedeActual]);
 
     useEffect(() => {
         const filtered = fisios.filter(fisio =>
-            fisio && fisio.EMAIL &&
+            fisio.EMAIL &&
             (nombre === '' || fisio.NOMBRE.toLowerCase().includes(nombre.toLowerCase())) &&
             (apellido === '' || fisio.APELLIDO.toLowerCase().includes(apellido.toLowerCase())) &&
             (email === '' || fisio.EMAIL.toLowerCase().includes(email.toLowerCase()))
         );
         setFilteredFisios(filtered);
     }, [nombre, apellido, email, fisios]);
+
     const handleModalClose = () => {
         setIsModalOpen(false);
         setMotivo('');
@@ -80,15 +89,22 @@ const EliminarFisio = () => {
         setIsModalOpen(true);
     };
     const transitions = useTransition(filteredFisios, {
-
-        from: { opacity: 1, transform: 'translate3d(0,0px,0)' },
-        enter: item => async (next) => {
-            await next({ opacity: 1, transform: 'translate3d(0,0px,0)' });
-        },
-        leave: { opacity: 0, transform: 'translate3d(0,-40px,0)' },
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
         keys: item => item.ID_USUARIO
     });
     const handleDelete = () => {
+
+        if (!motivo) {
+            toast.warn('Por favor, ingresa un motivo para la eliminación', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
+
         if (!selectedId) {
             toast.warn('Por favor, selecciona un fisio para eliminar', {
                 position: toast.POSITION.TOP_RIGHT,
@@ -175,7 +191,7 @@ const EliminarFisio = () => {
                         <Button onClick={handleDelete}>Eliminar Fisioterapeuta</Button>
                     </ActionButtons>
                 </FormColumn>
-                <ActivityFeed idRol={'4, 3'} idAccion={3} idInstitucion={userData.id_empresa} idEntidadAfectada={2} className={"FeedActividades"}/>
+                <ActivityFeed idRol={'4, 3'} idAccion={3} idInstitucion={userData.id_institucion} idEntidadAfectada={2} className={"FeedActividades"}/>
             </Content>
             <StyledModal isOpen={isModalOpen} onRequestClose={handleModalClose}>
                 <ModalContent>

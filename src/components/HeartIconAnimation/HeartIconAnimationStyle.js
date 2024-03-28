@@ -1,5 +1,6 @@
 // PopupStyles.js
 import styled, { keyframes } from 'styled-components';
+import { FaChevronDown, FaAngleDown } from 'react-icons/fa';
 
 const popIn = keyframes`
   from {
@@ -193,4 +194,94 @@ export const IconContainer = styled.div`
   align-items: center;
   background: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  
 `;
+
+export const StyledDropdownContainer = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+`;
+
+
+export const StyledDropdown = styled.select`
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 2px 5px var(--negro-rgba);
+  background: var(--celeste);
+  color: var(--blanco);
+  font-weight: 700;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+`;
+
+
+export const StyledIcon = styled(FaAngleDown)`
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--negro);
+  font-size: 1.25rem;
+
+  @media (max-width: 768px) {
+    right: 0.5rem;
+  }
+`;
+
+export const DropdownLabel = styled.label`
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+`;
+
+
+export const FloatingButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 0.5rem 1rem;
+  background-color: var(--celeste);
+  color: var(--blanco);
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px var(--negro-rgba);
+  transition: box-shadow 0.3s, transform 0.3s;
+  z-index: 10000;
+  &:hover {
+    background-color: var(--celeste-rgba);
+    box-shadow: 0 4px 10px var(--negro-rgba);
+  }
+
+  @media (max-width: 768px) {
+    bottom: 150px;
+    top: auto;
+    right: 12vw;
+    transform: translateX(50%);
+  }
+`;
+
+
+export const StyledOption = styled.option`
+  color: var(--blanco)!important;
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+`;
+
+
+

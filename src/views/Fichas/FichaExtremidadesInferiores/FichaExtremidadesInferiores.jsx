@@ -13,10 +13,12 @@ import {toast} from "react-toastify";
 import {FaSave} from "react-icons/fa";
 import { StyledModal } from "../../../components/Modal";
 import moment from "moment";
+import {useSede} from "../../../context/SedeContext";
 
 const FichaExtremidadesInferiores = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
+    const { idSedeActual } = useSede();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [fisioterapeutas, setFisioterapeutas] = useState([]);
     const [fisios, setFisios] = useState([]);
@@ -25,6 +27,8 @@ const FichaExtremidadesInferiores = () => {
     const [selectedFisio, setSelectedFisio] = useState(null);
     const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
     const [isEmailRequired, setIsEmailRequired] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+
 
     const handleIngresarClick = (e) => {
         e.preventDefault();
@@ -110,9 +114,10 @@ const FichaExtremidadesInferiores = () => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_empresa,
+                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
+                idSede: idSedeActual,
                 idTipoFicha: 1,
                 tipoCarga: 0,
                 idMedico: 0,
@@ -140,7 +145,7 @@ const FichaExtremidadesInferiores = () => {
             }
             setFormValues(parsedData);
         }
-        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${userData.id_empresa}`)
+        axios.get(`${API_BASE_URL}/fisio/todosLosFisios/${idSedeActual}`)
             .then((response) => {
 
                 if(response.data && Array.isArray(response.data.fisios)){
@@ -160,7 +165,7 @@ const FichaExtremidadesInferiores = () => {
 
             });
 
-    }, []);
+    }, [idSedeActual]);
 
     const handleModalFisios = (e) => {
         if(userData.id_rol !== 2){
@@ -1563,7 +1568,9 @@ const FichaExtremidadesInferiores = () => {
                 </BodyMapStyle>
                 <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>
             </Form>
-            <StyledModal isOpen={isModalVisible}>
+            <StyledModal isOpen={isModalVisible}
+            onRequestClose={() => setModalOpen(false)}
+            onRequestClose={() => setModalOpen(false)}>
                 <h2>Seleccione un Fisioterapeuta</h2>
                 <ul>
                     {fisios.map((fisio) => (

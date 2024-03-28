@@ -12,8 +12,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
-    setIsAuthenticated(false); // Establecer autenticación a false
-    setUserData(null);        // Restablecer los datos del usuario a nulo
+    setIsAuthenticated(false);
+    setUserData(null);
     localStorage.removeItem('sessionToken');
   }, []);
 

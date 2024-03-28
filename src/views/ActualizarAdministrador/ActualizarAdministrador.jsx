@@ -13,6 +13,7 @@ import ActivityFeed from "../../components/Feed/FeedActividad";
 import { StyledModal } from "../../components/Modal";
 import DatePicker from 'react-datepicker';
 import {Label} from "../EliminarAdministrador/EliminarAdministradorStyle";
+import {useSede} from "../../context/SedeContext";
 
 const ActualizarAdministrador = () => {
     const { userData } = useContext(AuthContext);
@@ -29,18 +30,31 @@ const ActualizarAdministrador = () => {
     const [apellido, setApellido] = useState('');
     const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
     const [email, setEmail] = useState('');
+    const { idSedeActual } = useSede(); // Utiliza el contexto de Sede para obtener la sede actual
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/admin/todosLosAdministradores/${userData.id_empresa}`)
-            .then((response) => {
-                // Asumiendo que la respuesta contiene un arreglo de administradores
-                setAdministradores(response.data.administradores);
-                setFilteredAdministradores(response.data.administradores);
+        // Actualiza la petición para filtrar por sede
+        if (idSedeActual) {
+            axios.get(`${API_BASE_URL}/admin/todosLosAdministradoresPorSede/${idSedeActual}`, {
+                params: {
+                    nombre: busquedaNombre,
+                    apellido: busquedaApellido,
+                    email: busquedaEmail
+                }
             })
-            .catch((error) => {
-                console.error('Error obteniendo administradores:', error);
-            });
-    }, []);
+                .then((response) => {
+                    setAdministradores(response.data.administradores);
+                })
+                .catch((error) => {
+                    console.error('Error obteniendo administradores:', error);
+                    toast.error('Error al obtener administradores.', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                });
+        }
+    }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
 
     useEffect(() => {
         const filtered = administradores.filter(adm =>
@@ -59,7 +73,6 @@ const ActualizarAdministrador = () => {
             setNombre(adminSeleccionado.NOMBRE);
             setApellido(adminSeleccionado.APELLIDO);
             const fecha = new Date(adminSeleccionado.FECHA_DE_NACIMIENTO);
-
             setFechaNacimiento(fecha);
             setEmail(adminSeleccionado.EMAIL);
         }
@@ -78,7 +91,7 @@ const ActualizarAdministrador = () => {
 
     const handleUpdate = () => {
 
-        if (!nombre || !apellido || !fechaNacimiento || !email) {
+        if (!nombre || !apellido || !fechaNacimiento) {
             toast.warn('Todos los campos son obligatorios', {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
@@ -91,7 +104,6 @@ const ActualizarAdministrador = () => {
             nombre,
             apellido,
             fechaNacimiento,
-            email,
             userId: userData.id_usuario
         };
 
@@ -144,17 +156,17 @@ const ActualizarAdministrador = () => {
                     <Label>Buscar por correo electrónico:</Label>
                     <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <AdminList>
-                        {filteredAdministradores.map(admin => (
-                            <ListItem key={admin.ID_USUARIO}>
+                        {administradores.map(admin => (
+                            <ListItem key={admin.idUsuario}>
                                 <AdminInfo>
-                                    {admin.NOMBRE} {admin.APELLIDO} ({admin.EMAIL})
+                                    {admin.nombre} {admin.apellido} ({admin.email})
                                 </AdminInfo>
-                                <SelectButton onClick={() => handleModalOpen(admin.ID_USUARIO)}>Seleccionar</SelectButton>
+                                <SelectButton onClick={() => handleModalOpen(admin.idUsuario)}>Seleccionar</SelectButton>
                             </ListItem>
                         ))}
                     </AdminList>
                 </FormColumn>
-                <ActivityFeed idRol={'4'} idAccion={2} idInstitucion={userData.id_empresa} idEntidadAfectada={3}/>
+                <ActivityFeed idRol={'4'} idAccion={2} idInstitucion={userData.id_institucion} idEntidadAfectada={3}/>
 
                 <StyledModal isOpen={isModalOpen} onRequestClose={handleModalClose}>
                     <ModalContent>

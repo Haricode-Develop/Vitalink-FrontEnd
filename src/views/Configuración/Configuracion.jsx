@@ -10,6 +10,7 @@ import {StyledModal} from "../../components/Modal";
 import { toast } from 'react-toastify';
 import GestionPacientes from "../../components/GestionPacientes/GestionPacientes";
 import Loader from "../../components/Loader/Loader";
+import {useSede} from "../../context/SedeContext";
 
 const Configuracion = () => {
     const [activeTab, setActiveTab] = useState('gestionPacientes');
@@ -22,6 +23,7 @@ const Configuracion = () => {
     const tabsRef = useRef({ usuarios: null, citas: null });
     const updateTimer = useRef(null);
     const { ws } = useWebSocket();
+    const { idSedeActual } = useSede();
 
     const isChecked = (value) => {
         return ['1', 'true', true].includes(value);
@@ -48,7 +50,7 @@ const Configuracion = () => {
     useEffect(() => {
         const cargarConfiguraciones = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/configuraciones/configuracion/${userData.id_empresa}/${activeTab}`);
+                const response = await axios.get(`${API_BASE_URL}/configuraciones/configuracion/${idSedeActual}/${activeTab}`);
                 const configs = response.data.configuraciones.map(c => ({
                     ...c,
                     VALOR: c.TIPO === 'boolean' ? c.VALOR === '1' || c.VALOR === 'true' : c.VALOR
@@ -61,7 +63,7 @@ const Configuracion = () => {
         };
 
         cargarConfiguraciones();
-    }, [activeTab, userData.id_empresa]);
+    }, [activeTab, idSedeActual]);
 
 
     const handleInputChange = async (idConfiguracion, clave, nuevoValor, tipo, patron) => {
@@ -75,12 +77,11 @@ const Configuracion = () => {
             conf.ID_CONFIGURACION === idConfiguracion ? { ...conf, VALOR: valorActualizado } : conf
         );
         setConfiguraciones(configsActualizadas);
-
         // Manejo de la activación de WhatsApp
         if (clave === 'whatsapp_activado' && nuevoValor) {
             setLoadingQR(true);
             try {
-                const response = await axios.post(`${API_BASE_URL}/configuraciones/activar-whatsapp/${userData.id_empresa}/${userData.id_usuario}`);
+                const response = await axios.post(`${API_BASE_URL}/configuraciones/activar-whatsapp/${idSedeActual}/${userData.id_usuario}`);
                 setLoadingQR(false);
                 if (response.data.success) {
                     setQrCode(response.data.qrCode);
@@ -98,7 +99,7 @@ const Configuracion = () => {
             // Manejo de la desactivación de WhatsApp
         } else if (clave === 'whatsapp_activado' && !nuevoValor) {
             try {
-                const response = await axios.post(`${API_BASE_URL}/configuraciones/desactivar-whatsapp/${userData.id_empresa}`);
+                const response = await axios.post(`${API_BASE_URL}/configuraciones/desactivar-whatsapp/${idSedeActual}`);
                 if (!response.data.success) {
                     console.error('Error al desactivar WhatsApp:', response.data.error);
                 }
@@ -195,7 +196,7 @@ const Configuracion = () => {
                     <StyledModal
                         title="Escanea el código QR"
                         isOpen={showQRModal}
-                        onClose={() => setShowQRModal(false)}
+                        onRequestClose={() => setShowQRModal(false)}
                     >
                         <ModalContent>
                             {qrCode ? (
