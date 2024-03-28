@@ -177,19 +177,22 @@ const ActualizarFisio = () => {
                     <Label>Buscar por correo electrónico:</Label>
                     <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <FisioList>
-                        {transitions((styles, item) => (
-                            item && (
-                                <animated.div style={styles}>
-                                    <ListItem key={item.ID_USUARIO}>
-                                        <FisioInfo>
-                                            {item.NOMBRE} {item.APELLIDO} ({item.EMAIL})
-                                        </FisioInfo>
-                                        <SelectButton onClick={() => handleModalOpen(item.ID_USUARIO)}>Seleccionar</SelectButton>
-                                    </ListItem>
-                                </animated.div>
-
-                            )
-                        ))}
+                        {filteredFisios.length > 0 ? (
+                            transitions((styles, item) => (
+                                item && (
+                                    <animated.div style={styles}>
+                                        <ListItem key={item.ID_USUARIO}>
+                                            <FisioInfo>
+                                                {item.NOMBRE} {item.APELLIDO} ({item.EMAIL})
+                                            </FisioInfo>
+                                            <SelectButton onClick={() => handleModalOpen(item.ID_USUARIO)}>Seleccionar</SelectButton>
+                                        </ListItem>
+                                    </animated.div>
+                                )
+                            ))
+                        ) : (
+                            <div>No hay fisioterapeutas disponibles</div>
+                        )}
                     </FisioList>
 
                 </FormColumn>

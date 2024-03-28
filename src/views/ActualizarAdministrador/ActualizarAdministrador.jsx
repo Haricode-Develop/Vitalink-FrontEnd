@@ -46,12 +46,7 @@ const ActualizarAdministrador = () => {
                     setAdministradores(response.data.administradores);
                 })
                 .catch((error) => {
-                    console.error('Error obteniendo administradores:', error);
-                    toast.error('Error al obtener administradores.', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 5000,
-                        hideProgressBar: true,
-                    });
+
                 });
         }
     }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
@@ -156,14 +151,18 @@ const ActualizarAdministrador = () => {
                     <Label>Buscar por correo electrónico:</Label>
                     <Input value={busquedaEmail} onChange={(e) => setBusquedaEmail(e.target.value)} />
                     <AdminList>
-                        {administradores.map(admin => (
-                            <ListItem key={admin.idUsuario}>
-                                <AdminInfo>
-                                    {admin.nombre} {admin.apellido} ({admin.email})
-                                </AdminInfo>
-                                <SelectButton onClick={() => handleModalOpen(admin.idUsuario)}>Seleccionar</SelectButton>
-                            </ListItem>
-                        ))}
+                        {filteredAdministradores.length > 0 ? (
+                            filteredAdministradores.map(admin => (
+                                <ListItem key={admin.ID_USUARIO}>
+                                    <AdminInfo>
+                                        {admin.NOMBRE} {admin.APELLIDO} ({admin.EMAIL})
+                                    </AdminInfo>
+                                    <SelectButton onClick={() => handleModalOpen(admin.ID_USUARIO)}>Seleccionar</SelectButton>
+                                </ListItem>
+                            ))
+                        ) : (
+                            <div>No hay administradores disponibles</div>
+                        )}
                     </AdminList>
                 </FormColumn>
                 <ActivityFeed idRol={'4'} idAccion={2} idInstitucion={userData.id_institucion} idEntidadAfectada={3}/>
