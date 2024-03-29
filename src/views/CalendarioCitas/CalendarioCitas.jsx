@@ -714,7 +714,7 @@ const AppointmentCalendar = () => {
                 console.error('Error obteniendo pacientes:', error);
 
             });
-    }, [userData.id_institucion]);
+    }, [idSedeActual]);
 
     return (
         <Container>
