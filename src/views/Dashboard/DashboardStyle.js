@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 export const Sidebar = styled.div`
   width: 300px;
-  height: 100%;
+  height: 100vh;
   background-color: #202424;
   color: var(--blanco);
   position: fixed;
@@ -9,7 +9,7 @@ export const Sidebar = styled.div`
   left: 0;
   transition: top 0.3s ease-in-out, transform 0.3s ease-in-out;
   z-index: 10;
-
+  overflow-y: auto!important;
   @media (max-width: 768px) {
     position: fixed!important;
     top: 0!important;
