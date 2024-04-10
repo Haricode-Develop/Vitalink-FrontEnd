@@ -183,6 +183,12 @@ const FichaExtremidadesInferiores = () => {
         }
 
     };
+    useEffect(() => {
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            idSede: idSedeActual,
+        }));
+    }, [idSedeActual]);
     const handleFisioSelection = (fisioId) => {
         setSelectedFisio(fisioId);
         setFormValues(prevFormValues => ({
@@ -192,7 +198,7 @@ const FichaExtremidadesInferiores = () => {
     };
     const validarYConstruirFichaJson = (fichaJsonOriginal) => {
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
         ];
 
         if (isEmailRequired) {
