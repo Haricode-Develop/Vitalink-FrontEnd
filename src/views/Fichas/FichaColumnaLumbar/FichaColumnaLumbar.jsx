@@ -137,28 +137,32 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
     };
     const [formValues, setFormValues] = useState(getInitialFormValues());
 
-    const validarYConstruirFichaJson = (fichaJsonOriginal) => {
+    const validarYConstruirFichaJson = (fichaJsonOriginal, isEmailRequired) => {
+        // Copia todos los campos originales
+        const fichaJsonValidado = {...fichaJsonOriginal};
+
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac', 'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico', 'telefono', 'idSede'
+            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac',
+            'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico',
+            'telefono', 'idSede'
         ];
 
         if (isEmailRequired) {
             camposAValidar.push('email');
         }
 
-        const fichaJsonValidado = {};
         let camposFaltantes = [];
 
+        // Validar los campos específicos
         camposAValidar.forEach(campo => {
             if (fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
                 camposFaltantes.push(campo);
-            } else {
-                fichaJsonValidado[campo] = fichaJsonOriginal[campo];
             }
         });
 
         return { fichaJsonValidado, camposFaltantes };
     };
+
 
     useEffect(() => {
         localStorage.setItem('datosFormularioPaciente', JSON.stringify(formValues));
