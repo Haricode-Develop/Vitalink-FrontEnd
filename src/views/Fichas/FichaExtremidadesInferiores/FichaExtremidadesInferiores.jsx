@@ -1034,11 +1034,11 @@ const FichaExtremidadesInferiores = () => {
                                 type="checkbox"
                                 id="lugar"
                                 name="lugar"
-                                value="Tobilla"
+                                value="Tobillo"
                                 onChange={handleInputChange}
-                                checked={formValues.lugar.includes('Tobilla')}
+                                checked={formValues.lugar.includes('Tobillo')}
 
-                            /> Tobilla
+                            /> Tobillo
                         </label>
                         <label>
                             <input

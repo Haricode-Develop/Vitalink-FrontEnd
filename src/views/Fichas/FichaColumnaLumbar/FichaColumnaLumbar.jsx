@@ -140,7 +140,6 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
     const validarYConstruirFichaJson = (fichaJsonOriginal, isEmailRequired) => {
         // Copia todos los campos originales
         const fichaJsonValidado = {...fichaJsonOriginal};
-
         let camposAValidar = [
             'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac',
             'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico',

@@ -219,6 +219,7 @@ const FichaColumnaCervical = () => {
         return { fichaJsonValidado, camposFaltantes };
     };
 
+
     const handleInsert = (e) => {
         e.preventDefault();
         setIsModalVisible(false);
