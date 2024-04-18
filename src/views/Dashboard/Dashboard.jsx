@@ -56,7 +56,7 @@ const Dashboard = () => {
     const [horasCitas, setHorasCitas] = useState([]);
     const histogramaRef = useRef(null);
     const [isHistogramDataLoaded, setIsHistogramDataLoaded] = useState(false);
-
+    const [isTendenceDataLoaded, setIsTendenceDataLoaded] = useState(false);
 
     const filteredFisioterapeutas = fisioterapeutas.filter(fisio =>
         fisio.NOMBRE.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -260,18 +260,29 @@ const Dashboard = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/dashboard/tasaDeIngresoAlta/${idSedeActual}`);
             if (response.data.datos && response.data.datos.length > 0) {
-                createCombinedChart(response.data.datos);
+                setChartData(response.data.datos);
             } else {
                 console.log("No data received for chart");
             }
         } catch (error) {
             console.error("Error al obtener los datos:", error);
+        } finally {
+            setIsTendenceDataLoaded(true); // Set this after the try/catch block
         }
     };
 
     useEffect(() => {
         fetchData();
     }, [idSedeActual]);
+
+
+    useEffect(() => {
+        if (isTendenceDataLoaded) {
+            if (chartData && chartData.length > 0 && chartRefData.current) {
+                createCombinedChart(chartData);
+            }
+        }
+    }, [chartData, isTendenceDataLoaded]);
 
 
     function convertToNormalDateOnly(isoDate) {
@@ -366,75 +377,78 @@ const Dashboard = () => {
     // ESTA ES LA PETICIÓN  PARA GRÁFICA POR TIEMPO DE PACIENTeE
 
     const createCombinedChart = (chartData) => {
-        const ctx = chartRefData.current.getContext('2d');
+        if(isTendenceDataLoaded){
+            const ctx = chartRefData.current.getContext('2d');
 
-        if (chartInstanceData.current) {
-            chartInstanceData.current.destroy();
-        }
+            if (chartInstanceData.current) {
+                chartInstanceData.current.destroy();
+            }
 
-        chartInstanceData.current = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.map(data => moment(data.Fecha).format('MM/DD/YYYY')),
-                datasets: [
-                    {
-                        label: 'Citas Programadas',
-                        data: chartData.map(data => data.CitasProgramadas),
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        yAxisID: 'y',
-                    },
-                    {
-                        label: 'Citas Realizadas',
-                        data: chartData.map(data => data.CitasRealizadas),
-                        backgroundColor: 'rgba(192, 75, 75, 0.5)',
-                        yAxisID: 'y',
-                    },
-                    {
-                        label: 'Ingresos',
-                        data: chartData.map(data => data.TotalIngresos),
-                        type: 'line',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2,
-                        yAxisID: 'y1',
-                    },
-                    {
-                        label: 'Altas',
-                        data: chartData.map(data => data.TotalAltas),
-                        type: 'line',
-                        borderColor: 'rgba(235, 206, 86, 1)',
-                        borderWidth: 2,
-                        yAxisID: 'y1',
-                    },
-                    {
-                        label: 'Médicos Disponibles',
-                        data: chartData.map(data => data.MedicosDisponibles),
-                        type: 'line',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 2,
-                        yAxisID: 'y1',
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false, // Ensure this dataset does not draw on the same grid
+            chartInstanceData.current = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(data => moment(data.Fecha).format('MM/DD/YYYY')),
+                    datasets: [
+                        {
+                            label: 'Citas Programadas',
+                            data: chartData.map(data => data.CitasProgramadas),
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'Citas Realizadas',
+                            data: chartData.map(data => data.CitasRealizadas),
+                            backgroundColor: 'rgba(192, 75, 75, 0.5)',
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'Ingresos',
+                            data: chartData.map(data => data.TotalIngresos),
+                            type: 'line',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            yAxisID: 'y1',
+                        },
+                        {
+                            label: 'Altas',
+                            data: chartData.map(data => data.TotalAltas),
+                            type: 'line',
+                            borderColor: 'rgba(235, 206, 86, 1)',
+                            borderWidth: 2,
+                            yAxisID: 'y1',
+                        },
+                        {
+                            label: 'Médicos Disponibles',
+                            data: chartData.map(data => data.MedicosDisponibles),
+                            type: 'line',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 2,
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false, // Ensure this dataset does not draw on the same grid
+                            },
                         },
                     },
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-            }
-        });
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
     };
 
 
@@ -645,13 +659,16 @@ const Dashboard = () => {
                 <Box className="chart-container dashboardPromedioDuracionAtencion">
                     <BoxTitle>Tendencia ingresos y altas de pacientes</BoxTitle>
                     <ChartContainerTime>
-                        {chartData && chartData.length > 0 ? (
+                        {isTendenceDataLoaded && chartData && chartData.length > 0 ? (
                             <canvas ref={chartRefData} style={{ width: '100%', height: '400px' }} />
-                        ) : (
+                        ) : isTendenceDataLoaded ? (
                             <NoDataMessage />
+                        ) : (
+                            <p>Cargando datos...</p>
                         )}
                     </ChartContainerTime>
                 </Box>
+
                 <Box className={"dashboardUltimosPacientesIngresados"}>
                     <BoxTitle>ULTIMOS PACIENTES INGRESADOS</BoxTitle>
                     <TableContainer>
