@@ -39,21 +39,23 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
-    const chartRefTime = useRef(null);
-    const chartInstanceTime = useRef(null);
+    const chartInstanceData = useRef(null);
+
+    const chartRefData = useRef(null);
+    const [chartData, setChartData] = useState([]);
     const [errorMessage, setErrorMessage] = useState(null);
     const [fisioterapeutas, setFisioterapeutas] = useState([]);
     const [pacientesAlta, setPacientesAlta] = useState([]);
     const [pacientesIngresados, setPacientesIngresados] = useState([]);
     const [areasAfectadas, setAreasAfectadas] = useState([]);
     const [pacientesPorMedico, setPacientesPorMedico] = useState([]);
-    const [promedioTiempoTratamientoPorMes, setPromedioTiempoTratamientoPorMes] = useState([]);
     const [selectedFileUrl, setSelectedFileUrl] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [citasSemanales, setCitasSemanales] = useState(null);
+    const [tasaIngresoAlta, setTasaIngresoAlta] = useState(null);
     const [horasCitas, setHorasCitas] = useState([]);
     const histogramaRef = useRef(null);
+    const [isHistogramDataLoaded, setIsHistogramDataLoaded] = useState(false);
 
 
     const filteredFisioterapeutas = fisioterapeutas.filter(fisio =>
@@ -73,7 +75,6 @@ const Dashboard = () => {
             fetchPacientesAlta(idSedeActual);
             fetchPacientesIngresados(idSedeActual);
             fetchPacientesAsignados(idSedeActual);
-            fetchCitasSemanales(idSedeActual);
             fetchHistogramaDeHoras(idSedeActual);
         }
 
@@ -255,14 +256,23 @@ const Dashboard = () => {
             saveAs(blob, `${nombreArchivoBase}_${formattedDateTime}.xlsx`);
         });
     };
-    const fetchCitasSemanales = async (idSedeActual) => {
+    const fetchData = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/dashboard/promedioPacientesDia/${idSedeActual}`);
-            setCitasSemanales(response.data.citasSemanales);
+            const response = await axios.get(`${API_BASE_URL}/dashboard/tasaDeIngresoAlta/${idSedeActual}`);
+            if (response.data.datos && response.data.datos.length > 0) {
+                createCombinedChart(response.data.datos);
+            } else {
+                console.log("No data received for chart");
+            }
         } catch (error) {
-            console.error("Error al obtener las citas semanales:", error);
+            console.error("Error al obtener los datos:", error);
         }
     };
+
+    useEffect(() => {
+        fetchData();
+    }, [idSedeActual]);
+
 
     function convertToNormalDateOnly(isoDate) {
         const date = new Date(isoDate);
@@ -354,80 +364,78 @@ const Dashboard = () => {
 
 
     // ESTA ES LA PETICIÓN  PARA GRÁFICA POR TIEMPO DE PACIENTeE
-    const createChartTime = () => {
-        if (chartRefTime.current && citasSemanales) {
-            const ctx = chartRefTime.current.getContext('2d');
-            if (chartInstanceTime.current) {
-                chartInstanceTime.current.destroy();
-            }
 
-            const labels = citasSemanales.map((item) =>
-                moment(item.Dia).format('dddd, MMMM Do'));
+    const createCombinedChart = (chartData) => {
+        const ctx = chartRefData.current.getContext('2d');
 
-            const data = citasSemanales.map((item) => item.Cantidad_Pacientes_Atendidos);
-
-            chartInstanceTime.current = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Cantidad de Pacientes Atendidos por Día',
-                            data: data,
-                            borderColor: 'rgba(31, 136, 162, 1)',
-                            borderWidth: 2,
-                            fill: true,
-                            backgroundColor: 'rgba(31, 136, 162, 0.2)',
-                        },
-                    ],
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'category',
-                            position: 'bottom',
-                        },
-                        y: {
-                            beginAtZero: true,
-                        },
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                        },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                        },
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                },
-            });
+        if (chartInstanceData.current) {
+            chartInstanceData.current.destroy();
         }
-    };
-    useEffect(() => {
-        createChartTime();
-    }, [promedioTiempoTratamientoPorMes]);
 
-
-    useEffect(() => {
-        createChartTime();
-    }, [citasSemanales]);
-
-
-    useEffect(() => {
-        createChartTime();
-
-        return () => {
-            if (chartInstanceTime.current) {
-                chartInstanceTime.current.destroy();
+        chartInstanceData.current = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.map(data => moment(data.Fecha).format('MM/DD/YYYY')),
+                datasets: [
+                    {
+                        label: 'Citas Programadas',
+                        data: chartData.map(data => data.CitasProgramadas),
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Citas Realizadas',
+                        data: chartData.map(data => data.CitasRealizadas),
+                        backgroundColor: 'rgba(192, 75, 75, 0.5)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Ingresos',
+                        data: chartData.map(data => data.TotalIngresos),
+                        type: 'line',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1',
+                    },
+                    {
+                        label: 'Altas',
+                        data: chartData.map(data => data.TotalAltas),
+                        type: 'line',
+                        borderColor: 'rgba(235, 206, 86, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1',
+                    },
+                    {
+                        label: 'Médicos Disponibles',
+                        data: chartData.map(data => data.MedicosDisponibles),
+                        type: 'line',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1',
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false, // Ensure this dataset does not draw on the same grid
+                        },
+                    },
+                },
+                responsive: true,
+                maintainAspectRatio: false,
             }
-        };
-    }, [promedioTiempoTratamientoPorMes]);
-
+        });
+    };
 
 
 
@@ -467,14 +475,17 @@ const Dashboard = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionHorasCitas/${idSedeActual}`);
             setHorasCitas(response.data);
+            setIsHistogramDataLoaded(true);
         } catch (error) {
             console.error("Error al obtener datos para el histograma:", error);
+            setIsHistogramDataLoaded(false);
         }
     };
 
     useEffect(() => {
-        const ctx = histogramaRef.current.getContext('2d');
-        if (ctx && horasCitas && Array.isArray(horasCitas.distribucionHorasCitas)) {
+        if (histogramaRef.current && isHistogramDataLoaded && horasCitas && Array.isArray(horasCitas.distribucionHorasCitas)) {
+            const ctx = histogramaRef.current.getContext('2d');
+
             const chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -569,6 +580,10 @@ const Dashboard = () => {
         }
     };
 
+    const NoDataMessage = () => (
+        <div style={{ textAlign: 'center', padding: '20px' }}>No se encontraron datos.</div>
+    );
+
     return (
         <div>
 
@@ -628,9 +643,13 @@ const Dashboard = () => {
 
 
                 <Box className="chart-container dashboardPromedioDuracionAtencion">
-                    <BoxTitle>Cantidad Pacientes por día</BoxTitle>
+                    <BoxTitle>Tendencia ingresos y altas de pacientes</BoxTitle>
                     <ChartContainerTime>
-                        <canvas ref={chartRefTime} style={{ width: '100%'}}></canvas>
+                        {chartData && chartData.length > 0 ? (
+                            <canvas ref={chartRefData} style={{ width: '100%', height: '400px' }} />
+                        ) : (
+                            <NoDataMessage />
+                        )}
                     </ChartContainerTime>
                 </Box>
                 <Box className={"dashboardUltimosPacientesIngresados"}>
@@ -673,8 +692,11 @@ const Dashboard = () => {
                     <BoxTitleMobile>CARGA DE PERSONAL</BoxTitleMobile>
 
                     <ChartContainer>
-
-                        <canvas ref={chartRef}></canvas>
+                        {pacientesPorMedico && pacientesPorMedico.length > 0 ? (
+                            <canvas ref={chartRef} />
+                        ) : (
+                            <NoDataMessage />
+                        )}
                     </ChartContainer>
 
 
@@ -725,7 +747,9 @@ const Dashboard = () => {
 
                 <Box className="graficaHistogramaHorasCitas">
                     <BoxTitleMobile>Horas más ocupadas</BoxTitleMobile>
-                    <canvas ref={histogramaRef}></canvas>
+                        <canvas ref={histogramaRef} />
+                    {isHistogramDataLoaded && horasCitas && horasCitas.length === 0 && <NoDataMessage />}
+
                 </Box>
 
             </Content>
