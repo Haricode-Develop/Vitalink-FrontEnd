@@ -85,8 +85,8 @@ const AppointmentCalendar = () => {
     const [allEvents, setAllEvents] = useState([]);
     const calendarRef = useRef(null);
     const [modalCalendarOpen, setModalCalendarOpen] = useState(false);
-    const [selectedDayEvents, setSelectedDayEvents] = useState([]);
     const [estadosCargados, setEstadosCargados] = useState(false);
+    const [currentMonth, setCurrentMonth] = useState(moment().month() + 1);
 
     const handlePatientClick = (patient) => {
         const validDate = selectedDate instanceof Date && !isNaN(selectedDate);
@@ -174,6 +174,7 @@ const AppointmentCalendar = () => {
             }
         }
     };
+
     const handleSelectPatientFromCalendar = (cita) => {
         if (cita.extendedProps.idUsuario) {
             const patient = pacientesConCitaFilter.find(p => p.idUsuario === cita.extendedProps.idUsuario);
@@ -312,6 +313,9 @@ const AppointmentCalendar = () => {
         filteredData();
 
     }, [allEvents, filter]);
+
+
+
     const handleFilterChange = (newFilter) => {
         setFilter(newFilter);
         setShouldFilterEvents(true);
@@ -383,8 +387,8 @@ const AppointmentCalendar = () => {
                     setFilteredPacientes(newPacientes);
                     setSelectedEstado('');
                     setModalIsOpen(false);
-                    await cargarPacientesConCita();
-                    await cargarPacientesConCitaHistorial();
+                    await cargarPacientesConCita(currentMonth);
+                  //  await cargarPacientesConCitaHistorial();
 
                     setTimeout(() => {
                         calendarRef.current.getApi().refetchEvents();
@@ -510,8 +514,8 @@ const AppointmentCalendar = () => {
                     setAllEvents(updatedEvents);
 
                     setModalIsOpen(false);
-                    await cargarPacientesConCita();
-                    await cargarPacientesConCitaHistorial();
+                    await cargarPacientesConCita(currentMonth);
+                  //  await cargarPacientesConCitaHistorial();
 
                 })
                 .catch(error => {
@@ -547,7 +551,7 @@ const AppointmentCalendar = () => {
 
         return newTimeString;
     }
-    const cargarPacientesConCitaHistorial = async () => {
+   /* const cargarPacientesConCitaHistorial = async () => {
         try{
             const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${idSedeActual}`);
             if (response.data && Array.isArray(response.data.historialCitas)) {
@@ -611,10 +615,42 @@ const AppointmentCalendar = () => {
             console.error('Error al cargar citas historial:', error);
 
         }
-    }
-    const cargarPacientesConCita = async () => {
+    }*/
+    const handleDatesSet = (info) => {
+        const start = moment(info.start);
+        const end = moment(info.end);
+
+        const daysInMonths = {};
+
+        while (start.isBefore(end, 'day')) {
+            const month = start.month();
+            if (daysInMonths[month]) {
+                daysInMonths[month] += 1;
+            } else {
+                daysInMonths[month] = 1;
+            }
+            start.add(1, 'day');
+        }
+
+        let maxDays = 0;
+        let currentMonth = null;
+        for (const [month, days] of Object.entries(daysInMonths)) {
+            if (days > maxDays) {
+                maxDays = days;
+                currentMonth = parseInt(month) + 1;
+            }
+        }
+
+        setCurrentMonth(currentMonth);
+
+        cargarPacientesConCita(currentMonth);
+    };
+
+
+
+    const cargarPacientesConCita = async (currentMonth) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${idSedeActual}`);
+            const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${idSedeActual}/${currentMonth}`);
             if (response.data && Array.isArray(response.data.pacientesConCita)) {
                 const eventos = response.data.pacientesConCita.map(cita => {
                     const fechaCita = cita.fechaCita.split('T')[0];
@@ -683,12 +719,12 @@ const AppointmentCalendar = () => {
         useEffect(() => {
 
             const loadData = async () => {
-                await cargarPacientesConCita();
-                await cargarPacientesConCitaHistorial();
+                await cargarPacientesConCita(currentMonth);
+             //   await cargarPacientesConCitaHistorial();
 
             };
             loadData();
-    }, [idSedeActual,estados]);
+    }, [idSedeActual,estados, currentMonth]);
 
 
 
@@ -732,7 +768,7 @@ const AppointmentCalendar = () => {
                     events={currentEvents}
                     eventColor={colorEvent}
                     eventClick={handleEventClick}
-
+                    datesSet={handleDatesSet}
                     dateClick={handleDateClick}
                 />
 
@@ -925,7 +961,7 @@ const AppointmentCalendar = () => {
                 selectedDate={selectedDate}
                 onPatientSelect={handleSelectPatientFromCalendar}
                 citas={currentEvents}
-                cargarCitas={cargarPacientesConCitaHistorial}
+                //cargarCitas={cargarPacientesConCitaHistorial}
                 actualizarCita={handleUpdateCita}
                 estados={estados}
                 addExternalAppointment={addExternalAppointment}
