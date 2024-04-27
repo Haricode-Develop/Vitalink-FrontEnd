@@ -22,8 +22,8 @@ const slideDownAnimation = keyframes`
 
 export const CustomModal = styled(Modal)`
   position: fixed;
-  top: 35%;
-  left: 35%;
+  top: 25%;
+  left: 30%;
   right: auto;
   bottom: auto;
   transform: translateY(-50%) translateX(-50%);

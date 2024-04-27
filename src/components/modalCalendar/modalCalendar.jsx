@@ -7,12 +7,18 @@ import moment from 'moment';
 import 'moment/locale/es';
 import {AuthContext} from "../../context/AuthContext";
 import {useSede} from "../../context/SedeContext";
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { getCountryCallingCode } from 'libphonenumber-js';
 
 moment.locale('es');
+const defaultCountryCode = 'GT';
+const defaultCountryCallingCode = `+${getCountryCallingCode(defaultCountryCode)}`;
 
 const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, citas, estados, addExternalAppointment }) => {
     const { userData } = useContext(AuthContext);
     const { idSedeActual } = useSede();
+    const [phone, setPhone] = useState(defaultCountryCallingCode);
 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
@@ -33,6 +39,10 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     };
     const agregarCitaExterna = (event) => {
         event.preventDefault();
+        if (!isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
+            alert('Por favor, ingrese un número de teléfono válido con la extensión.');
+            return;
+        }
         const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
         const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
         addExternalAppointment({
@@ -52,6 +62,11 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             zIndex: 1030
         }
     };
+
+    const handlePhoneChange = (value) => {
+        setExternalAppointment({ ...externalAppointment, contactoInvitado: value });
+    };
+
 
     return ReactDOM.createPortal(
         <CustomModal
@@ -89,15 +104,32 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 name="nombreInvitado"
                                 value={externalAppointment.nombreInvitado}
                                 onChange={handleInputChange}
-                                required />
-                            <StyledInput
-                                type="text"
-                                placeholder="Contacto (teléfono o email)"
-                                name="contactoInvitado"
-                                value={externalAppointment.contactoInvitado}
-                                onChange={handleInputChange}
-                                required />
+                                required
+                            />
                         </InputGroup>
+                        <InputGroup>
+                            <PhoneInput
+                                international
+                                defaultCountry="GT"
+                                country={defaultCountryCode}
+                                value={externalAppointment.contactoInvitado}
+                                onChange={handlePhoneChange}
+                                placeholder="Número de teléfono"
+                                required
+                            />
+                            <StyledSelect
+                                name="estado"
+                                value={externalAppointment.estado}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="">Seleccione un estado</option>
+                                {estados.map(estado => (
+                                    <option key={estado.id} value={estado.id}>{estado.nombre}</option>
+                                ))}
+                            </StyledSelect>
+                        </InputGroup>
+
                         <InputGroup>
                             <StyledInput
                                 type="number"
@@ -105,7 +137,9 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 name="hora"
                                 value={externalAppointment.hora}
                                 onChange={handleInputChange}
-                                min="0" max="23" required />
+                                min="0" max="23"
+                                required
+                            />
                             <StyledLabel>:</StyledLabel>
                             <StyledInput
                                 type="number"
@@ -113,18 +147,10 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 name="minutos"
                                 value={externalAppointment.minutos}
                                 onChange={handleInputChange}
-                                min="0" max="59" required />
+                                min="0" max="59"
+                                required
+                            />
                         </InputGroup>
-                        <StyledSelect
-                            name="estado"
-                            value={externalAppointment.estado}
-                            onChange={handleInputChange}
-                            required>
-                            <option value="">Seleccione un estado</option>
-                            {estados.map(estado => (
-                                <option key={estado.id} value={estado.id}>{estado.nombre}</option>
-                            ))}
-                        </StyledSelect>
                         <Button type="submit">Agregar Cita</Button>
                     </Form>
                 </TabPanel>

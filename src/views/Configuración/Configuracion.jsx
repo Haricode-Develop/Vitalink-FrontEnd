@@ -3,7 +3,7 @@
 import React, {useState, useRef, useEffect, useContext} from 'react';
 import { TabBar, Tab, TabContent, ActiveIndicator, ConfigurationWrapper, ConfigurationItem, ConfigurationLabel, ConfigurationInput, ConfigurationInputCheckbox, ModalContent } from './ConfiguracionStyle';
 import axios from 'axios';
-import {API_BASE_URL} from "../../utils/config";
+import {API_BASE_URL, API_BASE_URL_INSIGHT} from "../../utils/config";
 import {AuthContext} from "../../context/AuthContext";
 import { useWebSocket } from '../../context/WebSocketContext';
 import {StyledModal} from "../../components/Modal";
@@ -81,8 +81,9 @@ const Configuracion = () => {
         if (clave === 'whatsapp_activado' && nuevoValor) {
             setLoadingQR(true);
             try {
-                const response = await axios.post(`${API_BASE_URL}/configuraciones/activar-whatsapp/${idSedeActual}/${userData.id_usuario}`);
+                const response = await axios.post(`${API_BASE_URL_INSIGHT}/reminders/whatsapp/activate/${idSedeActual}/${userData.id_usuario}`);
                 setLoadingQR(false);
+                console.log("ESTA ES LA RESPUESTA: ", response);
                 if (response.data.success) {
                     setQrCode(response.data.qrCode);
                     setModalImageKey(prevKey => prevKey + 1);
@@ -99,7 +100,7 @@ const Configuracion = () => {
             // Manejo de la desactivación de WhatsApp
         } else if (clave === 'whatsapp_activado' && !nuevoValor) {
             try {
-                const response = await axios.post(`${API_BASE_URL}/configuraciones/desactivar-whatsapp/${idSedeActual}`);
+                const response = await axios.post(`${API_BASE_URL_INSIGHT}/reminders/whatsapp/desactivar/${idSedeActual}`);
                 if (!response.data.success) {
                     console.error('Error al desactivar WhatsApp:', response.data.error);
                 }
@@ -129,10 +130,19 @@ const Configuracion = () => {
         if (!ws) return;
 
         const handleMessage = (event) => {
-            const message = JSON.parse(event.data);
-            if (message.type === 'WHATSAPP_SESSION_STARTED') {
-                setShowQRModal(false);
-                toast.success('Sesión de WhatsApp iniciada correctamente');
+            const data = JSON.parse(event.data);
+            console.log("Entre al handle Message", data);
+            if (data.type === 'WHATSAPP_ACTIVATED') {
+                const { isActivated, message } = data;
+
+                // La lógica para manejar el estado activado o desactivado
+                if (isActivated) {
+                    setShowQRModal(false);
+                    toast.success(`WhatsApp activado: ${message}`);
+                } else {
+                    setShowQRModal(false);
+                    toast.error(`WhatsApp desactivado: ${message}`);
+                }
             }
         };
 
@@ -142,6 +152,7 @@ const Configuracion = () => {
             ws.removeEventListener('message', handleMessage);
         };
     }, [ws]);
+
 
 
     return (

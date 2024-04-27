@@ -15,6 +15,12 @@ import { StyledModal } from "../../../components/Modal";
 import moment from "moment";
 import {useSede} from "../../../context/SedeContext";
 
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
+moment.locale('es');
+const defaultCountryCode = 'GT';
+
 const FichaExtremidadesInferiores = () => {
     const [selectedBodyParts, setSelectedBodyParts] = useState([]);
     const { userData } = useContext(AuthContext);
@@ -56,6 +62,9 @@ const FichaExtremidadesInferiores = () => {
             parsedData.medicacionOpcion = parsedData.medicacionOpcion || [];
             parsedData.resumen = parsedData.resumen || [];
             parsedData.zonasAExplorar = parsedData.zonasAExplorar || [];
+            parsedData.idSede = idSedeActual;
+            parsedData.idInstitucion = userData.id_institucion;
+            parsedData.rol = 1;
             return parsedData;
         } else {
             return {
@@ -311,14 +320,35 @@ const FichaExtremidadesInferiores = () => {
     };
 
     const handleDateChange = (date) => {
-        const formattedDate = moment(date).format('YYYY-MM-DD');
-        setFormValues({ ...formValues, fechaNac: formattedDate });
+        setFormValues(prevState => ({
+            ...prevState,
+            fechaNac: moment(date).format("YYYY-MM-DD")
+        }));
+    };
+
+    const handlePhoneChange = (value) => {
+        setFormValues((prevState) => ({
+            ...prevState,
+            telefono: value,
+        }));
     };
 
 
+    const getValidDate = (dateString) => {
+        const date = moment(dateString);
+        return date.isValid() ? date.toDate() : null;
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        if (!isPossiblePhoneNumber(formValues.telefono)) {
+            toast.warn('Por favor, ingrese un número de teléfono válido con la extensión.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
         const sintomasPeoresValues = [];
         const mejorasValues = [];
         const fichaJson = {
@@ -424,25 +454,30 @@ const FichaExtremidadesInferiores = () => {
 
                 {/* Teléfono */}
                 <label htmlFor="telefono">Teléfono</label>
-                <input
-                    type="tel"
+                <PhoneInput
+                    international
+                    defaultCountry="GT"
                     id="telefono"
                     name="telefono"
+                    country={defaultCountryCode}
                     value={formValues.telefono}
-                    onChange={handleInputChange}
+                    onChange={handlePhoneChange}
+                    placeholder="Número de teléfono"
+                    required
                 />
-
 
                 {/* Fecha de Nacimiento */}
                 <Label htmlFor="fechaNac">Fecha de Nacimiento</Label>
                 <DatePickerWrapper>
                     <DatePicker
-                        selected={moment(formValues.fechaNac).toDate()}
+                        selected={getValidDate(formValues.fechaNac)}
                         onChange={handleDateChange}
                         dateFormat="dd/MM/yyyy"
                         showYearDropdown
                         showMonthDropdown
                         dropdownMode="select"
+                        yearDropdownItemNumber={60}
+                        scrollableYearDropdown={true}
                         placeholderText="Selecciona una fecha"
                     />
                 </DatePickerWrapper>

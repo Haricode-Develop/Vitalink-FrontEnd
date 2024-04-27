@@ -17,6 +17,7 @@ import {toast, ToastContainer } from "react-toastify";
 import Vita from "./img/vita.png"
 import {AuthContext} from "../../context/AuthContext";
 import { useSede } from '../../context/SedeContext';
+
 const messages = [
     "Bienvenido!", // Español
     "Soy Vita, tu asistente de bienestar. ¿Cómo puedo asistirte hoy?",
@@ -42,6 +43,8 @@ const HeartIconAnimation = ({ animationData }) => {
     const animationContainer = useRef(null);
     const [selectedSede, setSelectedSede] = useState(idSedeActual);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isTouching, setIsTouching] = useState(false);
+    const [isScrolling, setIsScrolling] = useState(false);
 
     const [formData, setFormData] = useState({
         nombreCompleto: '',
@@ -164,6 +167,30 @@ const HeartIconAnimation = ({ animationData }) => {
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolling(true);
+            setTimeout(() => setIsScrolling(false), 2000);
+        };
+
+        const handleTouchStart = () => {
+            setIsTouching(true);
+        };
+        const handleTouchEnd = () => {
+            setIsTouching(false);
+        };
+
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
 
 
     return (
@@ -224,7 +251,7 @@ const HeartIconAnimation = ({ animationData }) => {
             <Tutorial isActive={isTutorialActive} onClose={closeTutorial} />
 
 
-            {!showPopup && messageQueue.map((message, index) => (
+            {!showPopup  && !isScrolling && !isTouching && messageQueue.map((message, index) => (
                 <MessagePopup key={index}>
                     <p>{message}</p>
                 </MessagePopup>
