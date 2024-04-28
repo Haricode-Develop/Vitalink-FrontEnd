@@ -469,7 +469,6 @@ const AppointmentCalendar = () => {
             dateWithTime.setHours(parseInt(selectedEvent.hour, 10), parseInt(selectedEvent.minute, 10));
             const formattedDate = moment(dateWithTime).format('YYYY-MM-DD');
             const formattedTime = `${selectedEvent.hour.padStart(2, '0')}:${selectedEvent.minute.padStart(2, '0')}`;
-
             const estadoName = findEstadoNameById(selectedEvent.idEstado);
 
             let isDateChanged = false;
@@ -491,8 +490,6 @@ const AppointmentCalendar = () => {
                 }
                 return event;
             });
-
-
 
 
             axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
@@ -653,13 +650,15 @@ const AppointmentCalendar = () => {
             const response = await axios.get(`${API_BASE_URL}/paciente/todosLosPacientesConCita/${idSedeActual}/${currentMonth}`);
             if (response.data && Array.isArray(response.data.pacientesConCita)) {
                 const eventos = response.data.pacientesConCita.map(cita => {
+                    const horaCitaSinSegundos = removeSeconds(cita.horaCita);
                     const fechaCita = cita.fechaCita.split('T')[0];
-                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.horaCita)}`;
+                    const fechaYHoraCita = `${fechaCita}T${horaCitaSinSegundos}`;
 
                     const title = cita.nombre && cita.apellido
                         ? `${cita.nombre} ${cita.apellido}`
                         : cita.nombreInvitado;
                     const estadoNombre = findEstadoNameById(cita.idEstado);
+
                     let color;
                     switch (estadoNombre) {
                         case 'Completada':
@@ -681,8 +680,8 @@ const AppointmentCalendar = () => {
                         allDay: false,
                         color: color,
                         extendedProps: {
-                            estado: findEstadoNameById(cita.idEstado),
-                            startTime: removeSeconds(cita.horaCita),
+                            estado: estadoNombre,
+                            startTime: horaCitaSinSegundos,
                             idCita: cita.idCita,
                             idUsuario: cita.idUsuario,
                             nombreInvitado: cita.nombreInvitado,
@@ -717,11 +716,12 @@ const AppointmentCalendar = () => {
     }, []);
 
         useEffect(() => {
-
             const loadData = async () => {
-                await cargarPacientesConCita(currentMonth);
-             //   await cargarPacientesConCitaHistorial();
 
+                if (idSedeActual && estados.length > 0 && currentMonth) {
+                    await cargarPacientesConCita(currentMonth);
+                    //   await cargarPacientesConCitaHistorial();
+                }
             };
             loadData();
     }, [idSedeActual,estados, currentMonth]);
