@@ -141,7 +141,7 @@ const Configuracion = () => {
                     toast.success(`WhatsApp activado: ${message}`);
                 } else {
                     setShowQRModal(false);
-                    toast.error(`WhatsApp desactivado: ${message}`);
+                    toast.warn(`WhatsApp desactivado: ${message}`);
                 }
             }
         };

@@ -1,15 +1,17 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { CustomModal, Button, EventList, EventListItem, Input, Form, StyledInput, StyledSelect, InputGroup, StyledLabel} from "./modalCalendarStyle";
+import { CustomModal, Button, EventList, EventListItem, Input, Form, StyledInput, StyledSelect, InputGroup, StyledLabel, StyledList, StyledListItem} from "./modalCalendarStyle";
 import moment from 'moment';
+import axios from "axios";
 import 'moment/locale/es';
 import {AuthContext} from "../../context/AuthContext";
 import {useSede} from "../../context/SedeContext";
 import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { getCountryCallingCode } from 'libphonenumber-js';
+import { API_BASE_URL } from "../../utils/config";
 
 moment.locale('es');
 const defaultCountryCode = 'GT';
@@ -19,6 +21,8 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const { userData } = useContext(AuthContext);
     const { idSedeActual } = useSede();
     const [phone, setPhone] = useState(defaultCountryCallingCode);
+    const [phoneNumbers, setPhoneNumbers] = useState([]);
+    const phoneInputRef = useRef(null);
 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
@@ -33,10 +37,21 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         hora: '00',
         minutos: '00'
     });
-    const handleInputChange = (e) => {
+    const handleInputChange = async (e) => {
         const { name, value } = e.target;
-        setExternalAppointment({ ...externalAppointment, [name]: value });
+        setExternalAppointment(prev => ({ ...prev, [name]: value }));
+
+        if (name === 'nombreInvitado' && value.trim() !== '') {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/calendario/recomendacionContacto`, { params: { nombre: value.trim() } });
+                setPhoneNumbers(response.data.map(phone => phone.Telefono_Usuario || phone.Telefono_Invitado));
+            } catch (error) {
+                console.error('Error fetching contact recommendations:', error);
+                setPhoneNumbers([]);
+            }
+        }
     };
+
     const agregarCitaExterna = (event) => {
         event.preventDefault();
         if (!isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
@@ -55,6 +70,13 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             contactoInvitado: externalAppointment.contactoInvitado,
             idSede: idSedeActual
         });
+        setExternalAppointment({
+            nombreInvitado: '',
+            contactoInvitado: defaultCountryCallingCode,
+            estado: '',
+            hora: '00',
+            minutos: '00'
+        });
     };
 
     const customStyles = {
@@ -63,10 +85,38 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         }
     };
 
-    const handlePhoneChange = (value) => {
-        setExternalAppointment({ ...externalAppointment, contactoInvitado: value });
+    const handlePhoneChange = (selectedPhone) => {
+        console.log("ESTE ES EL TELEFONO: ", selectedPhone);
+        setExternalAppointment({ ...externalAppointment, contactoInvitado: selectedPhone });
+        console.log("ESTE ES EL EXTERNAL APPOINTMENT: ", externalAppointment);
+        setPhoneNumbers([]);
     };
 
+    const handleSelectPhoneNumber = (phone) => {
+        console.log("ESTE ES EL TELEFONO SELECCIONADO");
+        setExternalAppointment(prev => ({
+            ...prev,
+            contactoInvitado: phone.includes('+') ? phone : `+${phone}`
+        }));
+        console.log("ESTOS SON LOS EXTERNAL: ", externalAppointment);
+        setPhoneNumbers([]);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+
+            if (!phoneInputRef && !phoneInputRef.current &&!phoneInputRef.current.contains(event.target)) {
+                setPhoneNumbers([]);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchend', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchend', handleClickOutside);
+        };
+    }, []);
 
     return ReactDOM.createPortal(
         <CustomModal
@@ -109,14 +159,23 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                         </InputGroup>
                         <InputGroup>
                             <PhoneInput
+                                ref={phoneInputRef}
                                 international
-                                defaultCountry="GT"
-                                country={defaultCountryCode}
+                                defaultCountry={defaultCountryCode}
                                 value={externalAppointment.contactoInvitado}
                                 onChange={handlePhoneChange}
                                 placeholder="Número de teléfono"
                                 required
                             />
+                            {phoneNumbers.length > 0 && (
+                                <StyledList style={{ position: 'absolute', left: '59px', width: '208px', zIndex: 1050, background: 'rgba(255, 255, 255, 0.9)' }}>
+                                    {phoneNumbers.map((phone, index) => (
+                                        <StyledListItem key={index} onClick={() => handleSelectPhoneNumber(phone)}>
+                                            {phone}
+                                        </StyledListItem>
+                                    ))}
+                                </StyledList>
+                            )}
                             <StyledSelect
                                 name="estado"
                                 value={externalAppointment.estado}

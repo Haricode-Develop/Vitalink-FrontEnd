@@ -161,3 +161,31 @@ export const StyledSelect = styled.select`
   cursor: pointer;
 
 `;
+export const StyledList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  top: 254px; // Valor predeterminado para no móviles
+  left: 59px;
+  width: 208px;
+  max-height: 100px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1040;
+
+  @media (max-width: 768px) {
+    top: 264px;
+  }
+`;
+
+export const StyledListItem = styled.li`
+  padding: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;

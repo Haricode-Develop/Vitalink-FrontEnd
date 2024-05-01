@@ -98,7 +98,12 @@ const AppointmentCalendar = () => {
     };
 
     const findEstadoNameById = (id) => {//
-        const estado = estados.find(e => String(e.id) === String(id));
+        const estado = estados.find(e => {
+            console.log("Valor de String(e.id):", String(e.id));
+            console.log("Valor de String(id):", String(id));
+            return String(e.id) === String(id);
+        });
+
         return estado ? estado.nombre : 'Estado no encontrado';
     };
     const handleSearchSubmit = () => {
@@ -548,71 +553,7 @@ const AppointmentCalendar = () => {
 
         return newTimeString;
     }
-   /* const cargarPacientesConCitaHistorial = async () => {
-        try{
-            const response = await axios.get(`${API_BASE_URL}/paciente/historialCitas/${idSedeActual}`);
-            if (response.data && Array.isArray(response.data.historialCitas)) {
-                const eventos = response.data.historialCitas.map(cita => {
-                    const fechaCita = cita.fechaCita.split('T')[0];
-                    const fechaYHoraCita = `${fechaCita}T${removeSeconds(cita.horaCita)}`;
-                    const title = cita.nombre && cita.apellido
-                        ? `${cita.nombre} ${cita.apellido}`
-                        : cita.nombre;
-                    return {
-                        id: `event-${cita.idUsuario}-${cita.idCita}`,
-                        title: title,
-                        start: new Date(fechaYHoraCita),
-                        allDay: false,
-                        color: 'red',
-                        extendedProps: {
-                            estado: findEstadoNameById(cita.idEstado),
-                            startTime: removeSeconds(cita.horaCita),
-                            idCita: cita.idCita,
-                            idUsuario: cita.idUsuario,
-                            nombreInvitado: cita.nombreInvitado,
-                            contactoInvitado: cita.contactoInvitado,
-                            idEstado: cita.idEstado,
-                            readOnly: true,
-                        }
-                    };
-                });
 
-
-                const eventosUnicos = eventos.filter((eventos, index, self) =>
-                    index === findLastIndex(self, (e) => e.extendedProps.idCita === eventos.extendedProps.idCita)
-                );
-                const pacientesConCita = response.data.historialCitas.map((paciente, index) => ({
-                    ...paciente,
-                    idUsuario: paciente.idUsuario || `generated-id-${index}`,
-                }));
-
-                setPacientesConCitaHistorialFilter(pacientesConCita);
-                setCurrentEvents(current => {
-                    const eventosActualesUnicos = current.filter((currentEvent, index, self) =>
-                            index === self.findIndex((e) => (
-                                e.extendedProps.idCita === currentEvent.extendedProps.idCita
-                            ))
-                    );
-
-                    return [...eventosActualesUnicos, ...eventosUnicos];
-                });
-                setAllEvents(current => {
-                    const eventosActualesUnicos = current.filter((currentEvent, index, self) =>
-                            index === self.findIndex((e) => (
-                                e.extendedProps.idCita === currentEvent.extendedProps.idCita
-                            ))
-                    );
-
-
-                    return [...eventosActualesUnicos, ...eventosUnicos];
-                });
-            }
-
-        }catch (error) {
-            console.error('Error al cargar citas historial:', error);
-
-        }
-    }*/
     const handleDatesSet = (info) => {
         const start = moment(info.start);
         const end = moment(info.end);
@@ -639,7 +580,6 @@ const AppointmentCalendar = () => {
         }
 
         setCurrentMonth(currentMonth);
-
         cargarPacientesConCita(currentMonth);
     };
 
@@ -691,14 +631,16 @@ const AppointmentCalendar = () => {
                         }
                     };
                 });
+                const eventosFiltrados = eventos.filter(evento => evento.color !== 'grey');
+
                 const pacientesConCita = response.data.pacientesConCita.map((paciente, index) => ({
                     ...paciente,
                     idUsuario: paciente.idUsuario || `generated-id-${index}`,
                 }));
 
                 setPacientesConCitaFilter(pacientesConCita);
-                setCurrentEvents(eventos);
-                setAllEvents(eventos);
+                setCurrentEvents(eventosFiltrados);
+                setAllEvents(eventosFiltrados);
             } else {
                 toast.error('No se recibieron datos de citas.', {
                     position: toast.POSITION.TOP_RIGHT,
@@ -765,6 +707,8 @@ const AppointmentCalendar = () => {
                     ref={calendarRef}
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialView='dayGridMonth'
+                    fixedWeekCount={false}
+                    showNonCurrentDates={false}
                     events={currentEvents}
                     eventColor={colorEvent}
                     eventClick={handleEventClick}
@@ -902,15 +846,6 @@ const AppointmentCalendar = () => {
                     </InputGroup>
 
                     <FilterGroup>
-                        {/* <StyledLabel>Filtrar por:</StyledLabel>
-                        <StyledSelect
-                            value={filter}
-                            onChange={(e) => handleFilterChange(e.target.value)}
-                        >
-                            <option value={FILTER_OPTIONS.ALL}>Todos</option>
-                            <option value={FILTER_OPTIONS.PAST}>Pasadas</option>
-                            <option value={FILTER_OPTIONS.CURRENT}>Actuales</option>
-                        </StyledSelect>*/}
                     </FilterGroup>
 
                     <CloseButton onClick={() => setFilterModalOpen(false)}>
@@ -961,7 +896,6 @@ const AppointmentCalendar = () => {
                 selectedDate={selectedDate}
                 onPatientSelect={handleSelectPatientFromCalendar}
                 citas={currentEvents}
-                //cargarCitas={cargarPacientesConCitaHistorial}
                 actualizarCita={handleUpdateCita}
                 estados={estados}
                 addExternalAppointment={addExternalAppointment}
