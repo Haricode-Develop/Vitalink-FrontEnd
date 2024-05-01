@@ -123,7 +123,6 @@ const IngresarFisioterapeuta = () => {
     }
     axios.post(`${API_BASE_URL}/masivo/insertarFisioterapeutaMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_institucion, idUsuarioEditor: userData.id_usuario,tipoCarga})
         .then((response) => {
-          console.log(response);
         })
         .catch((error) => {
           console.log(error);

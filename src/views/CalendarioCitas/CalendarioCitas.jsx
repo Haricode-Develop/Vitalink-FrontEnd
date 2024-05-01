@@ -99,8 +99,6 @@ const AppointmentCalendar = () => {
 
     const findEstadoNameById = (id) => {//
         const estado = estados.find(e => {
-            console.log("Valor de String(e.id):", String(e.id));
-            console.log("Valor de String(id):", String(id));
             return String(e.id) === String(id);
         });
 

@@ -86,19 +86,15 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     };
 
     const handlePhoneChange = (selectedPhone) => {
-        console.log("ESTE ES EL TELEFONO: ", selectedPhone);
         setExternalAppointment({ ...externalAppointment, contactoInvitado: selectedPhone });
-        console.log("ESTE ES EL EXTERNAL APPOINTMENT: ", externalAppointment);
         setPhoneNumbers([]);
     };
 
     const handleSelectPhoneNumber = (phone) => {
-        console.log("ESTE ES EL TELEFONO SELECCIONADO");
         setExternalAppointment(prev => ({
             ...prev,
             contactoInvitado: phone.includes('+') ? phone : `+${phone}`
         }));
-        console.log("ESTOS SON LOS EXTERNAL: ", externalAppointment);
         setPhoneNumbers([]);
     };
 

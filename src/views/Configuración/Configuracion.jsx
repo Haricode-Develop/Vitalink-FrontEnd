@@ -83,7 +83,6 @@ const Configuracion = () => {
             try {
                 const response = await axios.post(`${API_BASE_URL_INSIGHT}/reminders/whatsapp/activate/${idSedeActual}/${userData.id_usuario}`);
                 setLoadingQR(false);
-                console.log("ESTA ES LA RESPUESTA: ", response);
                 if (response.data.success) {
                     setQrCode(response.data.qrCode);
                     setModalImageKey(prevKey => prevKey + 1);
@@ -131,7 +130,6 @@ const Configuracion = () => {
 
         const handleMessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Entre al handle Message", data);
             if (data.type === 'WHATSAPP_ACTIVATED') {
                 const { isActivated, message } = data;
 
