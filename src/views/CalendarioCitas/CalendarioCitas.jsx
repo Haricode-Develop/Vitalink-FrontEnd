@@ -581,6 +581,66 @@ const AppointmentCalendar = () => {
         cargarPacientesConCita(currentMonth);
     };
 
+    const handleEventChange = async (changeInfo) => {
+        const { event } = changeInfo;
+        const idCita = event.extendedProps.idCita;
+        const newStart = event.start;
+        const formattedDate = moment(newStart).format('YYYY-MM-DD');
+        const formattedTime = moment(newStart).format('HH:mm:ss');
+        console.log("ESTE ES EL EVENTO QUE SE VA A ACTUALIZAR", event);
+
+        const nombreInvitado = event.extendedProps.nombreInvitado;
+        console.log("ESTE ES EL NOMBRE DEL INVITADO", nombreInvitado);
+        const idEstado = event.extendedProps.idEstado;
+        const estadoName = findEstadoNameById(idEstado) || "Estado desconocido";
+        const contactoInvitado = event.extendedProps.contactoInvitado;
+        console.log("ESTE ES EL CONTACTO DEL INVITADO", contactoInvitado);
+
+        const idPaciente = event.extendedProps.idUsuario;
+
+        try {
+            await axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
+                idCita: idCita,
+                fechaCita: formattedDate,
+                horaCita: formattedTime,
+                idEstado: idEstado,
+                nombreInvitado: nombreInvitado,
+                contactoInvitado: contactoInvitado,
+                idPaciente: idPaciente,
+                idUsuarioEdita: userData.id_usuario
+            });
+            toast.success('Cita actualizada correctamente.');
+
+            // Actualiza el estado de los eventos asegurándote de que todos los datos necesarios están incluidos.
+
+            const updatedEvents = currentEvents.map(evt => {
+                if (evt.id === event.id) {
+                    const title = nombreInvitado && estadoName
+                        ? `${nombreInvitado} ${estadoName}`
+                        : evt.title;
+                    return {
+                        ...evt,
+                        start: newStart,
+                        title: title,
+                        extendedProps: {
+                            ...evt.extendedProps,
+                            nombreInvitado: nombreInvitado,
+                            estado: estadoName,
+                            contactoInvitado: contactoInvitado
+                        }
+                    };
+                }
+                return evt;
+            });
+            setCurrentEvents(updatedEvents);
+            setAllEvents(updatedEvents);
+        } catch (error) {
+            console.error('Error al actualizar la cita:', error);
+            toast.error('Error al actualizar la cita.');
+            event.revert();
+        }
+    };
+
 
 
     const cargarPacientesConCita = async (currentMonth) => {
@@ -705,14 +765,22 @@ const AppointmentCalendar = () => {
                     ref={calendarRef}
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialView='dayGridMonth'
+                    editable={true}
+                    headerToolbar={{
+                        right: 'prev,next today',
+                        center: 'title',
+                        left: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    }}
                     fixedWeekCount={false}
                     showNonCurrentDates={false}
                     events={currentEvents}
                     eventColor={colorEvent}
                     eventClick={handleEventClick}
+                    eventChange={handleEventChange}
                     datesSet={handleDatesSet}
                     dateClick={handleDateClick}
                 />
+
 
             </CalendarContainer>
 

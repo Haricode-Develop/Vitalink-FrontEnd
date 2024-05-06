@@ -145,9 +145,9 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
     const [formValues, setFormValues] = useState(getInitialFormValues());
 
     const validarYConstruirFichaJson = (fichaJsonOriginal, isEmailRequired) => {
-
         // Copia todos los campos originales
         const fichaJsonValidado = {...fichaJsonOriginal};
+
         let camposAValidar = [
             'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac',
             'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico',
@@ -158,17 +158,33 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             camposAValidar.push('email');
         }
 
-        let camposFaltantes = [];
+        let erroresDeValidacion = [];
 
         // Validar los campos específicos
         camposAValidar.forEach(campo => {
             if (fichaJsonOriginal[campo] === undefined || fichaJsonOriginal[campo] === null || fichaJsonOriginal[campo] === '') {
-                camposFaltantes.push(campo);
+                erroresDeValidacion.push({ campo, error: `El campo ${campo} es requerido.` });
             }
         });
 
-        return { fichaJsonValidado, camposFaltantes };
+        // Validar el número de teléfono
+        if (!isPossiblePhoneNumber(fichaJsonOriginal.telefono)) {
+            erroresDeValidacion.push({ campo: 'telefono', error: 'El número de teléfono es inválido.' });
+        } else if (!fichaJsonOriginal.telefono.startsWith('+')) {
+            erroresDeValidacion.push({ campo: 'telefono', error: 'No se añadió la extensión del país al número de teléfono.' });
+        }
+
+        // Validar el correo electrónico si es requerido
+        if (isEmailRequired) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(fichaJsonOriginal.email)) {
+                erroresDeValidacion.push({ campo: 'email', error: 'El correo electrónico es inválido.' });
+            }
+        }
+
+        return { fichaJsonValidado, erroresDeValidacion };
     };
+
 
 
     useEffect(() => {
@@ -254,13 +270,15 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
             return;
         }
 
-        const { fichaJsonValidado, camposFaltantes } = validarYConstruirFichaJson(formValues);
+        const { fichaJsonValidado, erroresDeValidacion } = validarYConstruirFichaJson(formValues, isEmailRequired);
 
-        if (camposFaltantes.length > 0) {
-            toast.warn(`Faltan datos por llenar: ${camposFaltantes.join(', ')}.`, {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: true,
+        if (erroresDeValidacion.length > 0) {
+            erroresDeValidacion.forEach(({ error }) => {
+                toast.warn(error, {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
             });
             return;
         }
@@ -339,12 +357,31 @@ const FichaColumnaLumbar = ({ resetBodyMap }) => {
         }));
     };
 
-    const handlePhoneChange = (value) => {
-        setFormValues((prevState) => ({
-            ...prevState,
-            telefono: value,
-        }));
+    const handlePhoneChange = (newPhoneNumber) => {
+        if (newPhoneNumber) {
+            // Si el número es válido, lo actualizamos directamente
+            if (isPossiblePhoneNumber(newPhoneNumber)) {
+                setFormValues(prevFormValues => ({
+                    ...prevFormValues,
+                    telefono: newPhoneNumber
+                }));
+            } else {
+                // Si el nuevo valor no es un número válido (posiblemente incompleto), lo mantenemos temporalmente
+                setFormValues(prevFormValues => ({
+                    ...prevFormValues,
+                    telefono: newPhoneNumber
+                }));
+            }
+        } else {
+            // Si el campo está vacío, actualizamos el estado a cadena vacía
+            setFormValues(prevFormValues => ({
+                ...prevFormValues,
+                telefono: ''
+            }));
+        }
     };
+
+
 
 // Asegúrate de que la fecha inicial es válida
     const getValidDate = (dateString) => {

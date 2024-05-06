@@ -141,6 +141,9 @@ export const CalendarContainer = styled.div`
     .fc-day-selected {
       border: 2px solid var(--color-primario);
     }
+    .fc .fc-toolbar{
+      display: block!important;
+    }
   }
 
 `;
@@ -332,6 +335,9 @@ export const LegendContainer = styled.div`
   align-items: center;
   padding: 10px;
   background-color: #f8f8f8;
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 `;
 
 export const LegendItem = styled.div`

@@ -290,10 +290,10 @@ const GestionPacientes = () => {
                                         ))}
                                     </Select>
                                 )}
-                                    <ChangeDoctorButton onClick={handleDoctorChange}>
-                                        <MdSwapHoriz />
-                                        Cambiar Médico
-                                    </ChangeDoctorButton>
+                                        <ChangeDoctorButton onClick={handleDoctorChange}>
+                                            <MdSwapHoriz />
+                                            Cambiar Médico
+                                        </ChangeDoctorButton>
                                 </div>
                             </AssignedDoctor>
                         )}
