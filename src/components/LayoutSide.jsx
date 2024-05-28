@@ -292,8 +292,8 @@ const LayoutSide = ({ children }) => {
           </Sidebar>
           <HeartIconAnimation animationData={heartAnimationData} />
 
-          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
-            {/*  <div style={{
+             <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
+            <div style={{
               alignSelf: 'flex-end',
               position: 'fixed',
               padding: '10px 20px',
@@ -301,7 +301,7 @@ const LayoutSide = ({ children }) => {
               top: '23px',
               zIndex: '100000',
             }}>
-              <FaBell size={30} style={{ filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.3))' }} />
+              {/*<FaBell size={30}/>
               {notificationCount > 0 && (
                   <span style={{
                     position: 'absolute',
@@ -316,10 +316,10 @@ const LayoutSide = ({ children }) => {
                   }}>
         {notificationCount}
       </span>
-              )}
 
+              )}
+*/}
             </div>
-              */}
             <Outlet />
             <div>
               {children}

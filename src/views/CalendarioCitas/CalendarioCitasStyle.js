@@ -363,3 +363,47 @@ export const LegendColor = styled.span`
 export const LegendText = styled.span`
   color: ${props => props.color};
 `;
+
+export const ChatContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+`;
+
+
+export const ChatButton = styled(StyledButton)`
+    width: auto;
+    align-self: flex-end;
+    margin-top: 10px;
+`;
+
+
+export const ChatInput = styled.textarea`
+    width: 100%;
+    height: 100px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+`;
+
+
+export const EmojiIcon = styled.div`
+    position: absolute;
+    bottom: 60px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.5em;
+`;
+
+export const EmojiPickerContainer = styled.div`
+  position: absolute;
+  bottom: 50px;
+  right: 20px;
+  z-index: 1000;
+  width: 100%;
+  max-width: 350px;
+  min-width: 200px;
+  
+`;

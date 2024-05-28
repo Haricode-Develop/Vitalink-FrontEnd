@@ -1,5 +1,5 @@
 // AppointmentCalendar.js
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, {useContext, useEffect, useState, useRef, useCallback} from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -33,10 +33,15 @@ import {
     LegendColor,
     LegendContainer,
     LegendItem,
-    LegendText
+    LegendText,
+    ChatInput,
+    ChatButton,
+    ChatContainer,
+    EmojiIcon,
+    EmojiPickerContainer
 } from './CalendarioCitasStyle';
 import axios from "axios";
-import { API_BASE_URL } from "../../utils/config";
+import { API_BASE_URL, API_BASE_URL_INSIGHT } from "../../utils/config";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
 import { FaFilter, FaSave, FaSearch, FaTimes, FaUndo } from 'react-icons/fa';
@@ -46,7 +51,8 @@ import 'moment/locale/es';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import {useSede} from "../../context/SedeContext";
-
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 moment.locale('es');
 const FILTER_OPTIONS = {
     ALL: 'all',
@@ -87,6 +93,69 @@ const AppointmentCalendar = () => {
     const [modalCalendarOpen, setModalCalendarOpen] = useState(false);
     const [estadosCargados, setEstadosCargados] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(moment().month() + 1);
+    const [selectedMessageOption, setSelectedMessageOption] = useState('');
+    const [customMessage, setCustomMessage] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const emojiPickerRef = useRef(null);
+
+    const handleOptionChange = (option) => {
+        setSelectedMessageOption(option);
+        setCustomMessage('');
+    };
+
+    const handleCustomMessageChange = (e) => {
+        setCustomMessage(e.target.value);
+        setSelectedMessageOption(''); // Desseleccionar cualquier opción de radio
+    };
+
+    const handleEmojiSelect = (emoji) => {
+        setCustomMessage(prevMessage => prevMessage + emoji.native);
+        setShowEmojiPicker(false);
+    };
+
+    const handleToggleEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
+    };
+
+    const handleSendMessage = async () => {
+        if (!selectedEvent) {
+            toast.error('No hay ninguna cita seleccionada para enviar el mensaje.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
+        const idCita = selectedEvent.id;
+        const messageType = selectedMessageOption || customMessage;
+
+        if (messageType) {
+            try {
+                await axios.post(`${API_BASE_URL_INSIGHT}/reminders/whatsapp/sendMessageAppointment`, { idCita, idSede: idSedeActual, messageType });
+                toast.success('Mensaje enviado correctamente.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+            } catch (error) {
+                console.error('Error al enviar mensaje:', error);
+                toast.error('Error al enviar mensaje.', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                });
+            }
+        } else {
+            toast.error('Por favor, ingrese un mensaje o seleccione una opción.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
+        }
+    };
+
+
 
     const handlePatientClick = (patient) => {
         const validDate = selectedDate instanceof Date && !isNaN(selectedDate);
@@ -96,6 +165,7 @@ const AppointmentCalendar = () => {
         setSelectedPatient(patient);
         setModalIsOpen(true);
     };
+
 
     const findEstadoNameById = (id) => {//
         const estado = estados.find(e => {
@@ -126,6 +196,28 @@ const AppointmentCalendar = () => {
         setCurrentEvents(allEvents);
         setSearchTermCalendar('');
     };
+
+    const handleClickOutside = useCallback((event) => {
+        if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+            setShowEmojiPicker(false);
+        }
+    }, []);
+
+
+    useEffect(() => {
+        if (showEmojiPicker) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [showEmojiPicker, handleClickOutside]);
 
 
     const handleEventClick = ({ event }) => {
@@ -291,6 +383,9 @@ const AppointmentCalendar = () => {
         };
     };
 
+
+
+
     useEffect(() => {
         if (shouldFilterEvents) {
 
@@ -418,13 +513,11 @@ const AppointmentCalendar = () => {
     };
 
     const handleDateClick = (arg) => {
-
-
             setSelectedDate(arg.dateStr);
             setModalCalendarOpen(true);
-
-
     };
+
+
     const handleDeleteCita = async (idCita) => {
         try {
             await axios.delete(`${API_BASE_URL}/paciente/eliminarCita/${idCita}`);
@@ -838,6 +931,8 @@ const AppointmentCalendar = () => {
                     <TabList>
                         <Tab>Actualizar Cita</Tab>
                         <Tab>Eliminar Cita</Tab>
+                        <Tab>Mensajería</Tab>
+
                     </TabList>
                     <TabPanel>
                         <ModalContent>
@@ -890,6 +985,46 @@ const AppointmentCalendar = () => {
                             <p>Esta acción no se puede deshacer.</p>
                             <StyledButton onClick={() => handleDeleteCita(selectedEvent.id)}>Eliminar Cita</StyledButton>
                         </ModalContent>
+                    </TabPanel>
+                    <TabPanel>
+                        <ChatContainer>
+                            <h3>Seleccione una opción de mensaje:</h3>
+                            <ul>
+                                <li>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            value="reminder"
+                                            checked={selectedMessageOption === 'reminder'}
+                                            onChange={() => handleOptionChange('reminder')}
+                                            disabled={!!customMessage}
+                                        />
+                                        Mensaje de recordatorio
+                                    </label>
+                                </li>
+                                {/* Puedes agregar más opciones aquí */}
+                            </ul>
+
+                            {/*
+                            <h3>O escriba un mensaje personalizado:</h3>
+                            <ChatInput
+                                type="text"
+                                value={customMessage}
+                                onChange={handleCustomMessageChange}
+                                placeholder="Escriba su mensaje aquí"
+                            />
+                            <EmojiIcon onClick={handleToggleEmojiPicker}>
+                                <span role="img" aria-label="emoji">😀</span>
+                            </EmojiIcon>
+
+                            {showEmojiPicker && (
+                                <EmojiPickerContainer ref={emojiPickerRef}>
+                                    <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+                                </EmojiPickerContainer>
+                            )} */}
+
+                            <ChatButton onClick={handleSendMessage}>Enviar</ChatButton>
+                        </ChatContainer>
                     </TabPanel>
                 </Tabs>
 
