@@ -125,7 +125,7 @@ const FichaExtremidadesSuperiores = () => {
                 idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
-                idTipoFicha: 1,
+                idTipoFicha: 4,
                 idSede: idSedeActual,
                 tipoCarga: 0,
                 idMedico: 0,

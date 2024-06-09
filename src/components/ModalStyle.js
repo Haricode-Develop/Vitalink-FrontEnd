@@ -24,11 +24,11 @@ export const ModalWrapper = styled.div`
   align-items: center;
   width: ${props => props.width || '500px'};
   max-width: ${props => props.maxWidth || '500px'};
-  height: ${props => props.height || 'auto'};;
+  height: ${props => props.height || 'auto'};
   margin: 0 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease-out;
-  transform: translateY(0); 
+  transform: translateY(0);
   opacity: 1;
   @media (max-width: 768px) {
     flex-direction: column !important;

@@ -122,7 +122,7 @@ const FichaColumnaCervical = () => {
                 idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
-                idTipoFicha: 1,
+                idTipoFicha: 3,
                 tipoCarga: 0,
                 idMedico: 0
 

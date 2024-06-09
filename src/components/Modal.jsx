@@ -1,7 +1,7 @@
 import React from 'react';
 import { ModalBackdrop, ModalWrapper } from './ModalStyle';
 import { useSpring } from 'react-spring';
-import { FiX } from 'react-icons/fi'; // Importa el ícono FiX de react-icons
+import { FiX } from 'react-icons/fi';
 
 export const StyledModal = ({
                                 isOpen,
@@ -21,11 +21,17 @@ export const StyledModal = ({
         },
     });
 
+    const handleBackdropClick = (e) => {
+        if (e.target === e.currentTarget) {
+            onRequestClose();
+        }
+    };
+
     return isOpen ? (
-        <ModalBackdrop onClick={onRequestClose}>
+        <ModalBackdrop onClick={handleBackdropClick}>
             <ModalWrapper
                 style={animation}
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 width={width}
                 maxWidth={maxWidth}
                 height={height}
@@ -42,10 +48,10 @@ export const StyledModal = ({
                             background: 'transparent',
                             border: 'none',
                             cursor: 'pointer',
-                            color: 'inherit', // Ajusta este color según tu tema
+                            color: 'inherit',
                         }}
                     >
-                        <FiX size={24} /> {/* Puedes ajustar el tamaño si es necesario */}
+                        <FiX size={24} />
                     </button>
                     {children}
                 </div>

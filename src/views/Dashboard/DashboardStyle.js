@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import DatePicker from 'react-datepicker';
+
+
 export const Sidebar = styled.div`
   width: 300px;
   height: 100vh;
@@ -205,14 +208,24 @@ export const ChartContainer = styled.div`
   align-items: center;
   width: 400px;
   height: 400px;
-  left: 15%;
+  left: 5%;
   position: relative;
-  
+  overflow: hidden;
+
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
   @media (max-width: 768px) {
     width: 90vw;
     left: 0%;
-
     height: auto;
+
+    canvas {
+      width: 100%;
+      height: auto;
+    }
   }
 `;
 
@@ -251,11 +264,13 @@ export const BoxButton = styled.button`
   width: 100%;
   left: 0;
 `;
+
 export const TableContainer = styled.div`
   width: 100%;
   margin-bottom: 20px;
   max-height: 300px;
   overflow: auto;
+  height: 300px;
   position: relative;
   @media (max-width: 768px) {
     overflow-x: auto;
@@ -306,4 +321,176 @@ export const Thead = styled.thead`
 
 export const Sede = styled.div`
 font-weight: 700;
+`;
+
+
+export const HeaderTitle = styled.h1`
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+`;
+
+
+export const StyledDatePicker = styled(DatePicker)`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-size: 1em;
+
+  &:focus {
+    border-color: #00bfa5;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 191, 165, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9em;
+    padding: 6px;
+  }
+`;
+
+
+export const DatePickerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+
+  @media (max-width: 768px) {
+    margin: 5px 0;
+  }
+
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+`;
+
+export const DatePickerLabel = styled.label`
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+  display: block;
+`;
+
+
+export const DatePickerWrapper = styled.div`
+  flex: 1;
+`;
+
+
+export const FilterIcon = styled.div`
+  display: block;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  z-index: 1000;
+  color: #333;
+  position: absolute; /* Cambia a absolute */
+  top: 10px; /* Ajusta según sea necesario */
+  right: 10px; /* Ajusta según sea necesario */
+`;
+
+
+export const ModalContainer = styled.div`
+  display: ${props => (props.isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+`;
+
+
+export const ModalContent = styled.div`
+  width: 80%;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    width: 90%;
+  }
+`;
+
+export const CloseButton = styled.button`
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+`;
+
+
+export const PageButton = styled.button`
+  background-color: ${props => props.isActive ? 'var(--celeste)' : 'var(--gris-claro)'};
+  color: ${props => props.isActive ? 'var(--blanco)' : 'var(--negro)'};
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin: 0 5px;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: var(--celeste-oscuro);
+    color: var(--blanco);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: var(--gris);
+  }
+`;
+
+
+export const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    margin-top: 0px;
+    margin-bottom: 40px;
+  }
+  
+`;
+
+
+export const Ellipsis = styled.span`
+  padding: 10px 15px;
+  margin: 0 5px;
+  color: var(--negro);
+  font-weight: bold;
+`;
+
+
+export const ButtonAceptar = styled.button`
+  padding: 10px 20px;
+  border: none;
+  background-color: var(--azul);
+  color: var(--blanco);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px var(--negro-rgba-03);
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background-color: var(--azul);
+    cursor: pointer;
+    transform: translateY(-2px);
+  }
 `;
