@@ -1091,6 +1091,7 @@ const Dashboard = () => {
                                                     selected={tempStartDate}
                                                     dateFormat="yyyy-MM-dd"
                                                     onChange={date => setTempStartDate(date)}
+                                                    popperPlacement="top"
                                                 />
                                             </DatePickerWrapper>
                                             <DatePickerWrapper>
@@ -1099,6 +1100,7 @@ const Dashboard = () => {
                                                     selected={tempEndDate}
                                                     dateFormat="yyyy-MM-dd"
                                                     onChange={date => setTempEndDate(date)}
+                                                    popperPlacement="top"
                                                 />
                                             </DatePickerWrapper>
                                         </DatePickerContainer>

@@ -27,6 +27,7 @@ import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
 import animationData from '../assets/profile.json';
 import { FaBars, FaTimes, FaChevronUp, FaHome, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine, FaCog   } from 'react-icons/fa';
 import Lottie from 'react-lottie';
+import NotificationBell from "./NotificationBell/NotificationBell";
 import { FaBell } from 'react-icons/fa';
 
 export const LayoutContext = createContext({
@@ -291,37 +292,12 @@ const LayoutSide = ({ children }) => {
             </Menu>
           </Sidebar>
           <HeartIconAnimation animationData={heartAnimationData} />
-
-             <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
-            <div style={{
-              alignSelf: 'flex-end',
-              position: 'fixed',
-              padding: '10px 20px',
-              right: '145px',
-              top: '23px',
-              zIndex: '100000',
-            }}>
-              {/*<FaBell size={30}/>
-              {notificationCount > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    backgroundColor: 'red',
-                    color: 'white',
-                    borderRadius: '50%',
-                    padding: '0 6px',
-                    fontSize: '0.8rem',
-                    zIndex: '100000'
-                  }}>
-        {notificationCount}
-      </span>
-
-              )}
-*/}
-            </div>
-            <Outlet />
-            <div>
+               <div style={{ display: 'flex', flexDirection: 'column', marginLeft: !isMobile() && isSidebarOpen ? '250px' : '0',  width: '100%', transition: 'margin-left 0.3s', boxSizing: 'border-box' }}>
+                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '10px', position: 'relative' }}>
+                   <NotificationBell />
+                 </div>
+                 <Outlet />
+              <div>
               {children}
             </div>
           </div>

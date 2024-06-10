@@ -340,7 +340,7 @@ export const StyledDatePicker = styled(DatePicker)`
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 1em;
-
+  z-index: 10000;
   &:focus {
     border-color: #00bfa5;
     outline: none;
