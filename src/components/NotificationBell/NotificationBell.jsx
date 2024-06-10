@@ -24,11 +24,28 @@ const NotificationBell = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [offset, setOffset] = useState(0);
-    const [hasMore, setHasMore] = useState(true); // Nueva bandera para controlar el botón "Ver más"
+    const [hasMore, setHasMore] = useState(true);
     const { userData } = useContext(AuthContext);
     const { notifications: wsNotifications, setNotifications: setWsNotifications } = useWebSocket();
-    const limit = 5; // Se mantiene constante para la paginación
+    const limit = 5;
     const notificationMenuRef = useRef(null);
+    const notificationListRef = useRef(null);
+
+    const isMobileDevice = () => window.innerWidth <= 768;
+
+    // Función para manejar el inicio del scroll
+    const handleTouchStart = (event) => {
+        if (isMobileDevice() && notificationListRef.current && notificationListRef.current.contains(event.target)) {
+            notificationListRef.current.style.overflowY = 'auto';
+        }
+    };
+
+    // Función para manejar el final del scroll
+    const handleTouchEnd = (event) => {
+        if (isMobileDevice() && notificationListRef.current) {
+            notificationListRef.current.style.overflowY = 'hidden';
+        }
+    };
 
     // Función para cargar las notificaciones con el total de no leídas
     const loadTotalUnreadCount = async () => {
@@ -38,13 +55,12 @@ const NotificationBell = () => {
                     idUsuario: userData.id_usuario,
                     idSede: idSedeActual,
                     offset: 0,
-                    limit: 1  // Utilizamos un límite de 1 para obtener solo el total de no leídas
+                    limit: 1
                 }
             });
 
-            const totalUnreadCount = response.data.totalUnread; // Asegúrate de que el backend devuelva el total de no leídas
+            const totalUnreadCount = response.data.totalUnread;
             setUnreadCount(totalUnreadCount);
-
         } catch (error) {
             console.error("Error al cargar el total de notificaciones no leídas:", error);
         }
@@ -82,14 +98,14 @@ const NotificationBell = () => {
 
     useEffect(() => {
         loadNotifications(true);
-        loadTotalUnreadCount(); // Cargar el total de no leídas al inicializar
+        loadTotalUnreadCount();
     }, [idSedeActual]);
 
     useEffect(() => {
         if (wsNotifications.length > 0) {
-            loadNotifications(true);  // Recargar notificaciones desde el servidor
-            loadTotalUnreadCount();  // Recargar el total de no leídas
-            setWsNotifications([]);  // Limpiar las notificaciones del WebSocket
+            loadNotifications(true);
+            loadTotalUnreadCount();
+            setWsNotifications([]);
         }
     }, [wsNotifications, setWsNotifications]);
 
@@ -116,7 +132,8 @@ const NotificationBell = () => {
         }
     };
 
-    const showMoreNotifications = () => {
+    const showMoreNotifications = (event) => {
+        event.stopPropagation(); // Evita que el evento de clic se propague
         loadNotifications();
     };
 
@@ -133,6 +150,20 @@ const NotificationBell = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const notificationList = notificationListRef.current;
+        if (notificationList) {
+            notificationList.addEventListener('touchstart', handleTouchStart);
+            notificationList.addEventListener('touchend', handleTouchEnd);
+        }
+        return () => {
+            if (notificationList) {
+                notificationList.removeEventListener('touchstart', handleTouchStart);
+                notificationList.removeEventListener('touchend', handleTouchEnd);
+            }
+        };
+    }, []);
+
     return (
         <NotificationWrapper>
             <BellIcon onClick={handleBellClick}>
@@ -140,12 +171,12 @@ const NotificationBell = () => {
                 {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
             </BellIcon>
             {isOpen && (
-                <Draggable>
+                <Draggable cancel='.notification-list, .load-more-button'>
                     <NotificationMenu ref={notificationMenuRef}>
                         <MenuHeader>
                             <h3>Notificaciones</h3>
                         </MenuHeader>
-                        <NotificationList>
+                        <NotificationList ref={notificationListRef} className='notification-list'>
                             {notifications.length === 0 ? (
                                 <NoNotifications>No hay notificaciones</NoNotifications>
                             ) : (
@@ -159,7 +190,12 @@ const NotificationBell = () => {
                             )}
                         </NotificationList>
                         {hasMore && (
-                            <LoadMoreButton onClick={showMoreNotifications}>Ver más</LoadMoreButton>
+                            <LoadMoreButton
+                                className='load-more-button'
+                                onClick={showMoreNotifications}
+                            >
+                                Ver más
+                            </LoadMoreButton>
                         )}
                     </NotificationMenu>
                 </Draggable>

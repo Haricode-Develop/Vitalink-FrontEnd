@@ -61,7 +61,9 @@ export const NotificationList = styled.ul`
   margin: 0;
   padding: 0;
   height: 300px;
-  overflow-x: auto;
+  max-height: 300px;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
 `;
 
 export const NoNotifications = styled.li`
@@ -70,16 +72,18 @@ export const NoNotifications = styled.li`
   color: #777;
 `;
 
-
 export const LoadMoreButton = styled.button`
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    padding: 10px;
-    text-align: center;
-    width: 100%;
-    &:hover {
-        text-decoration: underline;
-    }
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:active {
+    text-decoration: underline;
+  }
 `;
