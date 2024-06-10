@@ -6,6 +6,7 @@ export const Notification = styled.li`
   padding: 12px 16px;
   border-bottom: 1px solid #ddd;
   background-color: ${({ leido }) => (leido ? '#f9f9f9' : '#fff')};
+  cursor: pointer; // Asegurar que el cursor sea un puntero para indicar que es clicable
   &:last-child {
     border-bottom: none;
   }

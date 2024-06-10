@@ -24,32 +24,57 @@ const NotificationBell = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true); // Nueva bandera para controlar el botón "Ver más"
     const { userData } = useContext(AuthContext);
-    const limit = 5;
+    const { notifications: wsNotifications, setNotifications: setWsNotifications } = useWebSocket();
+    const limit = 5; // Se mantiene constante para la paginación
     const notificationMenuRef = useRef(null);
 
-    // Cargar notificaciones de la sede actual
-    const loadNotifications = async (clearExisting = false) => {
+    // Función para cargar las notificaciones con el total de no leídas
+    const loadTotalUnreadCount = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/campanaNotificaciones/cargarNotificaciones`, {
                 params: {
                     idUsuario: userData.id_usuario,
                     idSede: idSedeActual,
-                    offset: clearExisting ? 0 : offset,
+                    offset: 0,
+                    limit: 1  // Utilizamos un límite de 1 para obtener solo el total de no leídas
+                }
+            });
+
+            const totalUnreadCount = response.data.totalUnread; // Asegúrate de que el backend devuelva el total de no leídas
+            setUnreadCount(totalUnreadCount);
+
+        } catch (error) {
+            console.error("Error al cargar el total de notificaciones no leídas:", error);
+        }
+    };
+
+    // Cargar notificaciones de la sede actual
+    const loadNotifications = async (clearExisting = false) => {
+        try {
+            const currentOffset = clearExisting ? 0 : offset;
+            const response = await axios.get(`${API_BASE_URL}/campanaNotificaciones/cargarNotificaciones`, {
+                params: {
+                    idUsuario: userData.id_usuario,
+                    idSede: idSedeActual,
+                    offset: currentOffset,
                     limit
                 }
             });
+
+            const fetchedNotifications = response.data.notificaciones;
+
             if (clearExisting) {
-                setNotifications(response.data.notificaciones);
-                const unreadNotifications = response.data.notificaciones.filter(n => n.LEIDO === 0).length;
-                setUnreadCount(unreadNotifications);
+                setNotifications(fetchedNotifications);
+                setOffset(limit);
+                setHasMore(fetchedNotifications.length === limit);
             } else {
-                const newNotifications = [...notifications, ...response.data.notificaciones];
+                const newNotifications = [...notifications, ...fetchedNotifications];
                 setNotifications(newNotifications);
-                const unreadNotifications = newNotifications.filter(n => n.LEIDO === 0).length;
-                setUnreadCount(unreadNotifications);
+                setOffset(currentOffset + limit);
+                setHasMore(fetchedNotifications.length === limit);
             }
-            setOffset(prev => prev + limit);
         } catch (error) {
             console.error("Error al cargar notificaciones:", error);
         }
@@ -57,7 +82,16 @@ const NotificationBell = () => {
 
     useEffect(() => {
         loadNotifications(true);
+        loadTotalUnreadCount(); // Cargar el total de no leídas al inicializar
     }, [idSedeActual]);
+
+    useEffect(() => {
+        if (wsNotifications.length > 0) {
+            loadNotifications(true);  // Recargar notificaciones desde el servidor
+            loadTotalUnreadCount();  // Recargar el total de no leídas
+            setWsNotifications([]);  // Limpiar las notificaciones del WebSocket
+        }
+    }, [wsNotifications, setWsNotifications]);
 
     const handleBellClick = () => {
         setIsOpen(!isOpen);
@@ -73,8 +107,8 @@ const NotificationBell = () => {
                 const updatedNotifications = prevNotifications.map(n =>
                     n.ID_NOTIFICACION === idNotificacion ? { ...n, LEIDO: leido ? 1 : 0 } : n
                 );
-                const unreadNotificationsCount = updatedNotifications.filter(n => n.LEIDO === 0).length;
-                setUnreadCount(unreadNotificationsCount);
+                const totalUnread = updatedNotifications.filter(n => n.LEIDO === 0).length;
+                setUnreadCount(totalUnread);
                 return updatedNotifications;
             });
         } catch (error) {
@@ -102,7 +136,7 @@ const NotificationBell = () => {
     return (
         <NotificationWrapper>
             <BellIcon onClick={handleBellClick}>
-                <FaBell size={24} color={'#EBE25B'}  />
+                <FaBell size={35} color={'#000'} />
                 {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
             </BellIcon>
             {isOpen && (
@@ -124,7 +158,7 @@ const NotificationBell = () => {
                                 ))
                             )}
                         </NotificationList>
-                        {notifications.length > 0 && notifications.length % limit === 0 && (
+                        {hasMore && (
                             <LoadMoreButton onClick={showMoreNotifications}>Ver más</LoadMoreButton>
                         )}
                     </NotificationMenu>

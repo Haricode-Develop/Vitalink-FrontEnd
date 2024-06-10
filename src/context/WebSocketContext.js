@@ -54,7 +54,7 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     return (
-        <WebSocketContext.Provider value={{ ws, closeWebSocket, notifications }}>
+        <WebSocketContext.Provider value={{ ws, closeWebSocket, notifications, setNotifications }}>
             {children}
         </WebSocketContext.Provider>
     );

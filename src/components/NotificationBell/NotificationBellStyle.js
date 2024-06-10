@@ -60,6 +60,8 @@ export const NotificationList = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
+  height: 300px;
+  overflow-x: auto;
 `;
 
 export const NoNotifications = styled.li`
