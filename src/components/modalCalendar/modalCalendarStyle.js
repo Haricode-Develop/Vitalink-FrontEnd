@@ -10,7 +10,6 @@ const slideUpAnimation = keyframes`
   }
 `;
 
-
 const slideDownAnimation = keyframes`
   from {
     transform: translateY(-100%);
@@ -22,7 +21,7 @@ const slideDownAnimation = keyframes`
 
 export const CustomModal = styled(Modal)`
   position: fixed;
-  top: 25%;
+  top: 15%;
   left: 30%;
   right: auto;
   bottom: auto;
@@ -42,24 +41,22 @@ export const CustomModal = styled(Modal)`
     animation: ${slideDownAnimation} 0.3s ease-out forwards;
   `}
   @media (max-width: ${mobileScreen}) {
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 95%;
-    height: 100%;
-    overflow-y: scroll;
-    max-height: 50%;
-    border-radius: 10px;
-    transform: none;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 95%;
+  height: 100%;
+  overflow-y: scroll;
+  max-height: 50%;
+  border-radius: 10px;
+  transform: none;
 
-    // La animación para móviles permanece igual
-    ${props => props.isOpen && css`
-      animation: ${slideUpAnimation} 0.3s ease-out forwards;
-    `}
-  }
+  ${props => props.isOpen && css`
+    animation: ${slideUpAnimation} 0.3s ease-out forwards;
+  `}
+}
 `;
-
 
 export const EventList = styled.ul`
   list-style: none;
@@ -84,7 +81,6 @@ export const EventListItem = styled.li`
     padding: 20px;
   }
 `;
-
 
 export const Button = styled.button`
   padding: 10px 15px;
@@ -126,12 +122,12 @@ export const Form = styled.form`
   gap: 10px;
 `;
 
-
 export const InputGroup = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;  
+  margin-bottom: 1rem;
 `;
+
 export const StyledLabel = styled.label`
   margin-right: 10px;
   margin-bottom: 0.5rem;
@@ -150,7 +146,6 @@ export const StyledInput = styled.input`
   }
 `;
 
-
 export const StyledSelect = styled.select`
   padding: 10px;
   margin: 5px;
@@ -159,8 +154,8 @@ export const StyledSelect = styled.select`
   font-size: 16px;
   width: 100%;
   cursor: pointer;
-
 `;
+
 export const StyledList = styled.ul`
   list-style: none;
   padding: 0;
@@ -189,3 +184,14 @@ export const StyledListItem = styled.li`
     background-color: #f0f0f0;
   }
 `;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    margin-right: 10px;
+  }
+`;
+

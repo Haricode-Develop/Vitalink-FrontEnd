@@ -25,6 +25,7 @@ export const ModalWrapper = styled.div`
   width: ${props => props.width || '500px'};
   max-width: ${props => props.maxWidth || '500px'};
   height: ${props => props.height || 'auto'};
+  overflow-y: auto;
   margin: 0 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease-out;

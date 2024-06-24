@@ -275,7 +275,7 @@ const Dashboard = () => {
 
         // Configura la fila de título y aplica estilos
         const numColumns = headers.length;
-        worksheet.mergeCells(1, 1, 3, numColumns); // Ajusta la fusión de celdas para incluir la columna del logo
+        worksheet.mergeCells(1, 1, 3, numColumns);
 
         const titleCell = worksheet.getCell('A1');
         titleCell.value = titulo;

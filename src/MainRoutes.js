@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
@@ -5,30 +6,31 @@ import Loader from "./components/Loader/Loader";
 import LoginPage from './views/Login/LoginPage';
 import Dashboard from './views/Dashboard/Dashboard';
 import IngresarFisioterapeuta from './views/IngresarFisio/IngresarFisio';
-import IngresarAdministrador from './views/IngresarAdmin/IngresarAdmin';
-import LayoutSide from './components/LayoutSide';
-import IngresarPaciente from './views/IngresarPaciente/IngresarPaciente';
-import EliminarAdministrador from "./views/EliminarAdministrador/EliminarAdministrador";
-import ResetPasswordPage from "./views/ResetPassword/ResetPassword";
-import ActualizarFisio from "./views/ActualizarFisio/ActualizarFisio";
+import PlansPage from "./views/PlansPage/PlansPage";
+import useSessionVerification from "./Hook/sessionToken";
+import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
+import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
+import FichaEvolucion from "./views/FichaEvolucion/FichaEvolucion";
+import Configuracion from "./views/Configuración/Configuracion";
+import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
+import ExerciseAssignment from "./views/AsignarEjercicioPaciente/ExerciseAssignment";
 import ActualizarAdministrador from "./views/ActualizarAdministrador/ActualizarAdministrador";
 import EliminarFisio from "./views/EliminarFisio/EliminarFisio";
 import ReingresoFisio from "./views/ReingresoFisio/ReingresoFisio";
-import AltaPaciente from "./views/AltaPaciente/AltaPaciente";
-import ExerciseAssignment from "./views/AsignarEjercicioPaciente/ExerciseAssignment";
-import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
-import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
-import PlansPage from "./views/PlansPage/PlansPage";
-import useSessionVerification from "./Hook/sessionToken";
-import FichaEvolucion from "./views/FichaEvolucion/FichaEvolucion";
-import Configuracion from "./views/Configuración/Configuracion";
+import ActualizarFisio from "./views/ActualizarFisio/ActualizarFisio";
+import ResetPasswordPage from "./views/ResetPassword/ResetPassword";
+import IngresarPaciente from './views/IngresarPaciente/IngresarPaciente';
+import EliminarAdministrador from "./views/EliminarAdministrador/EliminarAdministrador";
+import LayoutSide from './components/LayoutSide';
+import IngresarAdministrador from './views/IngresarAdmin/IngresarAdmin';
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
+import GestionServicios from './views/GestionServicios/GestionServicios';
+import DashboardIndicadores from './views/DashboardIndicadores/DashboardIndicadores';
+
 
 const MainRoutes = () => {
-    const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);
-    const location = useLocation(); // Hook para obtener la ubicación actual
+    const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);    const location = useLocation();
     useSessionVerification(isAuthenticated, userData, setIsAuthenticated, logout);
-
     if (loading) {
         return <Loader />;
     }
@@ -44,7 +46,7 @@ const MainRoutes = () => {
                     <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
                     <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
                     <Route path="/planes" element={<PlansPage />} />
-                    <Route path="/resetPassword" element={<ResetPasswordPage />} />
+                    <Route path="/resetPasswsord" element={<ResetPasswordPage />} />
 
                     <Route path="/dashboard/*" element={isAuthenticated ? <LayoutSide /> : <Navigate to="/login" replace />}>
                         <Route index element={<Dashboard />} />
@@ -61,7 +63,9 @@ const MainRoutes = () => {
                         <Route path="reingreso-paciente" element={<ReingresoPaciente />} />
                         <Route path="calendario-citas" element={<CalendarioCitas />} />
                         <Route path="ficha-evolucion" element={<FichaEvolucion />} />
-                        <Route path="configuracion" element={<Configuracion/>}/>
+                        <Route path="configuracion" element={<Configuracion />} />
+                        <Route path="gestion-servicios" element={<GestionServicios />} />
+                        <Route path="dashboard-indicadores" element={<DashboardIndicadores />} />
                     </Route>
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />

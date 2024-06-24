@@ -170,10 +170,10 @@ export const Box = styled.div`
   min-height: 180px;
 
   @media (max-width: 768px) {
-    width: 100%;
+    width: 95%;
     margin: 10px 0; 
     padding: 10px;
-    min-height: auto; 
+    min-height: 180px;
   }
 `;
 

@@ -97,7 +97,8 @@ const AppointmentCalendar = () => {
     const [customMessage, setCustomMessage] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
-
+    const [servicios, setServicios] = useState([]); // Servicios aplicables a cita
+    const [selectedServicio, setSelectedServicio] = useState('');
     const handleOptionChange = (option) => {
         setSelectedMessageOption(option);
         setCustomMessage('');
@@ -845,6 +846,21 @@ const AppointmentCalendar = () => {
             });
     }, [idSedeActual]);
 
+    useEffect(() => {
+        const fetchServiciosPorCita = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/servicios/aplica-cita`, {
+                    params: { idSede: idSedeActual }
+                });
+                setServicios(response.data);
+            } catch (err) {
+                console.error('Error al obtener los servicios:', err);
+            }
+        };
+
+        fetchServiciosPorCita();
+    }, [idSedeActual]);
+
     return (
         <Container>
 
@@ -918,6 +934,20 @@ const AppointmentCalendar = () => {
                         <option value="">Seleccione un estado</option>
                         {estados.map(estado => (
                             <option key={estado.id} value={estado.id}>{estado.nombre}</option>
+                        ))}
+                    </StyledSelect>
+                </InputGroup>
+                <InputGroup>
+                    <StyledLabel>Servicio:</StyledLabel>
+                    <StyledSelect
+                        value={selectedServicio}
+                        onChange={(e) => setSelectedServicio(e.target.value)}
+                    >
+                        <option value="">Seleccione un servicio</option>
+                        {servicios.map(servicio => (
+                            <option key={servicio.ID_SERVICIO} value={servicio.ID_SERVICIO}>
+                                {servicio.TITULO}
+                            </option>
                         ))}
                     </StyledSelect>
                 </InputGroup>

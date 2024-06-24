@@ -8,27 +8,23 @@ import { useSede } from '../context/SedeContext';
 
 import {
   Sidebar,
-  ProfileImage,
   UserInfo,
   Menu,
   MenuItem,
   SubMenu,
   SubMenuItem,
   ChevronIcon,
-  Content,
-  Box,
-  BoxTitle,
-  BoxButton,
-  SidebarButton, Sede
+  SidebarButton,
+  Sede
 } from '../views/Dashboard/DashboardStyle';
 import profilePicture from '../assets/login/profile/user.png'; // Importa la imagen
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
 import animationData from '../assets/profile.json';
-import { FaBars, FaTimes, FaChevronUp, FaHome, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine, FaCog   } from 'react-icons/fa';
+import {FaBars, FaTimes, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine, FaCog, FaBusinessTime } from 'react-icons/fa';
+
 import Lottie from 'react-lottie';
 import NotificationBell from "./NotificationBell/NotificationBell";
-import { FaBell } from 'react-icons/fa';
 
 export const LayoutContext = createContext({
   activeSubMenu: '',
@@ -180,6 +176,28 @@ const LayoutSide = ({ children }) => {
     }
   };
 
+  const handleGestionNegocioClick = () => {
+    if (isMobile()) {
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/gestion-negocio');
+  };
+
+  const handleGestionServiciosClick = () => {
+    if (isMobile()) {
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/gestion-servicios');
+  };
+
+  const handleDashboardIndicadoresClick = () => {
+    if (isMobile()) {
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/dashboard-indicadores');
+  };
+
+
   const userHasRole = (roleName) => {
     return userData?.roles.some(role => role.name.toLowerCase() === roleName.toLowerCase());
   }
@@ -279,11 +297,20 @@ const LayoutSide = ({ children }) => {
                 <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
                 {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
               </SubMenu>
+              <MenuItem bold onClick={() => handleSubMenuClick('GestionNegocio')} className={"gestionNegocio"}>
+                <FaBusinessTime /> Gestión del negocio
+                <ChevronIcon className="fa fa-chevron-up" rotate={activeSubMenu === 'GestionNegocio'} />
+              </MenuItem>
+              <SubMenu active={activeSubMenu === 'GestionNegocio'}>
+                <SubMenuItem onClick={handleGestionServiciosClick} className={"gestionServiciosSeccion"}>Gestión de servicios</SubMenuItem>
+                <SubMenuItem onClick={handleDashboardIndicadoresClick} className={"dashboardIndicadoresSeccion"}>Dashboard indicadores</SubMenuItem>
+              </SubMenu>
 
               <MenuItem bold onClick={handleConfiguracionClick} className={"configuracion"}>
                 <FaCog />  Configuración
                 <div></div>
               </MenuItem>
+
 
               <MenuItem onClick={handleLogoutClick}>
                 &nbsp;Cerrar sesión

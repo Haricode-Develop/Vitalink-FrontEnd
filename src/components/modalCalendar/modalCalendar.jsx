@@ -1,17 +1,31 @@
-import React, {useContext, useState, useEffect, useRef} from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { CustomModal, Button, EventList, EventListItem, Input, Form, StyledInput, StyledSelect, InputGroup, StyledLabel, StyledList, StyledListItem} from "./modalCalendarStyle";
+import {
+    CustomModal,
+    Button,
+    EventList,
+    EventListItem,
+    Input,
+    Form,
+    StyledInput,
+    StyledSelect,
+    InputGroup,
+    StyledLabel,
+    StyledList,
+    StyledListItem, CheckboxLabel
+} from "./modalCalendarStyle";
 import moment from 'moment';
 import axios from "axios";
 import 'moment/locale/es';
-import {AuthContext} from "../../context/AuthContext";
-import {useSede} from "../../context/SedeContext";
+import { AuthContext } from "../../context/AuthContext";
+import { useSede } from "../../context/SedeContext";
 import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { getCountryCallingCode } from 'libphonenumber-js';
 import { API_BASE_URL } from "../../utils/config";
+import Swal from 'sweetalert2';
 
 moment.locale('es');
 const defaultCountryCode = 'GT';
@@ -23,6 +37,11 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const [phone, setPhone] = useState(defaultCountryCallingCode);
     const [phoneNumbers, setPhoneNumbers] = useState([]);
     const phoneInputRef = useRef(null);
+    const [servicios, setServicios] = useState([]);
+    const [selectedServicio, setSelectedServicio] = useState('');
+    const [applyPackage, setApplyPackage] = useState(false);
+    const [serviciosPaquete, setServiciosPaquete] = useState([]);
+    const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
@@ -35,8 +54,10 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         contactoInvitado: '',
         estado: '',
         hora: '00',
-        minutos: '00'
+        minutos: '00',
+        servicio: '' // Añadir campo para el servicio o paquete
     });
+
     const handleInputChange = async (e) => {
         const { name, value } = e.target;
         setExternalAppointment(prev => ({ ...prev, [name]: value }));
@@ -52,31 +73,69 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         }
     };
 
-    const agregarCitaExterna = (event) => {
+    const agregarCitaExterna = async (event) => {
         event.preventDefault();
+
         if (!isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
-            alert('Por favor, ingrese un número de teléfono válido con la extensión.');
+            Swal.fire({
+                title: 'Advertencia',
+                text: 'Por favor, ingrese un número de teléfono válido con la extensión.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
             return;
         }
-        const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
-        const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
-        addExternalAppointment({
-            idPaciente: null,
-            idUsuarioEdita: userData.id_usuario,
-            fechaCita: formattedDate,
-            horaCita: formattedTime,
-            idEstado: externalAppointment.estado,
-            nombreInvitado: externalAppointment.nombreInvitado,
-            contactoInvitado: externalAppointment.contactoInvitado,
-            idSede: idSedeActual
-        });
-        setExternalAppointment({
-            nombreInvitado: '',
-            contactoInvitado: defaultCountryCallingCode,
-            estado: '',
-            hora: '00',
-            minutos: '00'
-        });
+
+        try {
+            const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
+            const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
+            const citaData = {
+                idPaciente: null,
+                idUsuarioEdita: userData.id_usuario,
+                fechaCita: formattedDate,
+                horaCita: formattedTime,
+                idEstado: externalAppointment.estado,
+                nombreInvitado: externalAppointment.nombreInvitado,
+                contactoInvitado: externalAppointment.contactoInvitado,
+                idSede: idSedeActual
+            };
+
+            if (applyPackage) {
+                // Insertar paquete
+                await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/paquetes`, {
+                    idPaquete: selectedServicio, // Cambiar a idPaquete
+                    cantidad: 1
+                });
+            } else {
+                // Insertar servicio
+                await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
+                    idServicio: externalAppointment.servicio,
+                    cantidad: 1
+                });
+            }
+
+            addExternalAppointment(citaData);
+
+            // Reiniciar el formulario
+            setExternalAppointment({
+                nombreInvitado: '',
+                contactoInvitado: defaultCountryCallingCode,
+                estado: '',
+                hora: '00',
+                minutos: '00',
+                servicio: '' // Resetear campo de servicio
+            });
+            setSelectedServicio('');
+            setApplyPackage(false);
+        } catch (error) {
+            console.error('Error al agregar la cita externa:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al agregar la cita externa.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+        }
     };
 
     const customStyles = {
@@ -100,8 +159,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-
-            if (!phoneInputRef && !phoneInputRef.current &&!phoneInputRef.current.contains(event.target)) {
+            if (phoneInputRef.current && !phoneInputRef.current.contains(event.target)) {
                 setPhoneNumbers([]);
             }
         };
@@ -113,6 +171,69 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             document.removeEventListener('touchend', handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        const fetchServiciosPorCita = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/servicios/aplica-cita`, {
+                    params: { idSede: idSedeActual }
+                });
+                setServicios(response.data);
+            } catch (err) {
+                console.error('Error al obtener los servicios:', err);
+            }
+        };
+
+        fetchServiciosPorCita();
+    }, [idSedeActual]);
+
+    const handleApplyPackageChange = async () => {
+        const newApplyPackage = !applyPackage;
+        setApplyPackage(newApplyPackage);
+
+        if (newApplyPackage && isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/asignaciones`);
+                const paquetes = response.data.paquetes;
+
+                if (paquetes.length > 0) {
+                    const paquete = paquetes[0];
+                    if (paquete.servicios.length > 0) {
+                        setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1));
+                        setIsPackageModalOpen(true);
+                        setExternalAppointment(prev => ({ ...prev, servicio: '' }));
+                    } else {
+                        Swal.fire({
+                            title: 'Advertencia',
+                            text: 'El paquete asignado no contiene servicios disponibles para citas.',
+                            icon: 'warning',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        title: 'Advertencia',
+                        text: 'No hay paquetes asignados disponibles para el número de teléfono proporcionado.',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al obtener los servicios del paquete asignado:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al obtener los servicios del paquete asignado.',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                });
+            }
+        }
+    };
+
+    const handleServicioSeleccionado = (servicioId) => {
+        setSelectedServicio(servicioId);
+        setIsPackageModalOpen(false);
+    };
 
     return ReactDOM.createPortal(
         <CustomModal
@@ -184,6 +305,31 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 ))}
                             </StyledSelect>
                         </InputGroup>
+                        <InputGroup>
+                            <StyledSelect
+                                name="servicio"
+                                value={externalAppointment.servicio}
+                                onChange={handleInputChange}
+                                disabled={applyPackage} // Deshabilitar si el checkbox de paquete está activo
+                                required={!applyPackage} // Requerido si no aplica paquete
+                            >
+                                <option value="">Seleccione un servicio</option>
+                                {servicios.map(servicio => (
+                                    <option key={servicio.ID_SERVICIO} value={servicio.ID_SERVICIO}>
+                                        {servicio.TITULO}
+                                    </option>
+                                ))}
+                            </StyledSelect>
+                            <CheckboxLabel>
+                                <input
+                                    type="checkbox"
+                                    checked={applyPackage}
+                                    onChange={handleApplyPackageChange}
+                                    disabled={externalAppointment.servicio !== ''} // Deshabilitar si se seleccionó un servicio
+                                />
+                                Aplica paquete
+                            </CheckboxLabel>
+                        </InputGroup>
 
                         <InputGroup>
                             <StyledInput
@@ -210,6 +356,24 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                     </Form>
                 </TabPanel>
             </Tabs>
+            <CustomModal
+                isOpen={isPackageModalOpen}
+                onRequestClose={() => setIsPackageModalOpen(false)}
+                contentLabel="Servicios del Paquete"
+                style={customStyles}
+            >
+                <div className="modal-header">
+                    <h2>Servicios Disponibles del Paquete</h2>
+                    <Button onClick={() => setIsPackageModalOpen(false)}>Cerrar</Button>
+                </div>
+                <EventList>
+                    {serviciosPaquete.map(servicio => (
+                        <EventListItem key={servicio.id} onClick={() => handleServicioSeleccionado(servicio.id)}>
+                            <span>{servicio.titulo} - {servicio.precio} {servicio.moneda}</span>
+                        </EventListItem>
+                    ))}
+                </EventList>
+            </CustomModal>
         </CustomModal>,
         document.getElementById('modal-root')
     );
