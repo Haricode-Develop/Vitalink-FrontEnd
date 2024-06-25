@@ -14,7 +14,8 @@ import {
     InputGroup,
     StyledLabel,
     StyledList,
-    StyledListItem, CheckboxLabel
+    StyledListItem,
+    CheckboxLabel
 } from "./modalCalendarStyle";
 import moment from 'moment';
 import axios from "axios";
@@ -26,6 +27,7 @@ import 'react-phone-number-input/style.css';
 import { getCountryCallingCode } from 'libphonenumber-js';
 import { API_BASE_URL } from "../../utils/config";
 import Swal from 'sweetalert2';
+import { toast } from "react-toastify";
 
 moment.locale('es');
 const defaultCountryCode = 'GT';
@@ -42,6 +44,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const [applyPackage, setApplyPackage] = useState(false);
     const [serviciosPaquete, setServiciosPaquete] = useState([]);
     const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+    const [idUsuario, setIdUsuario] = useState(null);
 
     const citasDelDia = citas.filter(cita => {
         const fechaCita = moment(cita.start).format('YYYY-MM-DD');
@@ -77,12 +80,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         event.preventDefault();
 
         if (!isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
-            Swal.fire({
-                title: 'Advertencia',
-                text: 'Por favor, ingrese un número de teléfono válido con la extensión.',
-                icon: 'warning',
-                confirmButtonText: 'Ok'
-            });
+            toast.warn('Por favor, ingrese un número de teléfono válido con la extensión.');
             return;
         }
 
@@ -101,22 +99,18 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             };
 
             if (applyPackage) {
-                // Insertar paquete
-                await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/paquetes`, {
-                    idPaquete: selectedServicio, // Cambiar a idPaquete
-                    cantidad: 1
-                });
+                await restarCantidadServicio(idUsuario, selectedServicio);
             } else {
                 // Insertar servicio
                 await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
                     idServicio: externalAppointment.servicio,
-                    cantidad: 1
+                    cantidad: 0
                 });
             }
 
             addExternalAppointment(citaData);
 
-            // Reiniciar el formulario
+            // Reiniciar el formulario y limpiar el modal de servicios del paquete
             setExternalAppointment({
                 nombreInvitado: '',
                 contactoInvitado: defaultCountryCallingCode,
@@ -127,14 +121,12 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             });
             setSelectedServicio('');
             setApplyPackage(false);
+            setServiciosPaquete([]);
+            setIsPackageModalOpen(false); // Cerrar el modal de servicios del paquete
+
         } catch (error) {
             console.error('Error al agregar la cita externa:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'Ocurrió un error al agregar la cita externa.',
-                icon: 'error',
-                confirmButtonText: 'Ok'
-            });
+            toast.warn('Ocurrió un error al añadir la cita externa');
         }
     };
 
@@ -145,14 +137,19 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     };
 
     const handlePhoneChange = (selectedPhone) => {
+        setPhone(selectedPhone);
         setExternalAppointment({ ...externalAppointment, contactoInvitado: selectedPhone });
         setPhoneNumbers([]);
     };
 
     const handleSelectPhoneNumber = (phone) => {
+        console.log("Click en el número recomendado: ", phone);
+        const formattedPhone = phone.includes('+') ? phone : `+${phone}`;
+        console.log("Teléfono formateado y seleccionado: ", formattedPhone);
+        setPhone(formattedPhone);
         setExternalAppointment(prev => ({
             ...prev,
-            contactoInvitado: phone.includes('+') ? phone : `+${phone}`
+            contactoInvitado: formattedPhone
         }));
         setPhoneNumbers([]);
     };
@@ -194,7 +191,8 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         if (newApplyPackage && isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
             try {
                 const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/asignaciones`);
-                const paquetes = response.data.paquetes;
+                const { idUsuario, paquetes } = response.data;
+                setIdUsuario(idUsuario);
 
                 if (paquetes.length > 0) {
                     const paquete = paquetes[0];
@@ -220,19 +218,37 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 }
             } catch (error) {
                 console.error('Error al obtener los servicios del paquete asignado:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Ocurrió un error al obtener los servicios del paquete asignado.',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                });
+                if (error.response && error.response.status === 404) {
+                    Swal.fire({
+                        title: 'Usuario no asignado',
+                        text: 'No se encontraron usuarios para el número indicado',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                } else {
+                    toast.warn('Ocurrió un error al obtener los servicios del paquete asignado.');
+                }
             }
         }
     };
 
-    const handleServicioSeleccionado = (servicioId) => {
-        setSelectedServicio(servicioId);
-        setIsPackageModalOpen(false);
+    const handleServicioSeleccionado = async (servicioId) => {
+        try {
+            setSelectedServicio(servicioId);
+            setIsPackageModalOpen(false);
+        } catch (error) {
+            console.error('Error al restar cantidad de servicio:', error);
+        }
+    };
+
+    const restarCantidadServicio = async (idUsuario, idServicio) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
+            toast.success(response.data.message);
+        } catch (error) {
+            console.error('Error al restar cantidad de servicio:', error);
+            toast.error('Error al restar cantidad de servicio');
+        }
     };
 
     return ReactDOM.createPortal(
@@ -279,7 +295,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 ref={phoneInputRef}
                                 international
                                 defaultCountry={defaultCountryCode}
-                                value={externalAppointment.contactoInvitado}
+                                value={phone}
                                 onChange={handlePhoneChange}
                                 placeholder="Número de teléfono"
                                 required
@@ -287,12 +303,21 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                             {phoneNumbers.length > 0 && (
                                 <StyledList style={{ position: 'absolute', left: '59px', width: '208px', zIndex: 1050, background: 'rgba(255, 255, 255, 0.9)' }}>
                                     {phoneNumbers.map((phone, index) => (
-                                        <StyledListItem key={index} onClick={() => handleSelectPhoneNumber(phone)}>
+                                        <StyledListItem
+                                            key={index}
+                                            onMouseDown={() => {
+                                                handleSelectPhoneNumber(phone);
+                                            }}
+                                            onTouchStart={() => {
+                                                handleSelectPhoneNumber(phone);
+                                            }}
+                                        >
                                             {phone}
                                         </StyledListItem>
                                     ))}
                                 </StyledList>
                             )}
+
                             <StyledSelect
                                 name="estado"
                                 value={externalAppointment.estado}
@@ -369,7 +394,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 <EventList>
                     {serviciosPaquete.map(servicio => (
                         <EventListItem key={servicio.id} onClick={() => handleServicioSeleccionado(servicio.id)}>
-                            <span>{servicio.titulo} - {servicio.precio} {servicio.moneda}</span>
+                            <span>{servicio.titulo} - {servicio.precio} {servicio.moneda} - Cantidad disponible: {servicio.cantidadDisponible}</span>
                         </EventListItem>
                     ))}
                 </EventList>

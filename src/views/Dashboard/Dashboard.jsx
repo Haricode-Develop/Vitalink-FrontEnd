@@ -191,7 +191,6 @@ const Dashboard = () => {
     const fetchDistribucionGeneroEdad = async (idSedeActual) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionGeneroEdad/${idSedeActual}`);
-            console.log("ESTA ES LA RESPUESTA DE DISTRIBUCION: ", response.data.distribucion);
             setChartDistribucionGeneroEdad(response.data.distribucion);
         } catch (error) {
             console.error("Error al obtener la distribución de género y edad:", error);
