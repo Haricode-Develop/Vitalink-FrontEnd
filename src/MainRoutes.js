@@ -25,7 +25,7 @@ import LayoutSide from './components/LayoutSide';
 import IngresarAdministrador from './views/IngresarAdmin/IngresarAdmin';
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 import GestionServicios from './views/GestionServicios/GestionServicios';
-import DashboardIndicadores from './views/DashboardIndicadores/DashboardIndicadores';
+import ReporteServicios from './views/ReporteServicios/ReporteServicios';
 
 
 const MainRoutes = () => {
@@ -65,7 +65,7 @@ const MainRoutes = () => {
                         <Route path="ficha-evolucion" element={<FichaEvolucion />} />
                         <Route path="configuracion" element={<Configuracion />} />
                         <Route path="gestion-servicios" element={<GestionServicios />} />
-                        <Route path="dashboard-indicadores" element={<DashboardIndicadores />} />
+                        <Route path="reporte-servicios" element={<ReporteServicios />} />
                     </Route>
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />

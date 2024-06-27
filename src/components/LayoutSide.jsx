@@ -190,11 +190,11 @@ const LayoutSide = ({ children }) => {
     navigate('/dashboard/gestion-servicios');
   };
 
-  const handleDashboardIndicadoresClick = () => {
+  const handleReporteDeServicisClick = () => {
     if (isMobile()) {
       setIsMenuOpen(false);
     }
-    navigate('/dashboard/dashboard-indicadores');
+    navigate('/dashboard/reporte-servicios');
   };
 
 
@@ -303,7 +303,7 @@ const LayoutSide = ({ children }) => {
               </MenuItem>
               <SubMenu active={activeSubMenu === 'GestionNegocio'}>
                 <SubMenuItem onClick={handleGestionServiciosClick} className={"gestionServiciosSeccion"}>Gestión de servicios</SubMenuItem>
-                <SubMenuItem onClick={handleDashboardIndicadoresClick} className={"dashboardIndicadoresSeccion"}>Dashboard indicadores</SubMenuItem>
+                <SubMenuItem onClick={handleReporteDeServicisClick} className={"reporteDeServiciosSeccion"}>Reporte de servicios</SubMenuItem>
               </SubMenu>
 
               <MenuItem bold onClick={handleConfiguracionClick} className={"configuracion"}>

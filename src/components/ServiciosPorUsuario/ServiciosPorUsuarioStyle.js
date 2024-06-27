@@ -10,13 +10,13 @@ export const Container = styled.div`
 
 export const Button = styled.button`
   padding: 10px;
-  background-color: #007bff;
+  background-color: var(--celeste);
   color: white;
   border: none;
   cursor: pointer;
   margin-top: 20px;
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--celeste-rgba-65);
   }
 `;
 
@@ -41,13 +41,13 @@ export const ServiceAssignmentList = styled.ul`
 
 export const ServiceAssignmentItem = styled.li`
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--gris);
   margin-bottom: 10px;
   cursor: pointer;
-  background-color: ${({ selected }) => (selected ? '#007bff' : 'white')};
+  background-color: ${({ selected }) => (selected ? 'var(--celeste)' : 'white')};
   color: ${({ selected }) => (selected ? 'white' : 'black')};
   &:hover {
-    background-color: ${({ selected }) => (selected ? '#0056b3' : '#f1f1f1')};
+    background-color: ${({ selected }) => (selected ? 'var(--celeste)' : 'var(--gris)')};
   }
 `;
 
@@ -59,7 +59,7 @@ export const FilterContainer = styled.div`
 
 export const FilterInput = styled.input`
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--gris);
   margin-bottom: 10px;
   border-radius: 4px;
 `;
@@ -74,12 +74,12 @@ export const FilterButton = styled.button`
   flex: 1;
   border: none;
   cursor: pointer;
-  background-color: ${({ active }) => (active ? '#007bff' : '#f1f1f1')};
+  background-color: ${({ active }) => (active ? 'var(--celeste)' : 'var(--gris)')};
   color: ${({ active }) => (active ? 'white' : 'black')};
   &:not(:last-child) {
     margin-right: 5px;
   }
   &:hover {
-    background-color: ${({ active }) => (active ? '#0056b3' : '#ddd')};
+    background-color: ${({ active }) => (active ? 'var(--celeste)' : 'var(--gris)')};
   }
 `;

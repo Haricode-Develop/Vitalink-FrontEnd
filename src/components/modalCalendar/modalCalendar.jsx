@@ -98,14 +98,16 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 idSede: idSedeActual
             };
 
-            if (applyPackage) {
+            if (applyPackage && idUsuario !== null && selectedServicio !== null && selectedServicio !== '') {
                 await restarCantidadServicio(idUsuario, selectedServicio);
             } else {
-                // Insertar servicio
-                await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
-                    idServicio: externalAppointment.servicio,
-                    cantidad: 0
-                });
+                if(externalAppointment.servicio !== null && externalAppointment.servicio !== ''){
+                    // Insertar servicio
+                    await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
+                        idServicio: externalAppointment.servicio,
+                        cantidad: 0
+                    });
+                }
             }
 
             addExternalAppointment(citaData);
@@ -243,8 +245,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
 
     const restarCantidadServicio = async (idUsuario, idServicio) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
-            toast.success(response.data.message);
+           await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
         } catch (error) {
             console.error('Error al restar cantidad de servicio:', error);
             toast.error('Error al restar cantidad de servicio');
@@ -336,7 +337,6 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 value={externalAppointment.servicio}
                                 onChange={handleInputChange}
                                 disabled={applyPackage} // Deshabilitar si el checkbox de paquete está activo
-                                required={!applyPackage} // Requerido si no aplica paquete
                             >
                                 <option value="">Seleccione un servicio</option>
                                 {servicios.map(servicio => (

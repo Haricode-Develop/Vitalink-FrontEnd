@@ -1,19 +1,17 @@
 import styled from 'styled-components';
 export const ListButton = styled.button`
-  background-color: ${({ active }) => active ? 'var(--verde-medio)' : 'var(--blanco)'};
-  color: ${({ active }) => active ? 'var(--blanco)' : 'var(--verde-oscuro)'};
-  border: 2px solid var(--verde-medio);
+  background-color: ${({ active }) => active ? 'var(--celeste)' : 'var(--blanco)'};
+  color: ${({ active }) => active ? 'var(--blanco)' : 'var(--celeste)'};
+  border: 2px solid var(--celeste);
   padding: 10px;
   margin-right: 5px;
   cursor: pointer;
   border-radius: 5px;
-  &:hover {
-    background-color: var(--verde-oscuro);
-    color: var(--blanco);
-  }
+
 `;
 
 export const CardButton = styled(ListButton)`
+    
 `;
 
 export const ListContainer = styled.ul`
@@ -43,7 +41,7 @@ export const ListItem = styled.li`
   }
 `;
 export const SelectButton = styled.button`
-  background-color: var(--verde-medio);
+  background-color: var(--azul);
   color: var(--blanco);
   border: none;
   padding: 10px 15px;

@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 export const CardContainer = styled.div`
-  background: white;
+  background: var(--blanco);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px var(--negro-rgba-01);
   overflow: hidden;
   width: calc(33.33% - 10px);
   display: flex;
@@ -16,7 +16,7 @@ export const CardContainer = styled.div`
   }
 
   &:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 16px var(--negro-rgba-03);
   }
 `;
 
@@ -28,18 +28,18 @@ export const CardContent = styled.div`
 export const CardTitle = styled.h2`
   font-size: 1.25rem;
   margin: 0;
-  color: #333;
+  color: var(--negro);
 `;
 
 export const CardDescription = styled.p`
   font-size: 1rem;
-  color: #666;
+  color: var(--blanco);
   margin: 10px 0;
 `;
 
 export const CardPrice = styled.div`
   font-size: 1.25rem;
-  color: #007bff;
+  color: var(--celeste);
   font-weight: bold;
 `;
 
@@ -48,7 +48,7 @@ export const CardIcons = styled.div`
 
   svg {
     margin-right: 10px;
-    color: #888;
+    color: var(--gris-oscuro);
   }
 `;
 
@@ -57,15 +57,15 @@ export const CardActions = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background: #f9f9f9;
-  border-top: 1px solid #ddd;
+  background: var(--gris);
+  border-top: 1px solid var(--gris-oscuro);
 
   svg {
     cursor: pointer;
-    color: #d9534f;
+    color: var(--rojo);
 
     &:hover {
-      color: #c9302c;
+      color: var(--rojo-oscuro);
     }
   }
 `;
