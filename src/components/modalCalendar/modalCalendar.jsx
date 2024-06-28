@@ -58,7 +58,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         estado: '',
         hora: '00',
         minutos: '00',
-        servicio: '' // Añadir campo para el servicio o paquete
+        servicio: ''
     });
 
     const handleInputChange = async (e) => {
@@ -105,7 +105,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                     // Insertar servicio
                     await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
                         idServicio: externalAppointment.servicio,
-                        cantidad: 0
+                        cantidad: 1
                     });
                 }
             }
@@ -199,8 +199,17 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 if (paquetes.length > 0) {
                     const paquete = paquetes[0];
                     if (paquete.servicios.length > 0) {
-                        setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1));
-                        setIsPackageModalOpen(true);
+                        setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0));
+                        if(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0).length > 0){
+                            setIsPackageModalOpen(true);
+                        }else{
+                            Swal.fire({
+                                title: 'Advertencia',
+                                text: 'El paquete asignado no contiene servicios disponibles para citas.',
+                                icon: 'warning',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
                         setExternalAppointment(prev => ({ ...prev, servicio: '' }));
                     } else {
                         Swal.fire({

@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 
+const mobileScreen = '768px';
 
 
 
@@ -406,4 +407,39 @@ export const EmojiPickerContainer = styled.div`
   max-width: 350px;
   min-width: 200px;
   
+`;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    margin-right: 10px;
+  }
+`;
+
+
+export const EventList = styled.ul`
+  list-style: none;
+  padding: 0;
+
+  @media (max-width: ${mobileScreen}) {
+    padding: 0;
+  }
+`;
+
+export const EventListItem = styled.li`
+  background: #f9f9f9;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: ${mobileScreen}) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+  }
 `;

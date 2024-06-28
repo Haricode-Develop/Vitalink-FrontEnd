@@ -38,7 +38,9 @@ import {
     ChatButton,
     ChatContainer,
     EmojiIcon,
-    EmojiPickerContainer
+    EmojiPickerContainer,
+    EventListItem,
+    EventList, CheckboxLabel
 } from './CalendarioCitasStyle';
 import axios from "axios";
 import { API_BASE_URL, API_BASE_URL_INSIGHT } from "../../utils/config";
@@ -51,6 +53,9 @@ import 'moment/locale/es';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import {useSede} from "../../context/SedeContext";
+import { isPossiblePhoneNumber } from 'react-phone-number-input';
+import Swal from 'sweetalert2';
+
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 moment.locale('es');
@@ -99,6 +104,11 @@ const AppointmentCalendar = () => {
     const emojiPickerRef = useRef(null);
     const [servicios, setServicios] = useState([]); // Servicios aplicables a cita
     const [selectedServicio, setSelectedServicio] = useState('');
+    const [applyPackage, setApplyPackage] = useState(false);
+    const [idUsuario, setIdUsuario] = useState(null);
+    const [serviciosPaquete, setServiciosPaquete] = useState([]);
+    const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+
     const handleOptionChange = (option) => {
         setSelectedMessageOption(option);
         setCustomMessage('');
@@ -543,7 +553,7 @@ const AppointmentCalendar = () => {
             });
         }
     };
-    const handleUpdateCita = () => {
+    const handleUpdateCita = async () => {
         if (!selectedEvent) {
             toast.error('Información de la cita no disponible.', {
                 position: toast.POSITION.TOP_RIGHT,
@@ -589,7 +599,23 @@ const AppointmentCalendar = () => {
             });
 
 
-            axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
+            if (applyPackage && idUsuario !== null && selectedServicio !== null && selectedServicio !== '') {
+                await restarCantidadServicio(idUsuario, selectedServicio);
+            } else {
+                if (selectedServicio !== null && selectedServicio !== '') {
+                    // Insertar servicio
+                    const telefono = await axios.get(`${API_BASE_URL}/general/usuario/telefono/${selectedPatient.idUsuario}`);
+                    console.log("TELEFONO: ", telefono.data[0].TELEFONO);
+                    await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono.data[0].TELEFONO}/servicios`, {
+                        idServicio: selectedServicio,
+                        cantidad: 1
+                    });
+
+                }
+            }
+
+
+            await axios.put(`${API_BASE_URL}/paciente/actualizarCita`, {
                 idCita: selectedEvent.id,
                 idPaciente: selectedPatient.idUsuario,
                 idUsuarioEdita: userData.id_usuario,
@@ -609,7 +635,7 @@ const AppointmentCalendar = () => {
 
                     setModalIsOpen(false);
                     await cargarPacientesConCita(currentMonth);
-                  //  await cargarPacientesConCitaHistorial();
+                    //  await cargarPacientesConCitaHistorial();
 
                 })
                 .catch(error => {
@@ -805,6 +831,86 @@ const AppointmentCalendar = () => {
 
         }
     };
+
+    const handleApplyPackageChange = async () => {
+        const newApplyPackage = !applyPackage;
+        setApplyPackage(newApplyPackage);
+        const telefono = await axios.get(`${API_BASE_URL}/general/usuario/telefono/${selectedPatient.idUsuario}`);
+
+        if (newApplyPackage && isPossiblePhoneNumber(telefono.data[0].TELEFONO)) {
+            try {
+
+                const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono.data[0].TELEFONO}/asignaciones`);
+                const { idUsuario, paquetes } = response.data;
+                setIdUsuario(idUsuario);
+
+                if (paquetes.length > 0) {
+                    const paquete = paquetes[0];
+                    if (paquete.servicios.length > 0) {
+                        console.log("ESTOS SON LOS SERVICIOS DEL PAQUETE: ", paquete.servicios);
+                        setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0));
+                        if (paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0).length > 0) {
+                            setIsPackageModalOpen(true);
+                        } else {
+                            Swal.fire({
+                                title: 'Advertencia',
+                                text: 'El paquete asignado no contiene servicios disponibles para citas.',
+                                icon: 'warning',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                        setSelectedEvent(prev => ({ ...prev, servicio: '' }));
+                    } else {
+                        Swal.fire({
+                            title: 'Advertencia',
+                            text: 'El paquete asignado no contiene servicios disponibles para citas.',
+                            icon: 'warning',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        title: 'Advertencia',
+                        text: 'No hay paquetes asignados disponibles para el número de teléfono proporcionado.',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al obtener los servicios del paquete asignado:', error);
+                if (error.response && error.response.status === 404) {
+                    Swal.fire({
+                        title: 'Usuario no asignado',
+                        text: 'No se encontraron usuarios para el número indicado',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                } else {
+                    toast.warn('Ocurrió un error al obtener los servicios del paquete asignado.');
+                }
+            }
+        }
+    };
+
+    const handleServicioSeleccionado = async (servicioId) => {
+        try {
+            setSelectedServicio(servicioId);
+            setIsPackageModalOpen(false);
+        } catch (error) {
+            console.error('Error al restar cantidad de servicio:', error);
+        }
+    };
+
+    const restarCantidadServicio = async (idUsuario, idServicio) => {
+        try {
+            await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
+        } catch (error) {
+            console.error('Error al restar cantidad de servicio:', error);
+            toast.error('Error al restar cantidad de servicio');
+        }
+    };
+
+
     useEffect( () => {
         cargarEstados();
     }, []);
@@ -861,9 +967,9 @@ const AppointmentCalendar = () => {
         fetchServiciosPorCita();
     }, [idSedeActual]);
 
+
     return (
         <Container>
-
             <FixedFilterButton onClick={() => setFilterModalOpen(true)}>
                 <FaFilter /> Filtros
             </FixedFilterButton>
@@ -889,8 +995,6 @@ const AppointmentCalendar = () => {
                     datesSet={handleDatesSet}
                     dateClick={handleDateClick}
                 />
-
-
             </CalendarContainer>
 
             <StyledModal
@@ -937,22 +1041,9 @@ const AppointmentCalendar = () => {
                         ))}
                     </StyledSelect>
                 </InputGroup>
-                <InputGroup>
-                    <StyledLabel>Servicio:</StyledLabel>
-                    <StyledSelect
-                        value={selectedServicio}
-                        onChange={(e) => setSelectedServicio(e.target.value)}
-                    >
-                        <option value="">Seleccione un servicio</option>
-                        {servicios.map(servicio => (
-                            <option key={servicio.ID_SERVICIO} value={servicio.ID_SERVICIO}>
-                                {servicio.TITULO}
-                            </option>
-                        ))}
-                    </StyledSelect>
-                </InputGroup>
                 <StyledButton onClick={handleDateSubmit}>Confirmar</StyledButton>
             </StyledModal>
+
             <StyledModal
                 isOpen={editModalOpen}
                 onRequestClose={() => setEditModalOpen(false)}
@@ -962,52 +1053,75 @@ const AppointmentCalendar = () => {
                         <Tab>Actualizar Cita</Tab>
                         <Tab>Eliminar Cita</Tab>
                         <Tab>Mensajería</Tab>
-
                     </TabList>
                     <TabPanel>
                         <ModalContent>
-                    <h2>Actualizar Cita</h2>
-                    <InputGroup>
-                        <StyledLabel>Fecha:</StyledLabel>
-                        <DatePicker
-                            selected={selectedEvent ? new Date(selectedEvent.date) : new Date()}
-                            onChange={(date) => setSelectedEvent({ ...selectedEvent, date })}
-                            dateFormat="dd/MM/yyyy"
-                            wrapperClassName="datePicker"
-                        />
-                    </InputGroup>
-                    <InputGroup>
-                        <StyledLabel>Hora:</StyledLabel>
-                        <StyledInput
-                            type="number"
-                            value={selectedEvent ? selectedEvent.hour : '00'}
-                            onChange={(e) => setSelectedEvent({ ...selectedEvent, hour: e.target.value })}
-                            min="0"
-                            max="23"
-                        />
-                        <StyledLabel>:</StyledLabel>
-                        <StyledInput
-                            type="number"
-                            value={selectedEvent ? selectedEvent.minute : '00'}
-                            onChange={(e) => setSelectedEvent({ ...selectedEvent, minute: e.target.value })}
-                            min="0"
-                            max="59"
-                        />
-                    </InputGroup>
-                    <InputGroup>
-                        <StyledLabel>Estado:</StyledLabel>
-                        <StyledSelect
-                            value={selectedEvent ? selectedEvent.idEstado : ''}
-                            onChange={(e) => setSelectedEvent({ ...selectedEvent, idEstado: e.target.value })}
-                        >
-                            <option value="">Seleccione un estado</option>
-                            {estados.map(estado => (
-                                <option key={estado.id} value={estado.id}>{estado.nombre}</option>
-                            ))}
-                        </StyledSelect>
-                    </InputGroup>
-                    <StyledButton onClick={handleUpdateCita}>Actualizar</StyledButton>
-                </ModalContent>
+                            <h2>Actualizar Cita</h2>
+                            <InputGroup>
+                                <StyledLabel>Fecha:</StyledLabel>
+                                <DatePicker
+                                    selected={selectedEvent ? new Date(selectedEvent.date) : new Date()}
+                                    onChange={(date) => setSelectedEvent({ ...selectedEvent, date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    wrapperClassName="datePicker"
+                                />
+                            </InputGroup>
+                            <InputGroup>
+                                <StyledLabel>Hora:</StyledLabel>
+                                <StyledInput
+                                    type="number"
+                                    value={selectedEvent ? selectedEvent.hour : '00'}
+                                    onChange={(e) => setSelectedEvent({ ...selectedEvent, hour: e.target.value })}
+                                    min="0"
+                                    max="23"
+                                />
+                                <StyledLabel>:</StyledLabel>
+                                <StyledInput
+                                    type="number"
+                                    value={selectedEvent ? selectedEvent.minute : '00'}
+                                    onChange={(e) => setSelectedEvent({ ...selectedEvent, minute: e.target.value })}
+                                    min="0"
+                                    max="59"
+                                />
+                            </InputGroup>
+                            <InputGroup>
+                                <StyledLabel>Estado:</StyledLabel>
+                                <StyledSelect
+                                    value={selectedEvent ? selectedEvent.idEstado : ''}
+                                    onChange={(e) => setSelectedEvent({ ...selectedEvent, idEstado: e.target.value })}
+                                >
+                                    <option value="">Seleccione un estado</option>
+                                    {estados.map(estado => (
+                                        <option key={estado.id} value={estado.id}>{estado.nombre}</option>
+                                    ))}
+                                </StyledSelect>
+                            </InputGroup>
+                            <InputGroup>
+                                <StyledLabel>Servicio:</StyledLabel>
+                                <StyledSelect
+                                    value={selectedServicio}
+                                    onChange={(e) => setSelectedServicio(e.target.value)}
+                                    disabled={applyPackage}
+                                >
+                                    <option value="">Seleccione un servicio</option>
+                                    {servicios.map(servicio => (
+                                        <option key={servicio.ID_SERVICIO} value={servicio.ID_SERVICIO}>
+                                            {servicio.TITULO}
+                                        </option>
+                                    ))}
+                                </StyledSelect>
+                                <CheckboxLabel>
+                                    <input
+                                        type="checkbox"
+                                        checked={applyPackage}
+                                        onChange={handleApplyPackageChange}
+                                        disabled={selectedServicio !== ''}
+                                    />
+                                    Aplica paquete
+                                </CheckboxLabel>
+                            </InputGroup>
+                            <StyledButton onClick={handleUpdateCita}>Actualizar</StyledButton>
+                        </ModalContent>
                     </TabPanel>
                     <TabPanel>
                         <ModalContent>
@@ -1034,32 +1148,12 @@ const AppointmentCalendar = () => {
                                 </li>
                                 {/* Puedes agregar más opciones aquí */}
                             </ul>
-
-                            {/*
-                            <h3>O escriba un mensaje personalizado:</h3>
-                            <ChatInput
-                                type="text"
-                                value={customMessage}
-                                onChange={handleCustomMessageChange}
-                                placeholder="Escriba su mensaje aquí"
-                            />
-                            <EmojiIcon onClick={handleToggleEmojiPicker}>
-                                <span role="img" aria-label="emoji">😀</span>
-                            </EmojiIcon>
-
-                            {showEmojiPicker && (
-                                <EmojiPickerContainer ref={emojiPickerRef}>
-                                    <Picker data={data} onEmojiSelect={handleEmojiSelect} />
-                                </EmojiPickerContainer>
-                            )} */}
-
                             <ChatButton onClick={handleSendMessage}>Enviar</ChatButton>
                         </ChatContainer>
                     </TabPanel>
                 </Tabs>
-
-
             </StyledModal>
+
             <StyledModal isOpen={filterModalOpen} onRequestClose={() => setFilterModalOpen(false)}>
                 <ModalContent>
                     <ModalHeader>Filtros del Calendario</ModalHeader>
@@ -1075,15 +1169,12 @@ const AppointmentCalendar = () => {
                             <ResetButton onClick={handleResetCalendarView}><FaUndo /> Restablecer</ResetButton>
                         </SearchContainer>
                     </InputGroup>
-
-                    <FilterGroup>
-                    </FilterGroup>
-
                     <CloseButton onClick={() => setFilterModalOpen(false)}>
                         <FaTimes /> Cerrar
                     </CloseButton>
                 </ModalContent>
             </StyledModal>
+
             <ScrollablePatientList className={"listaDeEspera"}>
                 <FixedSearchContainer>
                     <LegendContainer>
@@ -1107,7 +1198,6 @@ const AppointmentCalendar = () => {
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
-
                 </FixedSearchContainer>
                 {filteredPacientes.map((patient) => (
                     <Patient
@@ -1119,8 +1209,8 @@ const AppointmentCalendar = () => {
                         <div style={{ fontSize: '0.8rem', color: '#666' }}>{patient.email}</div>
                     </Patient>
                 ))}
-
             </ScrollablePatientList>
+
             <ModalCalendar
                 isOpen={modalCalendarOpen}
                 onRequestClose={() => setModalCalendarOpen(false)}
@@ -1131,6 +1221,24 @@ const AppointmentCalendar = () => {
                 estados={estados}
                 addExternalAppointment={addExternalAppointment}
             />
+
+            <StyledModal
+                isOpen={isPackageModalOpen}
+                onRequestClose={() => setIsPackageModalOpen(false)}
+                contentLabel="Servicios del Paquete"
+                style={{ overlay: { zIndex: 1030 } }}
+            >
+                <div className="modal-header">
+                    <h2>Servicios Disponibles del Paquete</h2>
+                </div>
+                <EventList>
+                    {serviciosPaquete.map(servicio => (
+                        <EventListItem key={servicio.id} onClick={() => handleServicioSeleccionado(servicio.id)}>
+                            <span>{servicio.titulo} - {servicio.precio} {servicio.moneda} - Cantidad disponible: {servicio.cantidadDisponible}</span>
+                        </EventListItem>
+                    ))}
+                </EventList>
+            </StyledModal>
         </Container>
     );
 };
