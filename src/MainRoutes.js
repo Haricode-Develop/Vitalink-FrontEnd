@@ -1,3 +1,4 @@
+// src/MainRoutes.js
 
 import React, { useContext, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
@@ -6,7 +7,7 @@ import Loader from "./components/Loader/Loader";
 import LoginPage from './views/Login/LoginPage';
 import Dashboard from './views/Dashboard/Dashboard';
 import IngresarFisioterapeuta from './views/IngresarFisio/IngresarFisio';
-import PlansPage from "./views/PlansPage/PlansPage";
+import Pricing from "./views/Pricing/Pricing";
 import useSessionVerification from "./Hook/sessionToken";
 import ReingresoPaciente from "./views/ReingresoPaciente/ReingresoPaciente";
 import CalendarioCitas from "./views/CalendarioCitas/CalendarioCitas";
@@ -26,10 +27,14 @@ import IngresarAdministrador from './views/IngresarAdmin/IngresarAdmin';
 import { MainContainer, Content, StyledFooter } from './MainContainerStyle';
 import GestionServicios from './views/GestionServicios/GestionServicios';
 import ReporteServicios from './views/ReporteServicios/ReporteServicios';
-
+import HomePage from './views/HomePage/HomePage';
+import AcercaDeNosotros from "./views/AcercaDeNosotros/AcercaDeNosotros";
+import Contactanos from "./views/Contactanos/Contactanos";
+import Princing from "./views/Pricing/Pricing";
 
 const MainRoutes = () => {
-    const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);    const location = useLocation();
+    const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);
+    const location = useLocation();
     useSessionVerification(isAuthenticated, userData, setIsAuthenticated, logout);
     if (loading) {
         return <Loader />;
@@ -43,10 +48,13 @@ const MainRoutes = () => {
         <MainContainer>
             <Content>
                 <Routes>
-                    <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AcercaDeNosotros />} />
                     <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
-                    <Route path="/planes" element={<PlansPage />} />
-                    <Route path="/resetPasswsord" element={<ResetPasswordPage />} />
+                    <Route path="/planes" element={<Pricing />} />
+                    <Route path="/resetPassword" element={<ResetPasswordPage />} />
+                    <Route path="/contact" element={<Contactanos />} />
+                    <Route path="/pricing" element={<Princing />} />
 
                     <Route path="/dashboard/*" element={isAuthenticated ? <LayoutSide /> : <Navigate to="/login" replace />}>
                         <Route index element={<Dashboard />} />
@@ -70,8 +78,8 @@ const MainRoutes = () => {
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
                 </Routes>
+                {!isDashboardRoute() && <StyledFooter />}
             </Content>
-            {!isDashboardRoute() && <StyledFooter />}
         </MainContainer>
     );
 };

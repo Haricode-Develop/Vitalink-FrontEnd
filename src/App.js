@@ -8,18 +8,22 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {WebSocketProvider} from "./context/WebSocketContext";
 import {SedeProvider} from "./context/SedeContext";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App = () => {
     return (
         <AuthProvider>
             <WebSocketProvider>
-                <SedeProvider>
-                    <div className='app'>
-                        <Router>
-                            <MainRoutes />
-                        </Router>
-                    </div>
-                </SedeProvider>
+                    <SedeProvider>
+                        <DndProvider backend={HTML5Backend}>
+                        <div className='app'>
+                            <Router>
+                                <MainRoutes />
+                            </Router>
+                        </div>
+                        </DndProvider>
+                    </SedeProvider>
                 <ToastContainer />
             </WebSocketProvider>
         </AuthProvider>

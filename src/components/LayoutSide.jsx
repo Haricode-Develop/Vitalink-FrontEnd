@@ -123,7 +123,7 @@ const LayoutSide = ({ children }) => {
 
   const handleLogoutClick = () => {
     logout();
-    navigate('/');
+    navigate('/login');
     if (wsContext.closeWebSocket) {
       wsContext.closeWebSocket();
     }

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import Chart from 'chart.js/auto';
 import { FaFilter } from 'react-icons/fa';
+import update from 'immutability-helper';
 import {
     DashboardContainer,
     CardContainer,
@@ -8,11 +9,8 @@ import {
     CardTitle,
     ChartContainer,
     NumericIndicator,
-    TableContainer,
-    Table,
-    TableHeader,
-    TableCell,
-    FilterButton
+    FilterButton,
+    HeaderTitle
 } from './ReporteServiciosStyle';
 import DateFilter from '../../components/DateFilter/DateFilter';
 import { StyledModal } from '../../components/Modal';
@@ -20,7 +18,8 @@ import axios from 'axios';
 import moment from 'moment';
 import { API_BASE_URL } from "../../utils/config";
 import { useSede } from "../../context/SedeContext";
-import { HeaderTitle } from "../Dashboard/DashboardStyle";
+import CardWithDragAndDrop from "../../components/CardWithDragAndDrop/CardDragAndDrop";
+import { AuthContext } from "../../context/AuthContext";
 
 const ReporteServicios = () => {
     const totalSalesRef = useRef(null);
@@ -42,16 +41,18 @@ const ReporteServicios = () => {
     const [averageSales, setAverageSales] = useState(0);
     const [totalServices, setTotalServices] = useState(0);
     const [currency, setCurrency] = useState('');
-    const [charts, setCharts] = useState({});
     const { idSedeActual } = useSede();
+    const [charts, setCharts] = useState({});
+    const [cards, setCards] = useState([]);
+    const [boardConfigLoaded, setBoardConfigLoaded] = useState(false);
 
-    // Obtener el rango de fechas del mes actual
     const currentMonthStart = moment().startOf('month').toDate();
     const currentMonthEnd = moment().endOf('month').toDate();
 
     const [startDate, setStartDate] = useState(currentMonthStart);
     const [endDate, setEndDate] = useState(currentMonthEnd);
     const [showDateFilter, setShowDateFilter] = useState(false);
+    const { userData } = useContext(AuthContext);
 
     const fetchData = async () => {
         try {
@@ -79,24 +80,77 @@ const ReporteServicios = () => {
             setTotalServices(totalServicesSold);
             setCurrency(currency);
 
-            updateChart(totalSalesRef.current, totalSalesChart, salesData, 'Ventas Totales', 'bar', 'servicio');
-            updateChart(transactionCountRef.current, transactionCountChart, transactionsData, 'Transacciones por Usuario', 'pie', 'usuario');
-            updateChart(averageSalesRef.current, averageSalesChart, salesData, 'Ventas Promedio', 'doughnut', 'servicio');
-            updateChart(servicesSalesRef.current, servicesSalesChart, salesData, 'Ventas de Servicios por Día', 'bar', 'fecha');
-            updateChart(packagesSalesRef.current, packagesSalesChart, packagesData, 'Ventas de Paquetes por Día', 'bar', 'fecha');
-            updateChart(totalServicesRef.current, totalServicesChart, totalServicesData, 'Total de Servicios', 'bar', 'servicio');
+            if (totalSalesRef.current && totalSalesRef.current.getContext) updateChart(totalSalesRef.current, totalSalesChart, salesData, 'Ventas Totales', 'bar', 'servicio');
+            if (transactionCountRef.current && transactionCountRef.current.getContext) updateChart(transactionCountRef.current, transactionCountChart, transactionsData, 'Transacciones por Usuario', 'pie', 'usuario');
+            if (averageSalesRef.current && averageSalesRef.current.getContext) updateChart(averageSalesRef.current, averageSalesChart, salesData, 'Ventas Promedio', 'doughnut', 'servicio');
+            if (servicesSalesRef.current && servicesSalesRef.current.getContext) updateChart(servicesSalesRef.current, servicesSalesChart, salesData, 'Ventas de Servicios por Día', 'bar', 'fecha');
+            if (packagesSalesRef.current && packagesSalesRef.current.getContext) updateChart(packagesSalesRef.current, packagesSalesChart, packagesData, 'Ventas de Paquetes por Día', 'bar', 'fecha');
+            if (totalServicesRef.current && totalServicesRef.current.getContext) updateChart(totalServicesRef.current, totalServicesChart, totalServicesData, 'Total de Servicios', 'bar', 'servicio');
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
 
-    useEffect(() => {
-        fetchData();
+    const fetchBoardConfig = async (userId, sedeId) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/board-config/${userId}/${sedeId}`);
+            const boardConfig = response.data;
 
-        return () => {
-            Object.values(charts).forEach(chart => chart.destroy());
-        };
+            console.log("ESTE ES EL BOARDING CONFIGURACIÓN", boardConfig);
+            if (boardConfig.length === 0) {
+                // Configuración predeterminada
+                const defaultCards = [
+                    { id: 1, content: { title: "Ventas Totales", chart: "totalSalesChart" } },
+                    { id: 2, content: { title: "Transacciones", chart: "transactionCountChart" } },
+                    { id: 3, content: { title: "Ventas Promedio", chart: "averageSalesChart" } },
+                    { id: 4, content: { title: "Ventas de Servicios por Día", chart: "servicesSalesChart" } },
+                    { id: 5, content: { title: "Ventas de Paquetes por Día", chart: "packagesSalesChart" } },
+                    { id: 6, content: { title: "Total de Servicios", chart: "totalServicesChart" } }
+                ];
+                setCards(defaultCards);
+            } else {
+                setCards(boardConfig.map(config => ({
+                    id: config.ID_CARD,
+                    content: typeof config.CARD_CONTENT === 'string' ? JSON.parse(config.CARD_CONTENT.replace(/^"|"$/g, '').replace(/\\"/g, '"')) : config.CARD_CONTENT, // Deserializar y limpiar las barras invertidas si es una cadena
+                    position: config.POSITION
+                })));
+            }
+            setBoardConfigLoaded(true); // Configuración cargada
+        } catch (error) {
+            console.error('Error fetching board config:', error);
+        }
+    };
+
+    const saveBoardConfig = async (userId, sedeId, cards) => {
+        try {
+            const payload = {
+                userId,
+                sedeId,
+                cards: cards.map((card, index) => ({
+                    id: card.id,
+                    content: typeof card.content === 'string' ? card.content : JSON.stringify(card.content), // Serializar solo si no es una cadena
+                    position: index
+                }))
+            };
+            await axios.post(`${API_BASE_URL}/gestionDeNegocios/board-config`, payload);
+        } catch (error) {
+            console.error('Error saving board config:', error);
+        }
+    };
+
+    useEffect(() => {
+        const userId = userData.id_usuario;
+        fetchBoardConfig(userId, idSedeActual).then(() => {
+            fetchData();
+        });
     }, [idSedeActual, startDate, endDate]);
+
+    useEffect(() => {
+        const userId = userData.id_usuario;
+        if (cards.length > 0) {
+            saveBoardConfig(userId, idSedeActual, cards);
+        }
+    }, [cards]);
 
     const destroyChart = (chartRef) => {
         if (chartRef.current) {
@@ -105,12 +159,37 @@ const ReporteServicios = () => {
         }
     };
 
+    const hexToRgba = (hex, alpha = 1) => {
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 4) {
+            r = parseInt(hex[1] + hex[1], 16);
+            g = parseInt(hex[2] + hex[2], 16);
+            b = parseInt(hex[3] + hex[3], 16);
+        } else if (hex.length === 7) {
+            r = parseInt(hex[1] + hex[2], 16);
+            g = parseInt(hex[3] + hex[4], 16);
+            b = parseInt(hex[5] + hex[6], 16);
+        }
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     const generateColorArray = (baseColor, length) => {
         const colorArray = [];
-        const base = baseColor.match(/\d+/g).map(Number);
+        let base;
+
+        if (baseColor.startsWith('rgba')) {
+            base = baseColor.match(/\d+/g).map(Number);
+            base.push(1); // Add alpha value
+        } else if (baseColor.startsWith('#')) {
+            base = hexToRgba(baseColor).match(/\d+/g).map(Number);
+        } else {
+            console.error("Color base no válido:", baseColor);
+            return colorArray;
+        }
+
         for (let i = 0; i < length; i++) {
             const factor = 1 - i / (length * 1.5);
-            const color = `rgba(${base[0] * factor}, ${base[1] * factor}, ${base[2] * factor}, ${base[3] || 1})`;
+            const color = `rgba(${base[0] * factor}, ${base[1] * factor}, ${base[2] * factor}, ${base[3]})`;
             colorArray.push(color);
         }
         return colorArray;
@@ -119,11 +198,10 @@ const ReporteServicios = () => {
     const updateChart = (canvasRef, chartRef, data, label, type, axisType = 'fecha') => {
         destroyChart(chartRef);
 
-        // Obtener variables CSS
-        const style = getComputedStyle(document.body);
-        const primaryColor = style.getPropertyValue('--celeste');
-        const primaryColorRgba = style.getPropertyValue('--celeste-rgba');
-        const secondaryColorRgba = style.getPropertyValue('--rojo-rgba');
+        const style = getComputedStyle(document.documentElement);
+        const primaryColor = style.getPropertyValue('--celeste').trim();
+        const primaryColorRgba = style.getPropertyValue('--celeste-rgba').trim();
+        const secondaryColorRgba = style.getPropertyValue('--rojo-rgba').trim();
 
         const backgroundColors = generateColorArray(primaryColorRgba, data.length);
         const borderColors = generateColorArray(primaryColor, data.length);
@@ -131,7 +209,7 @@ const ReporteServicios = () => {
         let chartData = data;
         if (axisType === 'fecha') {
             if (label === 'Ventas de Servicios por Día' || label === 'Ventas de Paquetes por Día') {
-                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
                 const salesByDay = Array(7).fill(0);
 
                 data.forEach(item => {
@@ -205,7 +283,7 @@ const ReporteServicios = () => {
                         }
                     },
                     legend: {
-                        display: type !== 'pie' // Ocultar leyenda para gráficos de pie
+                        display: type !== 'pie'
                     }
                 },
                 scales: {
@@ -219,6 +297,36 @@ const ReporteServicios = () => {
 
     const checkEmptyData = (data, label) => {
         return data.length === 0 ? "No hay datos" : label;
+    };
+
+    const moveCard = (dragIndex, hoverIndex) => {
+        const draggedCard = cards[dragIndex];
+        setCards(update(cards, {
+            $splice: [
+                [dragIndex, 1],
+                [hoverIndex, 0, draggedCard]
+            ]
+        }));
+    };
+
+    const renderCardContent = (content) => {
+        console.log("ESTE ES EL CONTENT PARA CHART: ", content);
+        switch (content.chart) {
+            case 'totalSalesChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{currency}{totalSales.toFixed(2)}</NumericIndicator> <ChartContainer> <canvas ref={totalSalesRef}></canvas> </ChartContainer> </CardContent>;
+            case 'transactionCountChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{transactionCount}</NumericIndicator> <ChartContainer> <canvas ref={transactionCountRef}></canvas> </ChartContainer>  </CardContent>;
+            case 'averageSalesChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{currency}{averageSales.toFixed(2)}</NumericIndicator> <ChartContainer> <canvas ref={averageSalesRef}></canvas> </ChartContainer> </CardContent>;
+            case 'servicesSalesChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <ChartContainer> <canvas ref={servicesSalesRef}></canvas> </ChartContainer> </CardContent>;
+            case 'packagesSalesChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <ChartContainer> <canvas ref={packagesSalesRef}></canvas> </ChartContainer> </CardContent>;
+            case 'totalServicesChart':
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{totalServices}</NumericIndicator> <ChartContainer> <canvas ref={totalServicesRef}></canvas> </ChartContainer> </CardContent>;
+            default:
+                return null;
+        }
     };
 
     return (
@@ -239,58 +347,13 @@ const ReporteServicios = () => {
                         Filtrar
                     </button>
                 </StyledModal>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Ventas Totales</CardTitle>
-                        <NumericIndicator>{currency}{totalSales.toFixed(2)}</NumericIndicator>
-                        <ChartContainer>
-                            <canvas ref={totalSalesRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Transacciones</CardTitle>
-                        <NumericIndicator>{transactionCount}</NumericIndicator>
-                        <ChartContainer>
-                            <canvas ref={transactionCountRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Ventas Promedio</CardTitle>
-                        <NumericIndicator>{currency}{averageSales.toFixed(2)}</NumericIndicator>
-                        <ChartContainer>
-                            <canvas ref={averageSalesRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Ventas de Servicios por Día</CardTitle>
-                        <ChartContainer>
-                            <canvas ref={servicesSalesRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Ventas de Paquetes por Día</CardTitle>
-                        <ChartContainer>
-                            <canvas ref={packagesSalesRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
-                <CardContainer>
-                    <CardContent>
-                        <CardTitle>Total de Servicios</CardTitle>
-                        <NumericIndicator>{totalServices}</NumericIndicator>
-                        <ChartContainer>
-                            <canvas ref={totalServicesRef}></canvas>
-                        </ChartContainer>
-                    </CardContent>
-                </CardContainer>
+                {boardConfigLoaded && cards.map((card, index) => (
+                    <CardWithDragAndDrop key={card.id} index={index} id={card.id} moveCard={moveCard}>
+                        <CardContainer>
+                            {renderCardContent(card.content)}
+                        </CardContainer>
+                    </CardWithDragAndDrop>
+                ))}
             </DashboardContainer>
         </div>
     );
