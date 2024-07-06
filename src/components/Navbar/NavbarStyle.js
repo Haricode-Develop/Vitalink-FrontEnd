@@ -21,7 +21,6 @@ export const Header = styled.header`
   }
 `;
 
-
 export const Logo = styled.div`
   img {
     height: 40px;
@@ -55,6 +54,7 @@ export const Menu = styled.ul`
     flex-direction: column;
     width: 100%;
     padding: 1rem 0;
+    gap: 0rem;
   }
 `;
 
@@ -77,7 +77,6 @@ export const MenuLink = styled(Link)`
     background: #efefef;
     border-radius: 10px;
   }
-
 `;
 
 export const AuthButtons = styled.div`
@@ -125,7 +124,6 @@ export const AuthButtons = styled.div`
     }
   }
 `;
-
 
 export const Hamburger = styled.div`
   display: none;
