@@ -1,20 +1,19 @@
-// Configuracion.js
-
-import React, {useState, useRef, useEffect, useContext} from 'react';
-import { TabBar, Tab, TabContent, ActiveIndicator, ConfigurationWrapper, ConfigurationItem, ConfigurationLabel, ConfigurationInput, ConfigurationInputCheckbox, ModalContent } from './ConfiguracionStyle';
+import React, { useState, useRef, useEffect, useContext, createRef } from 'react';
+import { TabBar, Tab, TabContent, ActiveIndicator, ConfigurationWrapper, ConfigurationItem, ConfigurationLabel, ConfigurationInput, ConfigurationInputCheckbox, ModalContent, ConfigurationTextArea, TooltipButton } from './ConfiguracionStyle';
 import axios from 'axios';
-import {API_BASE_URL, API_BASE_URL_INSIGHT} from "../../utils/config";
-import {AuthContext} from "../../context/AuthContext";
+import { API_BASE_URL, API_BASE_URL_INSIGHT } from "../../utils/config";
+import { AuthContext } from "../../context/AuthContext";
 import { useWebSocket } from '../../context/WebSocketContext';
-import {StyledModal} from "../../components/Modal";
+import { StyledModal } from "../../components/Modal";
 import { toast } from 'react-toastify';
 import GestionPacientes from "../../components/GestionPacientes/GestionPacientes";
 import Loader from "../../components/Loader/Loader";
-import {useSede} from "../../context/SedeContext";
+import { useSede } from "../../context/SedeContext";
 
 const Configuracion = () => {
     const [activeTab, setActiveTab] = useState('gestionPacientes');
     const [configuraciones, setConfiguraciones] = useState([]);
+    const [tooltips, setTooltips] = useState({});
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const [qrCode, setQrCode] = useState('');
     const [loadingQR, setLoadingQR] = useState(false);
@@ -22,6 +21,7 @@ const Configuracion = () => {
     const [modalImageKey, setModalImageKey] = useState(0);
     const tabsRef = useRef({ usuarios: null, citas: null });
     const updateTimer = useRef(null);
+    const inputRefs = useRef({});
     const { ws } = useWebSocket();
     const { idSedeActual } = useSede();
 
@@ -30,12 +30,26 @@ const Configuracion = () => {
     };
 
     const { userData } = useContext(AuthContext);
-    const validarValorConRegex = (valor, patron) => {
-        if (!patron) return true;
-        const regex = new RegExp(patron);
-        return regex.test(valor);
-    };
 
+    const validarValorConRegex = (valor, patron) => {
+        if (!patron || valor === '') return { valid: true };
+        const regex = new RegExp(patron);
+        if (regex.test(valor)) {
+            return { valid: true };
+        } else {
+            const invalidChars = [];
+            for (let i = 0; i < valor.length; i++) {
+                const char = valor[i];
+                if (!regex.test(char)) {
+                    invalidChars.push(char);
+                }
+            }
+            return {
+                valid: false,
+                message: `El valor ingresado no cumple con el formato requerido. Caracteres no válidos: "${invalidChars.join('')}"`
+            };
+        }
+    };
 
     useEffect(() => {
         const activeTabElement = tabsRef.current[activeTab];
@@ -56,6 +70,10 @@ const Configuracion = () => {
                     VALOR: c.TIPO === 'boolean' ? c.VALOR === '1' || c.VALOR === 'true' : c.VALOR
                 }));
                 setConfiguraciones(configs);
+                // Cargar tooltips para cada configuración
+                for (let config of configs) {
+                    await cargarToolTips(config.ID_CONFIGURACION);
+                }
             } catch (error) {
                 console.error('Error al obtener configuraciones:', error);
                 setConfiguraciones([]);
@@ -65,10 +83,22 @@ const Configuracion = () => {
         cargarConfiguraciones();
     }, [activeTab, idSedeActual]);
 
+    const cargarToolTips = async (idConfiguracion) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/configuraciones/tooltip/${idConfiguracion}`);
+            setTooltips(prevTooltips => ({
+                ...prevTooltips,
+                [idConfiguracion]: response.data.tooltip
+            }));
+        } catch (error) {
+            console.error('Error al obtener tooltips:', error);
+        }
+    };
 
     const handleInputChange = async (idConfiguracion, clave, nuevoValor, tipo, patron) => {
-        if (tipo !== 'boolean' && !validarValorConRegex(nuevoValor, patron)) {
-            toast.error('El valor ingresado no cumple con el formato requerido.');
+        const validation = validarValorConRegex(nuevoValor, patron);
+        if (tipo !== 'boolean' && !validation.valid) {
+            toast.error(validation.message);
             return;
         }
 
@@ -77,6 +107,7 @@ const Configuracion = () => {
             conf.ID_CONFIGURACION === idConfiguracion ? { ...conf, VALOR: valorActualizado } : conf
         );
         setConfiguraciones(configsActualizadas);
+
         // Manejo de la activación de WhatsApp
         if (clave === 'whatsapp_activado' && nuevoValor) {
             setLoadingQR(true);
@@ -111,7 +142,6 @@ const Configuracion = () => {
 
         if (updateTimer.current) clearTimeout(updateTimer.current);
 
-
         updateTimer.current = setTimeout(async () => {
             try {
                 await axios.patch(`${API_BASE_URL}/configuraciones/configuracion/${idConfiguracion}`, {
@@ -122,8 +152,6 @@ const Configuracion = () => {
             }
         }, 10000);
     };
-
-    // Dentro de tu componente Configuracion
 
     useEffect(() => {
         if (!ws) return;
@@ -151,7 +179,27 @@ const Configuracion = () => {
         };
     }, [ws]);
 
+    const insertAtCursor = (input, textToInsert) => {
+        if (input && typeof input.value === 'string') {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            input.value = before + textToInsert + after;
+            input.selectionStart = input.selectionEnd = start + textToInsert.length;
+            input.focus();
+        }
+    };
 
+    const handleTooltipClick = (idConfiguracion, tooltip) => {
+        const inputRef = inputRefs.current[idConfiguracion];
+        if (inputRef && inputRef.current) {
+            insertAtCursor(inputRef.current, `[${tooltip}]`);
+            const event = new Event('input', { bubbles: true });
+            inputRef.current.dispatchEvent(event);
+        }
+    };
 
     return (
         <>
@@ -178,28 +226,54 @@ const Configuracion = () => {
                 {activeTab === 'gestionPacientes' && <GestionPacientes />}
 
                 <ConfigurationWrapper>
-                    {configuraciones.map(({ ID_CONFIGURACION, CLAVE, VALOR, DESCRIPCION, TIPO, PATRON }) => (
-                        <ConfigurationItem key={ID_CONFIGURACION}>
-                            <ConfigurationLabel>
-                                {DESCRIPCION || CLAVE}
-                                {TIPO === 'boolean' && (
-                                    <ConfigurationInputCheckbox
-                                        type="checkbox"
-                                        checked={isChecked(VALOR)}
-                                        onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.checked, 'checkbox', PATRON)}
-                                        disabled={loadingQR && CLAVE === 'whatsapp_activado'}
+                    {configuraciones.map(({ ID_CONFIGURACION, CLAVE, VALOR, DESCRIPCION, TIPO, PATRON }) => {
+                        if (!inputRefs.current[ID_CONFIGURACION]) {
+                            inputRefs.current[ID_CONFIGURACION] = createRef();
+                        }
+
+                        return (
+                            <ConfigurationItem key={ID_CONFIGURACION}>
+                                <ConfigurationLabel>
+                                    {DESCRIPCION || CLAVE}
+                                    {TIPO === 'boolean' && (
+                                        <ConfigurationInputCheckbox
+                                            type="checkbox"
+                                            checked={isChecked(VALOR)}
+                                            onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.checked, 'checkbox', PATRON)}
+                                            disabled={loadingQR && CLAVE === 'whatsapp_activado'}
+                                        />
+                                    )}
+                                </ConfigurationLabel>
+                                {tooltips[ID_CONFIGURACION] && tooltips[ID_CONFIGURACION].length > 0 && (
+                                    <div>
+                                        {tooltips[ID_CONFIGURACION].map((tooltip, index) => (
+                                            <TooltipButton
+                                                key={index}
+                                                onClick={() => handleTooltipClick(ID_CONFIGURACION, tooltip.TOOLTIP)}
+                                            >
+                                                {tooltip.TOOLTIP}
+                                            </TooltipButton>
+                                        ))}
+                                    </div>
+                                )}
+                                {TIPO !== 'boolean' && TIPO !== 'textarea' && (
+                                    <ConfigurationInput
+                                        type={TIPO}
+                                        value={VALOR}
+                                        onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.value, TIPO, PATRON)}
+                                        ref={inputRefs.current[ID_CONFIGURACION]}
                                     />
                                 )}
-                            </ConfigurationLabel>
-                            {TIPO !== 'boolean' && (
-                                <ConfigurationInput
-                                    type={TIPO}
-                                    value={VALOR}
-                                    onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.value, TIPO, PATRON)}
-                                />
-                            )}
-                        </ConfigurationItem>
-                    ))}
+                                {TIPO === 'textarea' && (
+                                    <ConfigurationTextArea
+                                        value={VALOR}
+                                        onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.value, TIPO, PATRON)}
+                                        ref={inputRefs.current[ID_CONFIGURACION]}
+                                    />
+                                )}
+                            </ConfigurationItem>
+                        );
+                    })}
                 </ConfigurationWrapper>
                 {showQRModal && (
                     <StyledModal
@@ -218,7 +292,6 @@ const Configuracion = () => {
                     </StyledModal>
                 )}
             </TabContent>
-
         </>
     );
 };

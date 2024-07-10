@@ -1,5 +1,3 @@
-// ConfiguracionStyle.js
-
 import styled, { css } from 'styled-components';
 
 export const TabBar = styled.div`
@@ -62,12 +60,12 @@ export const TabContent = styled.div`
   background-color: var(--blanco);
   color: var(--negro);
 `;
+
 export const ConfigurationWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
-
 
 export const ConfigurationItem = styled.div`
   display: flex;
@@ -98,7 +96,40 @@ export const ConfigurationInputCheckbox = styled.input`
   margin-left: 10px;
 `;
 
-export const ModalContent = styled.div`
-    text-align: center;
+export const ConfigurationTextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-height: 100px;
 `;
 
+export const ModalContent = styled.div`
+  text-align: center;
+`;
+
+export const TooltipButton = styled.button`
+  background-color: var(--celeste);
+  color: var(--blanco);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 5px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: var(--gris-oscuro);
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+`;

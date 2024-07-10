@@ -73,10 +73,6 @@ export const MenuLink = styled(Link)`
   transition: background-color 0.3s, transform 0.3s;
   position: relative;
 
-  &:hover {
-    background: #efefef;
-    border-radius: 10px;
-  }
 `;
 
 export const AuthButtons = styled.div`

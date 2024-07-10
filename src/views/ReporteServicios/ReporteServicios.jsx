@@ -252,11 +252,24 @@ const ReporteServicios = () => {
                 }]
             };
         } else {
+            // Agrupar los datos por servicio
+            const groupedData = data.reduce((acc, item) => {
+                const serviceName = item.servicio || item.paquete;
+                if (!acc[serviceName]) {
+                    acc[serviceName] = 0;
+                }
+                acc[serviceName] += parseFloat(item.total_ventas || item.total_vendidos);
+                return acc;
+            }, {});
+
+            const groupedLabels = Object.keys(groupedData);
+            const groupedValues = Object.values(groupedData);
+
             chartData = {
-                labels: data.map(item => item.servicio || item.paquete),
+                labels: groupedLabels,
                 datasets: [{
                     label,
-                    data: data.map(item => parseFloat(item.total_ventas || item.total_vendidos)),
+                    data: groupedValues,
                     backgroundColor: backgroundColors,
                     borderColor: borderColors,
                     borderWidth: 1
