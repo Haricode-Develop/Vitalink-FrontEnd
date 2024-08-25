@@ -1,8 +1,7 @@
-// src/components/ServiciosPorUsuario/ServiciosPorUsuario.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import moment from 'moment';
 import PatientList from '../PatientList/PatientList';
 import { StyledModal } from '../Modal';
 import { useSede } from '../../context/SedeContext';
@@ -20,6 +19,8 @@ const ServiciosPorUsuario = () => {
     const [assignedServices, setAssignedServices] = useState([]);
     const [selectedService, setSelectedService] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const { idSedeActual } = useSede();
@@ -77,28 +78,37 @@ const ServiciosPorUsuario = () => {
         }
     };
 
-    const handleAssignService = async () => {
+    const handleAssignServiceOrPackage = async () => {
         if (selectedService && selectedPatient) {
-            try {
-                const endpoint = selectedService.TIPO === 'paquete'
-                    ? `${API_BASE_URL}/gestionDeNegocios/usuarios/${selectedPatient.id}/paquetes`
-                    : `${API_BASE_URL}/gestionDeNegocios/usuarios/${selectedPatient.id}/servicios`;
+            setIsDateModalOpen(true); // Abre el modal de fecha para ambos tipos
+        }
+    };
 
-                const payload = {
-                    idPaquete: selectedService.TIPO === 'paquete' ? selectedService.ID : undefined,
-                    idServicio: selectedService.TIPO === 'servicio' ? selectedService.ID : undefined,
-                    cantidad: 1,
-                };
-                console.log("Selected Service: ", selectedService);
-                console.log("Endpoint and Payload: ", endpoint, payload);
+    const handleConfirmAssignment = async () => {
+        if (!selectedService || !selectedPatient) return;
 
-                await axios.post(endpoint, payload);
-                toast.success('Servicio asignado correctamente');
-                setIsModalOpen(false);
-            } catch (error) {
-                toast.error('Error al asignar el servicio');
-                console.error('Error assigning service:', error);
+        try {
+            let endpoint;
+            let payload = {
+                cantidad: 1,
+                fechaAsignacion: moment(selectedDate).utc().set({ hour: 6, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD HH:mm:ss.SSS'), // Fecha en UTC con la hora ajustada
+            };
+
+            if (selectedService.TIPO === 'paquete') {
+                endpoint = `${API_BASE_URL}/gestionDeNegocios/usuarios/${selectedPatient.id}/paquetes`;
+                payload.idPaquete = selectedService.ID;
+            } else {
+                endpoint = `${API_BASE_URL}/gestionDeNegocios/usuarios/${selectedPatient.id}/servicios`;
+                payload.idServicio = selectedService.ID;
             }
+
+            await axios.post(endpoint, payload);
+            toast.success(`${selectedService.TIPO.charAt(0).toUpperCase() + selectedService.TIPO.slice(1)} asignado correctamente`);
+            setIsModalOpen(false);
+            setIsDateModalOpen(false);
+        } catch (error) {
+            toast.error(`Error al asignar el ${selectedService.TIPO}`);
+            console.error(`Error assigning ${selectedService.TIPO}:`, error);
         }
     };
 
@@ -122,6 +132,19 @@ const ServiciosPorUsuario = () => {
     useEffect(() => {
         filterServices();
     }, [searchTerm, filterType, services]);
+
+    useEffect(() => {
+        console.log("ESTOS SON LOS FILTERED SERVICES: ", filteredServices);
+        console.log("ESTE ES EL SERVICIO SELECCIONADO: ", selectedService);
+    }, [selectedService]);
+
+    const handleServiceSelection = (service) => {
+        // Concatenar el tipo para asegurar una identificación única
+        setSelectedService({
+            ...service,
+            uniqueID: `${service.TIPO}-${service.ID}`
+        });
+    };
 
     return (
         <Container>
@@ -164,31 +187,52 @@ const ServiciosPorUsuario = () => {
                         </FilterButtonGroup>
                     </FilterContainer>
                     <ServiceAssignmentList>
-                        {filteredServices.map(service => (
+                        {filteredServices.map((service) => (
                             <ServiceAssignmentItem
-                                key={service.ID}
-                                onClick={() => setSelectedService(service)}
-                                selected={selectedService && selectedService.ID === service.ID}
+                                key={`${service.TIPO}-${service.ID}`} // Clave única
+                                onClick={() => handleServiceSelection(service)}
+                                selected={selectedService && selectedService.uniqueID === `${service.TIPO}-${service.ID}`} // Compara la selección
                             >
                                 {service.TITULO} - {service.PRECIO} {service.MONEDA} ({service.TIPO.charAt(0).toUpperCase() + service.TIPO.slice(1)})
                             </ServiceAssignmentItem>
                         ))}
                     </ServiceAssignmentList>
-                    <Button onClick={handleAssignService}>Asignar</Button>
+                    <Button onClick={handleAssignServiceOrPackage}>Asignar</Button>
                     <h3>Servicios y Paquetes Asignados</h3>
                     <ServiceAssignmentList>
-                        {assignedServices.servicios && assignedServices.servicios.map(service => (
-                            <ServiceAssignmentItem key={service.id}>
+                        {assignedServices.servicios && assignedServices.servicios.map((service) => (
+                            <ServiceAssignmentItem key={`servicio-${service.id}`}>
                                 {service.titulo} - {service.precio} {service.moneda} (Servicio)
                             </ServiceAssignmentItem>
                         ))}
-                        {assignedServices.paquetes && assignedServices.paquetes.map(paquete => (
-                            <ServiceAssignmentItem key={paquete.id}>
+                        {assignedServices.paquetes && assignedServices.paquetes.map((paquete) => (
+                            <ServiceAssignmentItem key={`paquete-${paquete.id}`}>
                                 {paquete.titulo} - {paquete.precio} {paquete.moneda} (Paquete)
                             </ServiceAssignmentItem>
                         ))}
                     </ServiceAssignmentList>
                 </ServiceAssignmentContainer>
+            </StyledModal>
+
+            {/* Nuevo Modal para Seleccionar Fecha de Asignación */}
+            <StyledModal
+                isOpen={isDateModalOpen}
+                onRequestClose={() => setIsDateModalOpen(false)}
+                width="400px"
+                height="200px"
+            >
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                    <h3>Seleccionar Fecha de Asignación</h3>
+                    <input
+                        type="date"
+                        value={moment(selectedDate).format('YYYY-MM-DD')}
+                        onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                    />
+                    <div style={{ marginTop: '20px' }}>
+                        <Button onClick={handleConfirmAssignment}>Confirmar</Button>
+                        <Button onClick={() => setIsDateModalOpen(false)}>Cancelar</Button>
+                    </div>
+                </div>
             </StyledModal>
         </Container>
     );

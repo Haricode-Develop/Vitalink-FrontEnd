@@ -31,6 +31,8 @@ import HomePage from './views/HomePage/HomePage';
 import AcercaDeNosotros from "./views/AcercaDeNosotros/AcercaDeNosotros";
 import Contactanos from "./views/Contactanos/Contactanos";
 import Princing from "./views/Pricing/Pricing";
+import FichaClinica from "./views/FichasClinicas/FichasClinicas";
+import Billing from "./views/Billing/Billing";
 
 const MainRoutes = () => {
     const { isAuthenticated, setIsAuthenticated, userData, loading, logout } = useContext(AuthContext);
@@ -55,7 +57,7 @@ const MainRoutes = () => {
                     <Route path="/resetPassword" element={<ResetPasswordPage />} />
                     <Route path="/contact" element={<Contactanos />} />
                     <Route path="/pricing" element={<Princing />} />
-
+                    <Route path="/billing" element={<Billing/>}></Route>
                     <Route path="/dashboard/*" element={isAuthenticated ? <LayoutSide /> : <Navigate to="/login" replace />}>
                         <Route index element={<Dashboard />} />
                         <Route path="ingresar-medico" element={<IngresarFisioterapeuta />} />
@@ -74,6 +76,7 @@ const MainRoutes = () => {
                         <Route path="configuracion" element={<Configuracion />} />
                         <Route path="gestion-servicios" element={<GestionServicios />} />
                         <Route path="reporte-servicios" element={<ReporteServicios />} />
+                        <Route path="ficha-clinica" element={<FichaClinica/>}></Route>
                     </Route>
 
                     <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />

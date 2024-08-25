@@ -67,7 +67,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
 
         if (name === 'nombreInvitado' && value.trim() !== '') {
             try {
-                const response = await axios.get(`${API_BASE_URL}/calendario/recomendacionContacto`, { params: { nombre: value.trim() } });
+                const response = await axios.get(`${API_BASE_URL}/calendario/recomendacionContacto`, { params: { nombre: value.trim(), idSede: idSedeActual } });
                 setPhoneNumbers(response.data.map(phone => phone.Telefono_Usuario || phone.Telefono_Invitado));
             } catch (error) {
                 console.error('Error fetching contact recommendations:', error);
@@ -85,6 +85,8 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         }
 
         try {
+
+
             const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
             const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
             const citaData = {
@@ -95,8 +97,11 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 idEstado: externalAppointment.estado,
                 nombreInvitado: externalAppointment.nombreInvitado,
                 contactoInvitado: externalAppointment.contactoInvitado,
+                idServicio: externalAppointment.servicio,
                 idSede: idSedeActual
             };
+
+            const idCita = await addExternalAppointment(citaData);
 
             if (applyPackage && idUsuario !== null && selectedServicio !== null && selectedServicio !== '') {
                 await restarCantidadServicio(idUsuario, selectedServicio);
@@ -105,12 +110,12 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                     // Insertar servicio
                     await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
                         idServicio: externalAppointment.servicio,
+                        fechaAsignacion: moment(selectedDate).utc().set({ hour: 6, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD HH:mm:ss.SSS'),
+                        idCita: idCita,
                         cantidad: 1
                     });
                 }
             }
-
-            addExternalAppointment(citaData);
 
             // Reiniciar el formulario y limpiar el modal de servicios del paquete
             setExternalAppointment({
@@ -194,6 +199,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             try {
                 const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/asignaciones`);
                 const { idUsuario, paquetes } = response.data;
+                console.log("ESTO ES LA RESPUESTA: ", response.data);
                 setIdUsuario(idUsuario);
 
                 if (paquetes.length > 0) {
@@ -245,10 +251,13 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
 
     const handleServicioSeleccionado = async (servicioId) => {
         try {
-            setSelectedServicio(servicioId);
+            setExternalAppointment(prev => ({
+                ...prev,
+                servicio: servicioId
+            }));
             setIsPackageModalOpen(false);
         } catch (error) {
-            console.error('Error al restar cantidad de servicio:', error);
+            console.error('Error al seleccionar el servicio:', error);
         }
     };
 

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
+import axios from 'axios';
+
 import {
     PricingSection,
     PricingHeader,
@@ -18,9 +21,26 @@ import {
     CloseButton
 } from './PricingStyle';
 import featureImage from '../../assets/homePage/vitaHomePage.webm';
+import { API_BASE_URL_BILLING_SERVICE } from "../../utils/config";
 
 const Pricing = () => {
     const [showPopup, setShowPopup] = useState(false);
+    const [plans, setPlans] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL_BILLING_SERVICE}/plans`);
+                console.log("ESTE ES EL RESPONSE: ", response);
+                setPlans(response.data);
+            } catch (error) {
+                console.error('Error fetching plans:', error);
+            }
+        };
+
+        fetchPlans();
+    }, []);
 
     const handlePopup = () => {
         setShowPopup(true);
@@ -28,6 +48,11 @@ const Pricing = () => {
 
     const closePopup = () => {
         setShowPopup(false);
+    };
+
+    const handlePurchase = (plan) => {
+        // Navega a Billing y pasa los detalles del plan seleccionado
+        navigate('/billing', { state: { plan } });
     };
 
     return (
@@ -75,26 +100,25 @@ const Pricing = () => {
                     </svg>
                 </SVGContainer>
                 <PricingContent>
-                    <PricingCard>
-                        <PricingCardHeader>
-                            <h2>Premium</h2>
-                            <p>$20 / mes</p>
-                        </PricingCardHeader>
-                        <PricingCardBody>
-                            <ul>
-                                <li>Calendarización de citas interactivas</li>
-                                <li>Gestión de servicios</li>
-                                <li>Reporte financiero</li>
-                                <li>Dashboard de visualización de datos generales de la institución</li>
-                                <li>Exportación por medio de excel</li>
-                                <li>Recordatorios automatizados por medio de inteligencia artificial</li>
-                                <li>Gestión de médicos y pacientes</li>
-                            </ul>
-                        </PricingCardBody>
-                        <PricingCardFooter>
-                            <PricingButton onClick={handlePopup}>Comenzar</PricingButton>
-                        </PricingCardFooter>
-                    </PricingCard>
+                    {plans.map(plan => (
+                        <PricingCard key={plan.id}>
+                            <PricingCardHeader>
+                                <h2>{plan.titulo}</h2>
+                                <p>${plan.precio} / mes</p>
+                            </PricingCardHeader>
+                            <PricingCardBody>
+                                <ul>
+                                    <li>Duración: {plan.duracionMeses} meses</li>
+                                    {plan.funcionalidades && plan.funcionalidades.map(funcionalidad => (
+                                        <li key={funcionalidad.ID_FUNCIONALIDAD}>{funcionalidad.NOMBRE}</li>
+                                    ))}
+                                </ul>
+                            </PricingCardBody>
+                            <PricingCardFooter>
+                                <PricingButton onClick={() => handlePurchase(plan)}>Comprar</PricingButton>
+                            </PricingCardFooter>
+                        </PricingCard>
+                    ))}
                     <RightContainer>
                         <PricingHeader>Nuestros Planes</PricingHeader>
                         <VideoContainer>

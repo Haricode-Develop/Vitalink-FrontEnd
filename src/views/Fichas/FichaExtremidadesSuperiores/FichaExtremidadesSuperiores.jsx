@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Form, Input, Label, Title, Button, Section, Select, BodyMapStyle, DatePickerWrapper, IndicadorGuardado, ListItem, ButtonAceptar, ButtonCancelar} from './FichaExtremidadesSuperioresStyle';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -34,6 +34,7 @@ const FichaExtremidadesSuperiores = () => {
     const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
     const [isEmailRequired, setIsEmailRequired] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const bodyMapRef = useRef(null);
 
     const handleIngresarClick = (e) => {
         e.preventDefault();
@@ -63,7 +64,6 @@ const FichaExtremidadesSuperiores = () => {
             parsedData.resumen = parsedData.resumen || [];
             parsedData.zonasAExplorar = parsedData.zonasAExplorar || [];
             parsedData.idSede = idSedeActual;
-            parsedData.idInstitucion = userData.id_institucion;
             parsedData.rol = 1;
             return parsedData;
         } else {
@@ -122,7 +122,6 @@ const FichaExtremidadesSuperiores = () => {
                 sintomasPeoresOtro: '',
                 sintomasMejoresOtro: '',
                 diagnostico: '',
-                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 4,
@@ -204,7 +203,7 @@ const FichaExtremidadesSuperiores = () => {
         const fichaJsonValidado = {...fichaJsonOriginal};
 
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac',
+            'rol', 'nombre', 'apellido', 'fechaNac',
             'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico',
             'telefono', 'idSede'
         ];
@@ -273,11 +272,7 @@ const FichaExtremidadesSuperiores = () => {
             }
         })
             .then((response) => {
-                if(response.data.success && response.data.nombreArchivo) {
-                    exportPDF(response.data.nombreArchivo);
-                } else {
-                    console.error('No se recibió el nombre del archivo.');
-                }
+                exportPDF();
                 toast.success("El paciente fue añadido exitosamente", {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,
@@ -388,44 +383,47 @@ const FichaExtremidadesSuperiores = () => {
 
         }
     };
-    const exportPDF = async (nombre) => {
-        const formulario = document.getElementById("formulario");
-        const canvas = await html2canvas(formulario);
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const exportPDF = async () => {
+        try {
+            if(bodyMapRef.current){
+                const canvas = await html2canvas(bodyMapRef.current);
+                const imgData = canvas.toDataURL('image/png');
 
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'px',
-            format: [canvas.width, canvas.height]
-        });
-        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
-        const pdfBlob = pdf.output('blob');
-        const formData = new FormData();
-        formData.append('pdf', pdfBlob, nombre);
+                // Convertir la imagen a un archivo Blob
+                const responseImg = await fetch(imgData);
+                const blob = await responseImg.blob();
 
-        axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
+                const formData = new FormData();
+                formData.append('fichaJson', JSON.stringify(formValues));
+                formData.append('bodyMapImage', blob, 'bodyMapImage.png');
+
+                const response = await axios.post(`${API_BASE_URL}/fichasClinicas/generarPdfExtremidadesSuperiores/`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success) {
+                    toast.success('PDF cargado con éxito.', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                    localStorage.removeItem('datosFormularioPacienteColumnaCervical');
+                } else {
+                    throw new Error(response.data.message || 'Error al cargar el PDF.');
+                }
             }
-        })
-            .then(response => {
-
-                toast.success('PDF cargado con éxito.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
-                localStorage.removeItem('datosFormularioPacienteExtremidadesSuperiores');
-            })
-            .catch(error => {
-                console.error('Error al cargar el PDF:', error);
-                toast.error('Error al cargar el PDF.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+        } catch (error) {
+            console.error('Error al cargar el PDF:', error);
+            toast.error('Error al cargar el PDF.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
             });
-    }
+        }
+    };
+
     return (
         <>
             {isUserCreationModalVisible && (
@@ -1601,7 +1599,7 @@ const FichaExtremidadesSuperiores = () => {
                 <label htmlFor="objetivosPaciente">Diagnóstico:</label>
 
                 <textarea rows="10" cols="100" id="diagnostico" name="diagnostico" value={formValues.diagnostico} onChange={handleInputChange}></textarea>
-                <BodyMapStyle>
+                <BodyMapStyle ref={bodyMapRef}>
                     <BodyMap key={"BodyMapExtremidadesSuperiores"}/>
                 </BodyMapStyle>
                 <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>

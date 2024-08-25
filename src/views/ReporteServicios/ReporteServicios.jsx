@@ -54,13 +54,27 @@ const ReporteServicios = () => {
     const [showDateFilter, setShowDateFilter] = useState(false);
     const { userData } = useContext(AuthContext);
 
+    const adjustDatesForUTC = (start, end) => {
+        const adjustedStartDate = moment(start).utc().set({ hour: 6, minute: 0, second: 0 });
+        const adjustedEndDate = moment(end).utc().add(1, 'day').set({ hour: 5, minute: 59, second: 59 });
+        return { adjustedStartDate, adjustedEndDate };
+    };
+
+    const formatDatesForAPI = (date) => {
+        return moment(date).format('YYYY-MM-DD HH:mm:ss.SSS');
+    };
+
     const fetchData = async () => {
         try {
+            const { adjustedStartDate, adjustedEndDate } = adjustDatesForUTC(startDate, endDate);
+            const formattedStartDate = formatDatesForAPI(adjustedStartDate);
+            const formattedEndDate = formatDatesForAPI(adjustedEndDate);
+
             const [salesResponse, packagesResponse, transactionsResponse, totalServicesResponse] = await Promise.allSettled([
-                axios.get(`${API_BASE_URL}/dashboardIndicadores/ventas-servicios/${idSedeActual}`, { params: { startDate, endDate } }),
-                axios.get(`${API_BASE_URL}/dashboardIndicadores/ventas-paquetes/${idSedeActual}`, { params: { startDate, endDate } }),
-                axios.get(`${API_BASE_URL}/dashboardIndicadores/transacciones-servicios-paquetes/${idSedeActual}`, { params: { startDate, endDate } }),
-                axios.get(`${API_BASE_URL}/dashboardIndicadores/cantidad-servicios-vendidos/${idSedeActual}`, { params: { startDate, endDate } })
+                axios.get(`${API_BASE_URL}/dashboardIndicadores/ventas-servicios/${idSedeActual}`, { params: { startDate: formattedStartDate, endDate: formattedEndDate } }),
+                axios.get(`${API_BASE_URL}/dashboardIndicadores/ventas-paquetes/${idSedeActual}`, { params: { startDate: formattedStartDate, endDate: formattedEndDate } }),
+                axios.get(`${API_BASE_URL}/dashboardIndicadores/transacciones-servicios-paquetes/${idSedeActual}`, { params: { startDate: formattedStartDate, endDate: formattedEndDate } }),
+                axios.get(`${API_BASE_URL}/dashboardIndicadores/cantidad-servicios-vendidos/${idSedeActual}`, { params: { startDate: formattedStartDate, endDate: formattedEndDate } })
             ]);
 
             const salesData = salesResponse.status === 'fulfilled' ? salesResponse.value.data.ventasServicios : [];
@@ -323,7 +337,6 @@ const ReporteServicios = () => {
     };
 
     const renderCardContent = (content) => {
-        console.log("ESTE ES EL CONTENT PARA CHART: ", content);
         switch (content.chart) {
             case 'totalSalesChart':
                 return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{currency}{totalSales.toFixed(2)}</NumericIndicator> <ChartContainer> <canvas ref={totalSalesRef}></canvas> </ChartContainer> </CardContent>;
@@ -334,7 +347,7 @@ const ReporteServicios = () => {
             case 'servicesSalesChart':
                 return <CardContent> <CardTitle>{content.title}</CardTitle> <ChartContainer> <canvas ref={servicesSalesRef}></canvas> </ChartContainer> </CardContent>;
             case 'packagesSalesChart':
-                return <CardContent> <CardTitle>{content.title}</CardTitle> <ChartContainer> <canvas ref={packagesSalesRef}></canvas> </ChartContainer> </CardContent>;
+                return <CardContent> <CardTitle>{content.title}</CardTitle> <ChartContainer> <canvas ref={packagesSalesRef}></canvas></ChartContainer>  </CardContent>;
             case 'totalServicesChart':
                 return <CardContent> <CardTitle>{content.title}</CardTitle> <NumericIndicator>{totalServices}</NumericIndicator> <ChartContainer> <canvas ref={totalServicesRef}></canvas> </ChartContainer> </CardContent>;
             default:

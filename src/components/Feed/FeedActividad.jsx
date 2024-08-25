@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext  } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     ActivityFeedContainer,
     ActivityTitle,
@@ -8,20 +8,17 @@ import {
     ActivityTime,
     ActivityIcon
 } from "./FeedActividadStyle";
-import axios from 'axios';
-import { API_BASE_URL } from "../../utils/config";
-import { FaEdit, FaPlus, FaTrash, FaRedo } from 'react-icons/fa'; // Importamos el icono FaRedo
-import {SedeContext} from "../../context/SedeContext";
+import { FaEdit, FaPlus, FaTrash, FaRedo } from 'react-icons/fa';
+import { SedeContext } from "../../context/SedeContext";
 import { useWebSocket } from '../../context/WebSocketContext';
 
-const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => {
+const ActivityFeed = ({ idRol, idAccion, idEntidadAfectada }) => {
     const [activities, setActivities] = useState([]);
     const { idSedeActual } = useContext(SedeContext);
     const { ws } = useWebSocket();
 
-
     useEffect(() => {
-        if (ws && idSedeActual) {
+        if (ws && ws.readyState === WebSocket.OPEN && idSedeActual) {
             ws.send(JSON.stringify({
                 type: 'GET_ACTION_HISTORY',
                 payload: { idRol, idAccion, idSede: idSedeActual, idEntidadAfectada }
@@ -48,8 +45,6 @@ const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => 
         };
     }, [ws, idRol, idAccion, idSedeActual, idEntidadAfectada]);
 
-
-
     const getIcon = (action) => {
         switch (action) {
             case 'Añadido':
@@ -64,14 +59,16 @@ const ActivityFeed = ({ idRol, idAccion, idInstitucion, idEntidadAfectada }) => 
                 return <FaEdit />;
         }
     };
+
     const formatDate = (dateString) => {
         const [dateComponent, timeComponent] = dateString.split('T');
         const [year, month, day] = dateComponent.split('-');
         const [hours, minutes] = timeComponent.replace('Z', '').split(':');
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
+
     return (
-        <ActivityFeedContainer className={"FeedActividades"}>
+        <ActivityFeedContainer className="FeedActividades">
             <ActivityTitle>Feed de Actividades</ActivityTitle>
             <ActivityList>
                 {activities.map((activity, index) => (

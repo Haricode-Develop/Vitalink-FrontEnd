@@ -254,7 +254,8 @@ const AppointmentCalendar = () => {
                     minute: event.extendedProps.startTime.split(':')[1],
                     idEstado: event.extendedProps.idEstado,
                     nombreInvitado: event.extendedProps.nombreInvitado,
-                    contactoInvitado: event.extendedProps.contactoInvitado
+                    contactoInvitado: event.extendedProps.contactoInvitado,
+                    idServicio: event.extendedProps.idServicio
                 });
 
                 if (!event.extendedProps.idUsuario) {
@@ -309,7 +310,8 @@ const AppointmentCalendar = () => {
             minute: startTime[1],
             idEstado: cita.extendedProps.idEstado,
             nombreInvitado: cita.extendedProps.nombreInvitado,
-            contactoInvitado: cita.extendedProps.contactoInvitado
+            contactoInvitado: cita.extendedProps.contactoInvitado,
+            idServicio: cita.extendedProps.idServicio
         });
 
         setEditModalOpen(true);
@@ -347,15 +349,16 @@ const AppointmentCalendar = () => {
                     idEstado: appointmentData.idEstado,
                     idCita: citaId,
                     nombreInvitado: appointmentData.nombreInvitado,
-                    contactoInvitado: appointmentData.contactoInvitado
+                    contactoInvitado: appointmentData.contactoInvitado,
+                    idServicio: appointmentData.idServicio
                 },
             };
-
             setAllEvents(prevEvents => [...prevEvents, newEvent]);
             setCurrentEvents(prevEvents => [...prevEvents, newEvent]);
             setModalCalendarOpen(false);
 
             calendarRef.current.getApi().refetchEvents();
+            return citaId;
         } catch (error) {
             console.error('Error al agregar la cita externa:', error);
             toast.error('Error al agregar la cita externa.');
@@ -604,11 +607,18 @@ const AppointmentCalendar = () => {
             } else {
                 if (selectedServicio !== null && selectedServicio !== '') {
                     // Insertar servicio
-                    const telefono = await axios.get(`${API_BASE_URL}/general/usuario/telefono/${selectedPatient.idUsuario}`);
-                    console.log("TELEFONO: ", telefono.data[0].TELEFONO);
-                    await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono.data[0].TELEFONO}/servicios`, {
+                    let telefono;
+                    if(selectedPatient.idUsuario){
+                        telefono = await axios.get(`${API_BASE_URL}/general/usuario/telefono/${selectedPatient.idUsuario}`);
+                    }else{
+                        telefono = selectedEvent.contactoInvitado;
+                    }
+                    await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono}/servicios`, {
                         idServicio: selectedServicio,
-                        cantidad: 1
+                        idCita: selectedEvent.id,
+                        fechaAsignacion: moment(selectedDate).utc().set({ hour: 6, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD HH:mm:ss.SSS'),
+                        cantidad: 1,
+                        esActualizar: true
                     });
 
                 }
@@ -623,7 +633,7 @@ const AppointmentCalendar = () => {
                 horaCita: formattedTime,
                 idEstado: selectedEvent.idEstado,
                 nombreInvitado: selectedPatient.idUsuario ? null : selectedEvent.nombreInvitado,
-                contactoInvitado: selectedPatient.idUsuario ? null : selectedEvent.contactoInvitado
+                contactoInvitado: selectedPatient.idUsuario ? null : selectedEvent.contactoInvitado,
             })
                 .then(async response => {
                     if (isDateChanged) {
@@ -714,6 +724,7 @@ const AppointmentCalendar = () => {
         const idEstado = event.extendedProps.idEstado;
         const estadoName = findEstadoNameById(idEstado) || "Estado desconocido";
         const contactoInvitado = event.extendedProps.contactoInvitado;
+        const idServicio = event.extendedProps.idServicio;
         console.log("ESTE ES EL CONTACTO DEL INVITADO", contactoInvitado);
 
         const idPaciente = event.extendedProps.idUsuario;
@@ -727,6 +738,7 @@ const AppointmentCalendar = () => {
                 nombreInvitado: nombreInvitado,
                 contactoInvitado: contactoInvitado,
                 idPaciente: idPaciente,
+                idServicio: idServicio,
                 idUsuarioEdita: userData.id_usuario
             });
             toast.success('Cita actualizada correctamente.');
@@ -746,7 +758,8 @@ const AppointmentCalendar = () => {
                             ...evt.extendedProps,
                             nombreInvitado: nombreInvitado,
                             estado: estadoName,
-                            contactoInvitado: contactoInvitado
+                            contactoInvitado: contactoInvitado,
+                            idServicio: idServicio
                         }
                     };
                 }
@@ -791,6 +804,7 @@ const AppointmentCalendar = () => {
                         default:
                             color = 'grey';
                     }
+
                     return {
                         id: `event-${cita.idUsuario}-${cita.idCita}`,
                         title: title,
@@ -804,7 +818,8 @@ const AppointmentCalendar = () => {
                             idUsuario: cita.idUsuario,
                             nombreInvitado: cita.nombreInvitado,
                             contactoInvitado: cita.contactoInvitado,
-                            idEstado: cita.idEstado
+                            idEstado: cita.idEstado,
+                            idServicio: cita.idServicio
 
                         }
                     };
@@ -841,6 +856,7 @@ const AppointmentCalendar = () => {
             try {
 
                 const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono.data[0].TELEFONO}/asignaciones`);
+                console.log("ESTA ES LA RESPUESTA: ", response);
                 const { idUsuario, paquetes } = response.data;
                 setIdUsuario(idUsuario);
 
@@ -966,6 +982,14 @@ const AppointmentCalendar = () => {
 
         fetchServiciosPorCita();
     }, [idSedeActual]);
+
+    useEffect(() => {
+        if (selectedEvent && selectedEvent.idServicio != null) {
+            setSelectedServicio(selectedEvent.idServicio);
+        } else {
+            setSelectedServicio('');
+        }
+    }, [selectedEvent]);
 
 
     return (
@@ -1099,7 +1123,7 @@ const AppointmentCalendar = () => {
                             <InputGroup>
                                 <StyledLabel>Servicio:</StyledLabel>
                                 <StyledSelect
-                                    value={selectedServicio}
+                                    value={selectedServicio ? selectedServicio : ''}
                                     onChange={(e) => setSelectedServicio(e.target.value)}
                                     disabled={applyPackage}
                                 >

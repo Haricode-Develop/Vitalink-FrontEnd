@@ -44,32 +44,32 @@ const ActualizarAdministrador = () => {
             })
                 .then((response) => {
                     setAdministradores(response.data.administradores);
+                    setFilteredAdministradores(response.data.administradores); // Inicialmente, mostrar todos los administradores
                 })
                 .catch((error) => {
-
+                    console.error('Error al obtener administradores:', error);
                 });
         }
     }, [idSedeActual, busquedaNombre, busquedaApellido, busquedaEmail]);
 
     useEffect(() => {
         const filtered = administradores.filter(adm =>
-            adm && adm.EMAIL &&
-            (busquedaNombre === '' || adm.NOMBRE.toLowerCase().includes(busquedaNombre.toLowerCase())) &&
-            (busquedaApellido === '' || adm.APELLIDO.toLowerCase().includes(busquedaApellido.toLowerCase())) &&
-            (busquedaEmail === '' || adm.EMAIL.toLowerCase().includes(busquedaEmail.toLowerCase()))
+            adm && adm.email &&
+            (busquedaNombre === '' || adm.nombre.toLowerCase().includes(busquedaNombre.toLowerCase())) &&
+            (busquedaApellido === '' || adm.apellido.toLowerCase().includes(busquedaApellido.toLowerCase())) &&
+            (busquedaEmail === '' || adm.email.toLowerCase().includes(busquedaEmail.toLowerCase()))
         );
         setFilteredAdministradores(filtered);
     }, [busquedaNombre, busquedaApellido, busquedaEmail, administradores]);
 
-
     const handleModalOpen = (id) => {
-        const adminSeleccionado = administradores.find(admin => admin.ID_USUARIO === id);
+        const adminSeleccionado = administradores.find(admin => admin.idUsuario === id);
         if(adminSeleccionado) {
-            setNombre(adminSeleccionado.NOMBRE);
-            setApellido(adminSeleccionado.APELLIDO);
-            const fecha = new Date(adminSeleccionado.FECHA_DE_NACIMIENTO);
+            setNombre(adminSeleccionado.nombre);
+            setApellido(adminSeleccionado.apellido);
+            const fecha = new Date(adminSeleccionado.fechaDeNacimiento);
             setFechaNacimiento(fecha);
-            setEmail(adminSeleccionado.EMAIL);
+            setEmail(adminSeleccionado.email);
         }
         setSelectedId(id);
         setIsModalOpen(true);
@@ -85,7 +85,6 @@ const ActualizarAdministrador = () => {
     };
 
     const handleUpdate = () => {
-
         if (!nombre || !apellido || !fechaNacimiento) {
             toast.warn('Todos los campos son obligatorios', {
                 position: toast.POSITION.TOP_RIGHT,
@@ -112,18 +111,18 @@ const ActualizarAdministrador = () => {
 
                 // Actualizar la lista de administradores en el frontend
                 const updatedAdministradores = administradores.map(admin => {
-                    if (admin.ID_USUARIO === selectedId) {
-                        return { ...admin, NOMBRE: nombre, APELLIDO: apellido, FECHA_NACIMIENTO: fechaNacimiento, EMAIL: email };
+                    if (admin.idUsuario === selectedId) {
+                        return { ...admin, nombre, apellido, fechaDeNacimiento: fechaNacimiento, email };
                     }
                     return admin;
                 });
 
                 setAdministradores(updatedAdministradores);
                 setFilteredAdministradores(updatedAdministradores.filter(adm =>
-                    adm.EMAIL &&
-                    (nombre === '' || adm.NOMBRE.toLowerCase().includes(nombre.toLowerCase())) &&
-                    (apellido === '' || adm.APELLIDO.toLowerCase().includes(apellido.toLowerCase())) &&
-                    (email === '' || adm.EMAIL.toLowerCase().includes(email.toLowerCase()))
+                    adm.email &&
+                    (nombre === '' || adm.nombre.toLowerCase().includes(nombre.toLowerCase())) &&
+                    (apellido === '' || adm.apellido.toLowerCase().includes(apellido.toLowerCase())) &&
+                    (email === '' || adm.email.toLowerCase().includes(email.toLowerCase()))
                 ));
 
                 handleModalClose();
@@ -137,7 +136,6 @@ const ActualizarAdministrador = () => {
                 });
             });
     };
-
 
     return (
         <Container>
@@ -153,11 +151,11 @@ const ActualizarAdministrador = () => {
                     <AdminList>
                         {filteredAdministradores.length > 0 ? (
                             filteredAdministradores.map(admin => (
-                                <ListItem key={admin.ID_USUARIO}>
+                                <ListItem key={admin.idUsuario}>
                                     <AdminInfo>
-                                        {admin.NOMBRE} {admin.APELLIDO} ({admin.EMAIL})
+                                        {admin.nombre} {admin.apellido} ({admin.email})
                                     </AdminInfo>
-                                    <SelectButton onClick={() => handleModalOpen(admin.ID_USUARIO)}>Seleccionar</SelectButton>
+                                    <SelectButton onClick={() => handleModalOpen(admin.idUsuario)}>Seleccionar</SelectButton>
                                 </ListItem>
                             ))
                         ) : (
@@ -186,7 +184,6 @@ const ActualizarAdministrador = () => {
                                     placeholderText="Selecciona una fecha"
                                 />
                             </DatePickerWrapper>
-                            {/*<EmailInput placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} />*/}
                         </ModalBody>
                         <ModalFooter>
                             <Button onClick={handleUpdate}>Confirmar Actualización</Button>

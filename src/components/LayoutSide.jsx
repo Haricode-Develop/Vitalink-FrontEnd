@@ -143,6 +143,13 @@ const LayoutSide = ({ children }) => {
     navigate('/dashboard/ficha-evolucion');
   }
 
+  const handleFichaClinicaClick = () => {
+    if(isMobile()){
+      setIsMenuOpen(false);
+    }
+    navigate('/dashboard/ficha-clinica');
+  }
+
   const handleCalendarioCitasClick = () => {
     if(isMobile()){
       setIsMenuOpen(false);
@@ -295,6 +302,7 @@ const LayoutSide = ({ children }) => {
                 <SubMenuItem onClick={handleReingresarPacienteClick} className={"pacienteSeccionReingreso"}>Reingreso</SubMenuItem>
                 <SubMenuItem onClick={handleCalendarioCitasClick} className={"calendarioCitasPaciente"}>Calendario de citas</SubMenuItem>
                 <SubMenuItem onClick={handleFichaEvolucionClick} className={"fichaEvolucion"}>Ficha Evolucion</SubMenuItem>
+                <SubMenuItem onClick={handleFichaClinicaClick} className={"fichaClinica"}>Ficha clínica</SubMenuItem>
                 {/*<SubMenuItem onClick={handleAsignarPacienteClick}>Asignar Ejercicio</SubMenuItem>*/}
               </SubMenu>
               <MenuItem bold onClick={() => handleSubMenuClick('GestionNegocio')} className={"gestionNegocio"}>

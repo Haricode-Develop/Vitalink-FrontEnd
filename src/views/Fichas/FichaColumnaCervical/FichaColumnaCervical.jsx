@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {Form, Input, Label, Title, Button, Section, Select, BodyMapStyle, DatePickerWrapper, IndicadorGuardado,  ListItem, ButtonAceptar,ButtonCancelar} from './FichaColumnaCervicalStyle';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -34,6 +34,7 @@ const FichaColumnaCervical = () => {
     const [selectedFisio, setSelectedFisio] = useState(null);
     const [isUserCreationModalVisible, setIsUserCreationModalVisible] = useState(false);
     const [isEmailRequired, setIsEmailRequired] = useState(false);
+    const bodyMapRef = useRef(null);
 
     const handleIngresarClick = (e) => {
         e.preventDefault();
@@ -62,7 +63,6 @@ const FichaColumnaCervical = () => {
             parsedData.sintomasInicioOpciones = parsedData.sintomasInicioOpciones || [];
             parsedData.sintomasIntermitentesOpciones = parsedData.sintomasIntermitentesOpciones || [];
             parsedData.idSede = idSedeActual;
-            parsedData.idInstitucion = userData.id_institucion;
             parsedData.rol = 1;
             return parsedData;
         } else {
@@ -119,7 +119,6 @@ const FichaColumnaCervical = () => {
                 sintomasMejoresOtro: '',
                 diagnostico: '',
                 idSede: idSedeActual,
-                idInstitucion: userData.id_institucion,
                 rol: 1,
                 idUsuarioEditor:  userData.id_usuario,
                 idTipoFicha: 3,
@@ -208,7 +207,7 @@ const FichaColumnaCervical = () => {
         const fichaJsonValidado = {...fichaJsonOriginal};
 
         let camposAValidar = [
-            'idInstitucion', 'rol', 'nombre', 'apellido', 'fechaNac',
+            'rol', 'nombre', 'apellido', 'fechaNac',
             'idUsuarioEditor', 'idTipoFicha', 'tipoCarga', 'idMedico',
             'telefono', 'idSede'
         ];
@@ -227,10 +226,12 @@ const FichaColumnaCervical = () => {
         });
 
         // Validar el número de teléfono
-        if (!isPossiblePhoneNumber(fichaJsonOriginal.telefono)) {
+        if (fichaJsonOriginal.telefono && !isPossiblePhoneNumber(fichaJsonOriginal.telefono)) {
             erroresDeValidacion.push({ campo: 'telefono', error: 'El número de teléfono es inválido.' });
-        } else if (!fichaJsonOriginal.telefono.startsWith('+')) {
+        } else if (fichaJsonOriginal.telefono && !fichaJsonOriginal.telefono.startsWith('+')) {
             erroresDeValidacion.push({ campo: 'telefono', error: 'No se añadió la extensión del país al número de teléfono.' });
+        }else if(!fichaJsonOriginal.telefono){
+            erroresDeValidacion.push({ campo: 'telefono', error: 'El número de teléfono es requerido.' });
         }
 
         // Validar el correo electrónico si es requerido
@@ -280,11 +281,7 @@ const FichaColumnaCervical = () => {
             }
         })
             .then((response) => {
-                if(response.data.success && response.data.nombreArchivo) {
-                    exportPDF(response.data.nombreArchivo);
-                } else {
-                    console.error('No se recibió el nombre del archivo.');
-                }
+                exportPDF();
                 toast.success("El paciente fue añadido exitosamente", {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,
@@ -389,53 +386,46 @@ const FichaColumnaCervical = () => {
 
         }
     };
-    const exportPDF = async (nombre) => {
-        const formulario = document.getElementById("formulario");
-        const canvas = await html2canvas(formulario);
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const exportPDF = async () => {
+        try {
+            if(bodyMapRef.current){
+                const canvas = await html2canvas(bodyMapRef.current);
+                const imgData = canvas.toDataURL('image/png');
 
-        const width = canvas.width;
-        const height = canvas.height;
+                // Convertir la imagen a un archivo Blob
+                const responseImg = await fetch(imgData);
+                const blob = await responseImg.blob();
 
-        if (!width || !height) {
-            console.error('Canvas width or height is invalid');
-            return;
-        }
+                const formData = new FormData();
+                formData.append('fichaJson', JSON.stringify(formValues));
+                formData.append('bodyMapImage', blob, 'bodyMapImage.png');
 
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'px',
-            format: [width, height]
-        });
-        pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
-        const pdfBlob = pdf.output('blob');
-        const formData = new FormData();
-        formData.append('pdf', pdfBlob, nombre);
+                const response = await axios.post(`${API_BASE_URL}/fichasClinicas/generarPdfColumnaCervical/`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
 
-        axios.post(`${API_BASE_URL}/paciente/upload-pdf/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
+                if (response.data.success) {
+                    toast.success('PDF cargado con éxito.', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    });
+                    localStorage.removeItem('datosFormularioPacienteColumnaCervical');
+                } else {
+                    throw new Error(response.data.message || 'Error al cargar el PDF.');
+                }
             }
-        })
-            .then(response => {
-
-                toast.success('PDF cargado con éxito.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
-                localStorage.removeItem('datosFormularioPacienteColumnaCervical');
-            })
-            .catch(error => {
-                console.error('Error al cargar el PDF:', error.response ? error.response.data : error);
-
-                toast.error('Error al cargar el PDF.', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                });
+        } catch (error) {
+            console.error('Error al cargar el PDF:', error);
+            toast.error('Error al cargar el PDF.', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                hideProgressBar: true,
             });
-    }
+        }
+    };
     return (
         <>
 
@@ -1350,7 +1340,7 @@ const FichaColumnaCervical = () => {
                 <label htmlFor="objetivosPaciente">Diagnóstico:</label>
 
                 <textarea rows="10" cols="100" id="diagnostico" name="diagnostico" value={formValues.diagnostico} onChange={handleInputChange}></textarea>
-                <BodyMapStyle>
+                <BodyMapStyle ref={bodyMapRef}>
                     <BodyMap key={"BodyMapColumnaCervical"}/>
                 </BodyMapStyle>
                 <Button type="submit" onClick={handleIngresarClick}>Ingresar</Button>

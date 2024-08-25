@@ -5,7 +5,7 @@ import plantilla from '../IngresarAdmin/templates/plantilla.xlsx';
 import { toast, ToastContainer } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import moment from 'moment'; // Importa moment.js
+import moment from 'moment';
 import axios from 'axios';
 import {
     Container,
@@ -25,7 +25,6 @@ import {
 } from '../IngresarAdmin/IngresarAdminStyle';
 import { API_BASE_URL } from "../../utils/config";
 import ActivityFeed from '../../components/Feed/FeedActividad';
-import { PictureColumn, ProfilePicture } from "../ActualizarAdministrador/ActualizarAdministradorStyle";
 import { FaSave } from "react-icons/fa";
 import { StyledModal } from '../../components/Modal';
 
@@ -50,7 +49,7 @@ const IngresarAdministrador = () => {
     const obtenerSedes = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/masivo/sedes`, {
-                params: { id_institucion: userData.id_institucion }
+                params: { id_instituciones: userData.instituciones.map(inst => inst.ID_INSTITUCION) }
             });
             if (response.data.success) {
                 setSedes(response.data.sedes);
@@ -111,18 +110,18 @@ const IngresarAdministrador = () => {
     };
 
     const procederConInsercion = (sedeId) => {
-        const formattedDate = moment(startDate).format('YYYY-MM-DD'); // Formatea la fecha
+        const formattedDate = moment(startDate).format('YYYY-MM-DD');
         const administradorData = {
             nombre,
             apellido,
-            fechaNacimiento: formattedDate, // Utiliza la fecha formateada
+            fechaNacimiento: formattedDate,
             email,
             id_rol: 3,
-            id_institucion: userData.id_institucion,
             id_usuario_editor: userData.id_usuario,
             tipo_carga: 0,
             id_sede: sedeId
         };
+
         insertarAdministrador(administradorData);
     };
 
@@ -145,7 +144,7 @@ const IngresarAdministrador = () => {
         if (fileData.length === 0) {
             return;
         }
-        axios.post(`${API_BASE_URL}/masivo/insertarAdministradorMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.id_institucion, idUsuarioEditor: userData.id_usuario, tipoCarga })
+        axios.post(`${API_BASE_URL}/masivo/insertarAdministradorMasivo`, { data: fileData, idRol: userData.id_rol, idInstitucion: userData.instituciones.map(inst => inst.ID_INSTITUCION), idUsuarioEditor: userData.id_usuario, tipoCarga })
             .then((response) => {
                 // Manejar respuesta
             })
@@ -200,6 +199,9 @@ const IngresarAdministrador = () => {
 
     useEffect(() => {
         setSedes(userData.sedes || []);
+        if (userData.sedes && userData.sedes.length > 0) {
+            setSelectedSede(userData.sedes[0].ID_SEDE);
+        }
     }, [userData.sedes]);
 
     return (
@@ -228,19 +230,21 @@ const IngresarAdministrador = () => {
                     <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleBlur} />
                     <ActionButtons>
                         <Button onClick={handleInsert}>Ingresar Administrador</Button>
-                        {/* <input
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-              id="file-upload"
-            />
-            <UploadButton onClick={() => document.getElementById('file-upload').click()}>
-              {isFileReady ? "Archivo Listo - Cambiar" : "Cargar Archivo"}
-            </UploadButton>
-            <Button onClick={handleMasiveInsert} disabled={!isFileReady}>
-              Realizar Carga Masiva
-            </Button> */}
+                        {/*
+<input
+  type="file"
+  accept=".xlsx,.xls,.csv"
+  onChange={handleFileUpload}
+  style={{ display: 'none' }}
+  id="file-upload"
+/>
+<UploadButton onClick={() => document.getElementById('file-upload').click()}>
+  {isFileReady ? "Archivo Listo - Cambiar" : "Cargar Archivo"}
+</UploadButton>
+<Button onClick={handleMasiveInsert} disabled={!isFileReady}>
+  Realizar Carga Masiva
+</Button>
+*/}
                     </ActionButtons>
                     <DownloadLink href={plantilla} download>
                         Descargar plantilla.xlsx
@@ -249,7 +253,7 @@ const IngresarAdministrador = () => {
                 <IndicadorGuardado mostrar={mostrarGuardado}>
                     <FaSave /> Progreso guardado
                 </IndicadorGuardado>
-                <ActivityFeed idRol={'4'} idAccion={1} idInstitucion={userData.id_institucion} idEntidadAfectada={3} />
+                <ActivityFeed idRol={'4'} idAccion={1} idEntidadAfectada={3} />
             </Content>
             <StyledModal isOpen={isSedesModalOpen} onRequestClose={() => setIsSedesModalOpen(false)}>
                 <SedesListTitle>Sedes</SedesListTitle>
