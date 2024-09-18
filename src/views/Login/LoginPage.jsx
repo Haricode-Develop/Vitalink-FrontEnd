@@ -75,7 +75,6 @@ const LoginPage = () => {
                 toast.warn("Lo sentimos, como usuario paciente no tienes acceso a este apartado. Por favor, visita la versión móvil de Vitalink.");
                 return;
               }
-              console.log("ESTA ES LA RESPUESTA DE LOGIN", response.data);
               setUserData({
                 name: response.data.name,
                 lastName: response.data.lastName,

@@ -32,7 +32,6 @@ const Pricing = () => {
         const fetchPlans = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL_BILLING_SERVICE}/plans`);
-                console.log("ESTE ES EL RESPONSE: ", response);
                 setPlans(response.data);
             } catch (error) {
                 console.error('Error fetching plans:', error);

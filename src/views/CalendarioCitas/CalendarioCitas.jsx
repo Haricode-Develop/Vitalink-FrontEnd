@@ -717,15 +717,12 @@ const AppointmentCalendar = () => {
         const newStart = event.start;
         const formattedDate = moment(newStart).format('YYYY-MM-DD');
         const formattedTime = moment(newStart).format('HH:mm:ss');
-        console.log("ESTE ES EL EVENTO QUE SE VA A ACTUALIZAR", event);
 
         const nombreInvitado = event.extendedProps.nombreInvitado;
-        console.log("ESTE ES EL NOMBRE DEL INVITADO", nombreInvitado);
         const idEstado = event.extendedProps.idEstado;
         const estadoName = findEstadoNameById(idEstado) || "Estado desconocido";
         const contactoInvitado = event.extendedProps.contactoInvitado;
         const idServicio = event.extendedProps.idServicio;
-        console.log("ESTE ES EL CONTACTO DEL INVITADO", contactoInvitado);
 
         const idPaciente = event.extendedProps.idUsuario;
 
@@ -856,14 +853,12 @@ const AppointmentCalendar = () => {
             try {
 
                 const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${telefono.data[0].TELEFONO}/asignaciones`);
-                console.log("ESTA ES LA RESPUESTA: ", response);
                 const { idUsuario, paquetes } = response.data;
                 setIdUsuario(idUsuario);
 
                 if (paquetes.length > 0) {
                     const paquete = paquetes[0];
                     if (paquete.servicios.length > 0) {
-                        console.log("ESTOS SON LOS SERVICIOS DEL PAQUETE: ", paquete.servicios);
                         setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0));
                         if (paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0).length > 0) {
                             setIsPackageModalOpen(true);

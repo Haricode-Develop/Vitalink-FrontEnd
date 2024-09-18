@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useWebSocket } from "../context/WebSocketContext";
 import { useSede } from '../context/SedeContext';
-
+import {SidebarContext} from "../context/SidebarContext";
 import {
   Sidebar,
   UserInfo,
@@ -21,10 +21,12 @@ import profilePicture from '../assets/login/profile/user.png'; // Importa la ima
 import HeartIconAnimation from "./HeartIconAnimation/HeartIconAnimation";
 import heartAnimationData from './HeartIconAnimation/AnimationHeart.json';
 import animationData from '../assets/profile.json';
+import axios from "axios";
 import {FaBars, FaTimes, FaUsersCog, FaUserMd, FaUserInjured, FaChartLine, FaCog, FaBusinessTime } from 'react-icons/fa';
 
 import Lottie from 'react-lottie';
 import NotificationBell from "./NotificationBell/NotificationBell";
+import {API_BASE_URL} from "../utils/config";
 
 export const LayoutContext = createContext({
   activeSubMenu: '',
@@ -34,6 +36,7 @@ export const LayoutContext = createContext({
 
 
 const LayoutSide = ({ children }) => {
+  const { sidebarState } = useContext(SidebarContext);
   const { userData, logout } = useContext(AuthContext);
   const { nombreSedeActual, isSedeInfoLoaded } = useSede();
   const [activeSubMenu, setActiveSubMenu] = useState('');
@@ -42,6 +45,7 @@ const LayoutSide = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
   const [notificationCount, setNotificationCount] = useState(5);
+  const [profileImageUrl, setProfileImageUrl] = useState(null); // Estado para la URL de la imagen de perfil
 
   const wsContext = useWebSocket();
 
@@ -229,9 +233,33 @@ const LayoutSide = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const renderProfilePicture = () => {
+    if (sidebarState.profileImageUrl) {
+      return <img src={sidebarState.profileImageUrl} alt="Foto de Perfil" style={{ width: '130px', height: '130px', borderRadius: '50%', marginTop: '15px' }} />;
+    } else {
+      // Si no hay foto de perfil, muestra la animación
+      return <Lottie options={{ loop: false, autoplay: true, animationData }} height={200} width={200} />;
+    }
+  };
 
   useEffect(() => {
   }, [nombreSedeActual]);
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/cuenta/fotoPerfil/${userData.id_usuario}`);
+        if (response.data.success && response.data.fotoPerfilUrl) {
+          setProfileImageUrl(response.data.fotoPerfilUrl);
+        }
+      } catch (error) {
+        console.error('Error al obtener la foto de perfil:', error);
+      }
+    };
+
+    fetchProfileImage();
+  }, [userData.id_usuario]);
+
   return (
       <LayoutContext.Provider value={{ activeSubMenu, setActiveSubMenu, handleNavigate }}>
         <div style={{ display: 'flex' }}>
@@ -250,8 +278,7 @@ const LayoutSide = ({ children }) => {
             transition: 'transform 0.3s ease-in-out'
           }}>
             <UserInfo>
-              <Lottie options={defaultOptions} height={150} width={150} ref={animationRef}/>
-
+              {renderProfilePicture()}
               <div style={{ paddingTop: '10px' }}>{userData?.name} {userData?.lastName}</div>
               <div>{userData?.roles.map(role => role.name).join(', ')}</div>
               <Sede>Sede Actual: {nombreSedeActual}</Sede>

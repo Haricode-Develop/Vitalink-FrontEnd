@@ -110,7 +110,6 @@ const ReporteServicios = () => {
             const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/board-config/${userId}/${sedeId}`);
             const boardConfig = response.data;
 
-            console.log("ESTE ES EL BOARDING CONFIGURACIÓN", boardConfig);
             if (boardConfig.length === 0) {
                 // Configuración predeterminada
                 const defaultCards = [

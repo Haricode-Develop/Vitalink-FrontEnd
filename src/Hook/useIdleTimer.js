@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 
-const useIdleTimer = (timeout = 1200000, onIdle, onIdleWarning) => {
+const useIdleTimer = (timeout = 1200000, onIdle, isDashboardRoute) => {
     const [active, setActive] = useState(true);
 
     const resetTimer = () => setActive(true);
 
     useEffect(() => {
-        if (!active) return;
+        if (!active || !isDashboardRoute) return; // No ejecutar si no estamos en el Dashboard
 
         const id = setTimeout(() => {
-            onIdleWarning();
             onIdle();
         }, timeout);
 
@@ -37,7 +36,7 @@ const useIdleTimer = (timeout = 1200000, onIdle, onIdleWarning) => {
             });
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [active, onIdle, onIdleWarning, timeout]);
+    }, [active, onIdle, timeout, isDashboardRoute]);
 
     useEffect(() => {
         setActive(true);

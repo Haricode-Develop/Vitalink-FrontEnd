@@ -54,7 +54,6 @@ const IngresarFisioterapeuta = () => {
       const datos = JSON.parse(datosGuardados);
       if (datos.nombre) setNombre(datos.nombre);
       if (datos.apellido) setApellido(datos.apellido);
-      console.log("ESTA ES LA FECHA DE NACIMIENTO: ", datos.fechaNacimiento);
       if (datos.fechaNacimiento) setStartDate(moment(datos.fechaNacimiento).toDate());
       if (datos.email) setEmail(datos.email);
       if (datos.especialidad) setSelectedEspecialidad(datos.especialidad);

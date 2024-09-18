@@ -2,24 +2,27 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 export const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  color: var(--negro);
-  background-color: var(--blanco);
-  position: fixed;
-  top: 0;
-  width: 96%;
-  z-index: 1000;
-
-  @media (max-width: 768px) {
-    flex-direction: row;
-    align-items: center;
+    display: flex;
     justify-content: space-between;
-    width: 86%;
-  }
+    align-items: center;
+    padding: 1rem 2rem;
+    color: var(--negro);
+    background-color: var(--blanco);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
+
+    @media (max-width: 768px) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+    }
 `;
+
+
 
 export const Logo = styled.div`
   img {
@@ -59,20 +62,31 @@ export const Menu = styled.ul`
 `;
 
 export const MenuItem = styled.li`
-  @media (max-width: 768px) {
-    text-align: center;
-    padding: 0.5rem 0;
-  }
+    @media (max-width: 768px) {
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    &:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    &.no-hover:hover {
+        background-color: transparent;
+        cursor: default;
+    }
 `;
 
-export const MenuLink = styled(Link)`
-  color: var(--negro);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  display: block;
-  transition: background-color 0.3s, transform 0.3s;
-  position: relative;
 
+export const MenuLink = styled(Link)`
+    color: var(--negro);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    display: block;
+    transition: background-color 0.3s, transform 0.3s;
+    position: relative;
+    
 `;
 
 export const AuthButtons = styled.div`

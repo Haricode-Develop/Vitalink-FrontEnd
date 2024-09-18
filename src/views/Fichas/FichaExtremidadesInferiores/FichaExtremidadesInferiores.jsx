@@ -278,7 +278,7 @@ const FichaExtremidadesInferiores = () => {
             }
         })
             .then((response) => {
-                exportPDF();
+                exportPDF(response.data.idUsuario);
                 toast.success("El paciente fue añadido exitosamente", {
                     position: toast.POSITION.TOP_RIGHT,
                     autoClose: 5000,
@@ -385,7 +385,7 @@ const FichaExtremidadesInferiores = () => {
 
         }
     };
-    const exportPDF = async () => {
+    const exportPDF = async (idUsuarioPaciente) => {
         try {
             if(bodyMapRef.current){
                 const canvas = await html2canvas(bodyMapRef.current);
@@ -398,6 +398,7 @@ const FichaExtremidadesInferiores = () => {
                 const formData = new FormData();
                 formData.append('fichaJson', JSON.stringify(formValues));
                 formData.append('bodyMapImage', blob, 'bodyMapImage.png');
+                formData.append('idUsuarioPaciente', idUsuarioPaciente);
 
                 const response = await axios.post(`${API_BASE_URL}/fichasClinicas/generarPdfExtremidadesInferiores/`, formData, {
                     headers: {

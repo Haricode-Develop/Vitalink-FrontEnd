@@ -187,6 +187,10 @@ export const TestimonialItem = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transform: scale(1);
   margin-left: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; // Asegura que ocupa toda la altura
 
   p {
     font-size: 1rem;
@@ -198,15 +202,10 @@ export const TestimonialItem = styled.div`
     font-weight: bold;
   }
 
-  &:nth-child(odd) {
-    margin-bottom: 2rem;
-  }
-
   @media (max-width: 768px) {
     margin-bottom: 1rem;
     margin-left: 0px;
     width: 75%!important;
-
   }
 `;
 
@@ -215,7 +214,7 @@ export const CTAButton = styled(Link)`
   background-color: var(--celeste);
   color: var(--blanco);
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 1rem;
   font-weight: bold;
   transition: background-color 0.3s, transform 0.3s;

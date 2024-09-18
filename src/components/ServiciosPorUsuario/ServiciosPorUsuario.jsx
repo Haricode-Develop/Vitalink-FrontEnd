@@ -133,10 +133,7 @@ const ServiciosPorUsuario = () => {
         filterServices();
     }, [searchTerm, filterType, services]);
 
-    useEffect(() => {
-        console.log("ESTOS SON LOS FILTERED SERVICES: ", filteredServices);
-        console.log("ESTE ES EL SERVICIO SELECCIONADO: ", selectedService);
-    }, [selectedService]);
+
 
     const handleServiceSelection = (service) => {
         // Concatenar el tipo para asegurar una identificación única

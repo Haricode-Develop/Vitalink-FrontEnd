@@ -42,6 +42,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const [servicios, setServicios] = useState([]);
     const [selectedServicio, setSelectedServicio] = useState('');
     const [applyPackage, setApplyPackage] = useState(false);
+    const [disableApplyPackageCheckbox, setDisableApplyPackageCheckbox] = useState(false); // Nuevo estado
     const [serviciosPaquete, setServiciosPaquete] = useState([]);
     const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
     const [idUsuario, setIdUsuario] = useState(null);
@@ -65,6 +66,15 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         const { name, value } = e.target;
         setExternalAppointment(prev => ({ ...prev, [name]: value }));
 
+        if (name === 'servicio') {
+            // Bloquea el checkbox "Aplica paquete" si se selecciona un servicio manualmente
+            if (value) {
+                setDisableApplyPackageCheckbox(true);
+            } else {
+                setDisableApplyPackageCheckbox(false);
+            }
+        }
+
         if (name === 'nombreInvitado' && value.trim() !== '') {
             try {
                 const response = await axios.get(`${API_BASE_URL}/calendario/recomendacionContacto`, { params: { nombre: value.trim(), idSede: idSedeActual } });
@@ -85,8 +95,6 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
         }
 
         try {
-
-
             const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
             const formattedTime = `${externalAppointment.hora.padStart(2, '0')}:${externalAppointment.minutos.padStart(2, '0')}`;
             const citaData = {
@@ -106,7 +114,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
             if (applyPackage && idUsuario !== null && selectedServicio !== null && selectedServicio !== '') {
                 await restarCantidadServicio(idUsuario, selectedServicio);
             } else {
-                if(externalAppointment.servicio !== null && externalAppointment.servicio !== ''){
+                if (externalAppointment.servicio !== null && externalAppointment.servicio !== '') {
                     // Insertar servicio
                     await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/servicios`, {
                         idServicio: externalAppointment.servicio,
@@ -124,13 +132,13 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                 estado: '',
                 hora: '00',
                 minutos: '00',
-                servicio: '' // Resetear campo de servicio
+                servicio: ''
             });
             setSelectedServicio('');
             setApplyPackage(false);
             setServiciosPaquete([]);
-            setIsPackageModalOpen(false); // Cerrar el modal de servicios del paquete
-
+            setIsPackageModalOpen(false);
+            setPhone(defaultCountryCallingCode);
         } catch (error) {
             console.error('Error al agregar la cita externa:', error);
             toast.warn('Ocurrió un error al añadir la cita externa');
@@ -150,9 +158,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     };
 
     const handleSelectPhoneNumber = (phone) => {
-        console.log("Click en el número recomendado: ", phone);
         const formattedPhone = phone.includes('+') ? phone : `+${phone}`;
-        console.log("Teléfono formateado y seleccionado: ", formattedPhone);
         setPhone(formattedPhone);
         setExternalAppointment(prev => ({
             ...prev,
@@ -194,21 +200,20 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
     const handleApplyPackageChange = async () => {
         const newApplyPackage = !applyPackage;
         setApplyPackage(newApplyPackage);
-
         if (newApplyPackage && isPossiblePhoneNumber(externalAppointment.contactoInvitado)) {
             try {
                 const response = await axios.get(`${API_BASE_URL}/gestionDeNegocios/usuarios/telefono/${externalAppointment.contactoInvitado}/asignaciones`);
                 const { idUsuario, paquetes } = response.data;
-                console.log("ESTO ES LA RESPUESTA: ", response.data);
                 setIdUsuario(idUsuario);
-
                 if (paquetes.length > 0) {
                     const paquete = paquetes[0];
+
                     if (paquete.servicios.length > 0) {
                         setServiciosPaquete(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0));
-                        if(paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0).length > 0){
+
+                        if (paquete.servicios.filter(servicio => servicio.aplica_cita === 1 && servicio.cantidadDisponible > 0).length > 0) {
                             setIsPackageModalOpen(true);
-                        }else{
+                        } else {
                             Swal.fire({
                                 title: 'Advertencia',
                                 text: 'El paquete asignado no contiene servicios disponibles para citas.',
@@ -246,11 +251,21 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                     toast.warn('Ocurrió un error al obtener los servicios del paquete asignado.');
                 }
             }
+        }else{
+            Swal.fire({
+                title: 'Advertencia',
+                text: 'Por favor, seleccione un número de teléfono válido antes de continuar.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            setApplyPackage(false);
         }
     };
 
     const handleServicioSeleccionado = async (servicioId) => {
         try {
+            setSelectedServicio(servicioId);
+
             setExternalAppointment(prev => ({
                 ...prev,
                 servicio: servicioId
@@ -263,7 +278,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
 
     const restarCantidadServicio = async (idUsuario, idServicio) => {
         try {
-           await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
+            await axios.post(`${API_BASE_URL}/gestionDeNegocios/usuarios/${idUsuario}/servicios/${idServicio}/restar`);
         } catch (error) {
             console.error('Error al restar cantidad de servicio:', error);
             toast.error('Error al restar cantidad de servicio');
@@ -354,7 +369,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                 name="servicio"
                                 value={externalAppointment.servicio}
                                 onChange={handleInputChange}
-                                disabled={applyPackage} // Deshabilitar si el checkbox de paquete está activo
+                                disabled={applyPackage}
                             >
                                 <option value="">Seleccione un servicio</option>
                                 {servicios.map(servicio => (
@@ -368,7 +383,7 @@ const ModalCalendar = ({ isOpen, onRequestClose, selectedDate, onPatientSelect, 
                                     type="checkbox"
                                     checked={applyPackage}
                                     onChange={handleApplyPackageChange}
-                                    disabled={externalAppointment.servicio !== ''} // Deshabilitar si se seleccionó un servicio
+                                    disabled={disableApplyPackageCheckbox}
                                 />
                                 Aplica paquete
                             </CheckboxLabel>

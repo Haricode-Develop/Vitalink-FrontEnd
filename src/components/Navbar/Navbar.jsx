@@ -23,11 +23,11 @@ const Navbar = () => {
                     <MenuItem><MenuLink to="/">Inicio</MenuLink></MenuItem>
                     <MenuItem><MenuLink to="/about">Acerca de Nosotros</MenuLink></MenuItem>
                     <MenuItem><MenuLink to="/contact">Contacto</MenuLink></MenuItem>
-                    <MenuItem style={{background: 'var(--celeste)'}}>
-                        <MenuLink to="/login">Iniciar Sesión</MenuLink>
+                    <MenuItem className="no-hover" style={{background: 'var(--celeste)', fontWeight: 700, borderRadius: '20px'}}>
+                        <MenuLink style={{color: '#fff'}} to="/login">Iniciar Sesión</MenuLink>
                     </MenuItem>
-                    <MenuItem style={{background: 'var(--rojo)'}}>
-                        <MenuLink to="/pricing">Precios</MenuLink>
+                    <MenuItem className="no-hover" style={{background: 'var(--rojo)', borderRadius: '20px'}}>
+                        <MenuLink style={{color: '#fff', fontWeight: 700}} to="/pricing">Precios</MenuLink>
                     </MenuItem>
                 </Menu>
             </Navigation>

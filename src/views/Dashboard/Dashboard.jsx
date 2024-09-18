@@ -119,8 +119,6 @@ const Dashboard = () => {
                 fetchCitasDelDia(idSedeActual);
                 fetchDistribucionGeneroEdad(idSedeActual);
             }else{
-                console.log("Entre para actualizar los fetch**********");
-                console.log("ESTE ES EL ID SEDE ACTUAL: ", idSedeActual);
 
                 fetchPacientesAlta(idSedeActual, startDate, endDate);
                 fetchPacientesIngresados(idSedeActual, startDate, endDate);
@@ -585,7 +583,6 @@ const Dashboard = () => {
             const response = await axios.get(`${API_BASE_URL}/dashboard/distribucionHorasCitas/${idSedeActual}`, {
                 params: { startDate: formattedStartDate, endDate: formattedEndDate }
             });
-            console.log("ESTAS SON LAS HORAS DE CITAS:", response.data.distribucionHorasCitas);
             setHorasCitas(response.data.distribucionHorasCitas);
         } catch (error) {
             setIsHistogramDataLoaded(true)
@@ -613,7 +610,6 @@ const Dashboard = () => {
             const response = await axios.get(`${API_BASE_URL}/dashboard/cantidadCitasPorEstado/${idSedeActual}`, {
                 params: { startDate: formattedStartDate, endDate: formattedEndDate }
             });
-            console.log("ESTAS SON LA CANTIDAD DE ESTADOS POR CITAS: ", response.data.cantidadCitasPorEstado);
             setCitasPorEstado(response.data.cantidadCitasPorEstado);
             setIsCitasPorEstadoLoaded(true);
 
@@ -993,6 +989,7 @@ const Dashboard = () => {
                                 <Table>
                                     <Thead>
                                         <tr>
+                                            <th></th>
                                             <th>Apellido</th>
                                             <th>Nombre</th>
                                             <th>Email</th>
@@ -1002,6 +999,13 @@ const Dashboard = () => {
                                     {displayedFisioterapeutas.length > 0 ? (
                                         displayedFisioterapeutas.map(fisio => (
                                             <tr key={`fisio-${fisio.ID_USUARIO}`}>
+                                                <TableCell>
+                                                    <img
+                                                        src={fisio.fotoPerfilUrl || '/logo.png'}
+                                                        alt={`Foto de perfil de ${fisio.NOMBRE}`}
+                                                        style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+                                                    />
+                                                </TableCell>
                                                 <TableCell data-tip={fisio.APELLIDO}>{fisio.APELLIDO}</TableCell>
                                                 <TableCell data-tip={fisio.NOMBRE}>{fisio.NOMBRE}</TableCell>
                                                 <TableCell data-tip={fisio.EMAIL}>

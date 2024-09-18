@@ -12,10 +12,8 @@ export const SedeProvider = ({ children }) => {
     const [isSedeInfoLoaded, setIsSedeInfoLoaded] = useState(false);
 
     useEffect(() => {
-        console.log("ESTE ES EL USER DATA: ", userData);
         if (userData && Array.isArray(userData.sedes) && userData.sedes.length > 0) {
             const primeraSede = userData.sedes.find(sede => sede && sede.ID_SEDE !== undefined);
-            console.log("ESTA ES LA PRIMERA SEDE: ", primeraSede);
             if (primeraSede) {
                 setIdSedeActual(primeraSede.ID_SEDE);
                 setNombreSedeActual(primeraSede.NOMBRE);

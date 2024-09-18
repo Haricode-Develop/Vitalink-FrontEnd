@@ -1,17 +1,37 @@
-import React, { useState, useRef, useEffect, useContext, createRef } from 'react';
-import { TabBar, Tab, TabContent, ActiveIndicator, ConfigurationWrapper, ConfigurationItem, ConfigurationLabel, ConfigurationInput, ConfigurationInputCheckbox, ModalContent, ConfigurationTextArea, TooltipButton } from './ConfiguracionStyle';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import {
+    TabBar,
+    Tab,
+    TabContent,
+    ActiveIndicator,
+    DropdownMenu
+} from './ConfiguracionStyle';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+
 import { API_BASE_URL, API_BASE_URL_INSIGHT } from "../../utils/config";
+import ConfiguracionCitas from "../../components/ConfiguracionCitas/ConfiguracionCitas";
 import { AuthContext } from "../../context/AuthContext";
 import { useWebSocket } from '../../context/WebSocketContext';
-import { StyledModal } from "../../components/Modal";
-import { toast } from 'react-toastify';
 import GestionPacientes from "../../components/GestionPacientes/GestionPacientes";
-import Loader from "../../components/Loader/Loader";
+import ConfiguracionCuenta from "../../components/ConfiguracionCuenta/ConfiguracionCuenta";
 import { useSede } from "../../context/SedeContext";
 
 const Configuracion = () => {
     const [activeTab, setActiveTab] = useState('gestionPacientes');
+    const tabsRef = useRef({
+        gestionPacientes: null,
+        citas: null,
+        configuracionCuenta: null
+    });
+    const inputRefs = useRef({}); // Inicializando inputRefs como un objeto vacío
+
+    const tabs = [
+        { id: 'gestionPacientes', label: 'Gestión de Pacientes' },
+        { id: 'citas', label: 'Calendario de Citas' },
+        { id: 'configuracionCuenta', label: 'Configuración de Cuenta' }
+    ];
+
     const [configuraciones, setConfiguraciones] = useState([]);
     const [tooltips, setTooltips] = useState({});
     const [indicatorStyle, setIndicatorStyle] = useState({});
@@ -19,9 +39,7 @@ const Configuracion = () => {
     const [loadingQR, setLoadingQR] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
     const [modalImageKey, setModalImageKey] = useState(0);
-    const tabsRef = useRef({ usuarios: null, citas: null });
     const updateTimer = useRef(null);
-    const inputRefs = useRef({});
     const { ws } = useWebSocket();
     const { idSedeActual } = useSede();
 
@@ -51,7 +69,7 @@ const Configuracion = () => {
         }
     };
 
-    useEffect(() => {
+    const updateIndicatorStyle = () => {
         const activeTabElement = tabsRef.current[activeTab];
         if (activeTabElement) {
             setIndicatorStyle({
@@ -59,6 +77,14 @@ const Configuracion = () => {
                 left: activeTabElement.offsetLeft,
             });
         }
+    };
+
+    useEffect(() => {
+        updateIndicatorStyle();
+        window.addEventListener('resize', updateIndicatorStyle);
+        return () => {
+            window.removeEventListener('resize', updateIndicatorStyle);
+        };
     }, [activeTab]);
 
     useEffect(() => {
@@ -69,8 +95,7 @@ const Configuracion = () => {
                     ...c,
                     VALOR: c.TIPO === 'boolean' ? c.VALOR === '1' || c.VALOR === 'true' : c.VALOR
                 }));
-                setConfiguraciones(configs);
-                // Cargar tooltips para cada configuración
+                setConfiguraciones(configs || []);
                 for (let config of configs) {
                     await cargarToolTips(config.ID_CONFIGURACION);
                 }
@@ -108,7 +133,6 @@ const Configuracion = () => {
         );
         setConfiguraciones(configsActualizadas);
 
-        // Manejo de la activación de WhatsApp
         if (clave === 'whatsapp_activado' && nuevoValor) {
             setLoadingQR(true);
             try {
@@ -118,16 +142,14 @@ const Configuracion = () => {
                     setQrCode(response.data.qrCode);
                     setModalImageKey(prevKey => prevKey + 1);
                     setShowQRModal(true);
-
                 } else {
                     console.error('Error al activar WhatsApp:', response.data.error);
+                    toast.error('Error al activar WhatsApp');
                 }
-                return;
             } catch (error) {
                 console.error('Error al activar WhatsApp:', error);
                 setLoadingQR(false);
             }
-            // Manejo de la desactivación de WhatsApp
         } else if (clave === 'whatsapp_activado' && !nuevoValor) {
             try {
                 const response = await axios.post(`${API_BASE_URL_INSIGHT}/reminders/whatsapp/desactivar/${idSedeActual}`);
@@ -137,7 +159,6 @@ const Configuracion = () => {
             } catch (error) {
                 console.error('Error al desactivar WhatsApp:', error);
             }
-            return;
         }
 
         if (updateTimer.current) clearTimeout(updateTimer.current);
@@ -160,8 +181,6 @@ const Configuracion = () => {
             const data = JSON.parse(event.data);
             if (data.type === 'WHATSAPP_ACTIVATED') {
                 const { isActivated, message } = data;
-
-                // La lógica para manejar el estado activado o desactivado
                 if (isActivated) {
                     setShowQRModal(false);
                     toast.success(`WhatsApp activado: ${message}`);
@@ -201,96 +220,55 @@ const Configuracion = () => {
         }
     };
 
+    const handleTabChange = (tabId) => {
+        setActiveTab(tabId);
+    };
+
     return (
         <>
-            {loadingQR && <Loader />}
+            <DropdownMenu
+                onChange={(e) => handleTabChange(e.target.value)}
+                value={activeTab}
+            >
+                {tabs.map((tab) => (
+                    <option key={tab.id} value={tab.id}>
+                        {tab.label}
+                    </option>
+                ))}
+            </DropdownMenu>
+
             <TabBar>
-                <Tab
-                    ref={(el) => (tabsRef.current.gestionPacientes = el)}
-                    active={activeTab === 'gestionPacientes'}
-                    onClick={() => setActiveTab('gestionPacientes')}
-                >
-                    Gestión de Pacientes
-                </Tab>
-                <Tab
-                    ref={(el) => (tabsRef.current.citas = el)}
-                    active={activeTab === 'citas'}
-                    onClick={() => setActiveTab('citas')}
-                >
-                    Calendario de Citas
-                </Tab>
+                {tabs.map((tab) => (
+                    <Tab
+                        key={tab.id}
+                        ref={(el) => (tabsRef.current[tab.id] = el)}
+                        active={activeTab === tab.id}
+                        onClick={() => handleTabChange(tab.id)}
+                    >
+                        {tab.label}
+                    </Tab>
+                ))}
                 <ActiveIndicator style={indicatorStyle} />
             </TabBar>
 
             <TabContent>
                 {activeTab === 'gestionPacientes' && <GestionPacientes />}
-
-                <ConfigurationWrapper>
-                    {configuraciones.map(({ ID_CONFIGURACION, CLAVE, VALOR, DESCRIPCION, TIPO, PATRON }) => {
-                        if (!inputRefs.current[ID_CONFIGURACION]) {
-                            inputRefs.current[ID_CONFIGURACION] = createRef();
-                        }
-
-                        return (
-                            <ConfigurationItem key={ID_CONFIGURACION}>
-                                <ConfigurationLabel>
-                                    {DESCRIPCION || CLAVE}
-                                    {TIPO === 'boolean' && (
-                                        <ConfigurationInputCheckbox
-                                            type="checkbox"
-                                            checked={isChecked(VALOR)}
-                                            onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.checked, 'checkbox', PATRON)}
-                                            disabled={loadingQR && CLAVE === 'whatsapp_activado'}
-                                        />
-                                    )}
-                                </ConfigurationLabel>
-                                {tooltips[ID_CONFIGURACION] && tooltips[ID_CONFIGURACION].length > 0 && (
-                                    <div>
-                                        {tooltips[ID_CONFIGURACION].map((tooltip, index) => (
-                                            <TooltipButton
-                                                key={index}
-                                                onClick={() => handleTooltipClick(ID_CONFIGURACION, tooltip.TOOLTIP)}
-                                            >
-                                                {tooltip.TOOLTIP}
-                                            </TooltipButton>
-                                        ))}
-                                    </div>
-                                )}
-                                {TIPO !== 'boolean' && TIPO !== 'textarea' && (
-                                    <ConfigurationInput
-                                        type={TIPO}
-                                        value={VALOR}
-                                        onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.value, TIPO, PATRON)}
-                                        ref={inputRefs.current[ID_CONFIGURACION]}
-                                    />
-                                )}
-                                {TIPO === 'textarea' && (
-                                    <ConfigurationTextArea
-                                        value={VALOR}
-                                        onChange={(e) => handleInputChange(ID_CONFIGURACION, CLAVE, e.target.value, TIPO, PATRON)}
-                                        ref={inputRefs.current[ID_CONFIGURACION]}
-                                    />
-                                )}
-                            </ConfigurationItem>
-                        );
-                    })}
-                </ConfigurationWrapper>
-                {showQRModal && (
-                    <StyledModal
-                        title="Escanea el código QR"
-                        isOpen={showQRModal}
-                        onRequestClose={() => setShowQRModal(false)}
-                    >
-                        <ModalContent>
-                            {qrCode ? (
-                                <img key={modalImageKey} src={qrCode} alt="Código QR" />
-                            ) : (
-                                <p>Cargando código QR...</p>
-                            )}
-                            <p>Escanea este código QR con tu aplicación de WhatsApp para activar las notificaciones.</p>
-                        </ModalContent>
-                    </StyledModal>
+                {activeTab === 'citas' && (
+                    <ConfiguracionCitas
+                        configuraciones={configuraciones}
+                        tooltips={tooltips}
+                        inputRefs={inputRefs}
+                        handleInputChange={handleInputChange}
+                        handleTooltipClick={handleTooltipClick}
+                        isChecked={isChecked}
+                        loadingQR={loadingQR}
+                        qrCode={qrCode}
+                        showQRModal={showQRModal}
+                        modalImageKey={modalImageKey}
+                        setShowQRModal={setShowQRModal}
+                    />
                 )}
+                {activeTab === 'configuracionCuenta' && <ConfiguracionCuenta />}
             </TabContent>
         </>
     );

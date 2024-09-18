@@ -122,6 +122,8 @@ export const LoginForm = styled.div`
   justify-content: center;
   position: relative;
   z-index: 2;
+  margin-top: 80px;
+
   @media (max-width: 768px) {
     width: 80%;
     margin: auto;
@@ -161,7 +163,7 @@ export const ForgotPasswordLink = styled.a`
 `;
 
 export const Button = styled.button`
-  background: var(--azul);
+  background: var(--celeste);
   color: var(--blanco);
   font-weight: bold;
   padding: 10px;

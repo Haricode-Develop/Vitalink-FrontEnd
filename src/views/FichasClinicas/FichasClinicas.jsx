@@ -49,7 +49,6 @@ const FichaClinica = () => {
         // Filtrar pacientes basado en el término de búsqueda
         if (searchTerm) {
             const lowercasedTerm = searchTerm.toLowerCase();
-            console.log("ESTOS SON LOS PATIENTS: ", patients);
             setFilteredPatients(
                 patients.filter((patient) => {
                     const fullName = `${patient.nombre || ''} ${patient.apellido || ''}`.toLowerCase();
