@@ -1,7 +1,8 @@
 import React, { createContext, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';  // Importar useNavigate
 import useIdleTimer from '../Hook/useIdleTimer';
+import { useWebSocket } from "../context/WebSocketContext";  // Para cerrar WebSocket
 
 export const AuthContext = createContext();
 
@@ -10,6 +11,8 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const wsContext = useWebSocket();
 
   const setSessionToken = useCallback((token) => {
     localStorage.setItem('sessionToken', token);
@@ -19,19 +22,26 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     setUserData(null);
     localStorage.removeItem('sessionToken');
-  }, []);
+
+    // Cerrar el WebSocket
+    if (wsContext && wsContext.closeWebSocket) {
+      wsContext.closeWebSocket();
+    }
+
+    navigate('/login', { replace: true });
+  }, [navigate, wsContext]);
 
   const showIdleTimeoutToast = useCallback(() => {
     toast.error('Tu sesión se ha cerrado por inactividad.', {
       position: toast.POSITION.TOP_CENTER,
       autoClose: 5000,
     });
-  }, []);
 
-  // Verificar si estamos en una ruta del dashboard
+    logout();
+  }, [logout]);
+
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
-  // Siempre llamamos a useIdleTimer, pero activamos solo si es una ruta del dashboard
   useIdleTimer(1200000, isDashboardRoute ? logout : null, isDashboardRoute ? showIdleTimeoutToast : null);
 
   return (
